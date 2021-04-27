@@ -1,0 +1,11 @@
+# debug directories
+Debug/
+bin/
+binobj/
+
+# visual studio extensions
+.vs/
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.sln
