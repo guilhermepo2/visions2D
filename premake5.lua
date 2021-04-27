@@ -9,7 +9,7 @@ workspace "visions2D"
 outputdir = "%{cfg.buildcfg}-%{cfg.system}.%{cfg.architecture}"
 
 IncludeDirectories = {}
-IncludeDirectories["spdlog"] = "%{prj.name}/thirdparty/spdlog"
+IncludeDirectories["spdlog"] = "%{prj.name}/thirdparty/spdlog/include"
 LibDirectories = {}
 
 project "visions2D"
