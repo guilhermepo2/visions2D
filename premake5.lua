@@ -14,7 +14,7 @@ IncludeDirectories["GLEW"] = "%{prj.name}/thirdparty/glew-2.1.0/include"
 IncludeDirectories["spdlog"] = "%{prj.name}/thirdparty/spdlog/include"
 LibDirectories = {}
 LibDirectories["SDL2"] = "%{prj.name}/thirdparty/SDL2-2.0.12/lib/x64"
-LibDirectories["GLEW"] = "%[prj.name]/thirdparty/glew-2.1.0/lib/Release/x64"
+LibDirectories["GLEW"] = "%{prj.name}/thirdparty/glew-2.1.0/lib/Release/x64"
 
 project "visions2D"
     location "visions2D"
