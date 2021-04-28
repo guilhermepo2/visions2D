@@ -1,7 +1,7 @@
 # debug directories
 Debug/
-bin/
-binobj/
+/bin/
+/binobj/
 
 # visual studio extensions
 .vs/
