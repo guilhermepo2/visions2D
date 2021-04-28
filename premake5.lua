@@ -32,6 +32,7 @@ project "visions2D"
 
     includedirs
     {
+        "%{prj.name}/src",
         "%{IncludeDirectories.spdlog}",
         "%{IncludeDirectories.SDL2}",
         "%{IncludeDirectories.GLEW}"

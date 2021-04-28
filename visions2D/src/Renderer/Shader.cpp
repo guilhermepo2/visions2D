@@ -1,6 +1,5 @@
 #include "Shader.h"
-#include "../Log.h"
-
+#include <Log.h>
 #include <fstream>
 #include <sstream>
 

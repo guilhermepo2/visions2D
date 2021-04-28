@@ -14,6 +14,10 @@ namespace visions2D {
 		GLuint GetShaderProgram() const { return m_ShaderProgram; }
 
 		// TODO: set uniform, set matrix, set vector, set color......
+		inline void SetVec4(const std::string& Name, float x, float y, float z, float w) 
+		{
+			glUniform4f(glGetUniformLocation(m_ShaderProgram, Name.c_str()), x, y, z, w);
+		}
 
 	private:
 		bool CompileShader(const std::string& _Filename, GLenum _ShaderType, GLuint& _OutShader);
