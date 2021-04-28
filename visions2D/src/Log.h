@@ -12,7 +12,7 @@ private:
 };
 
 #define LOG_INFO(...)		Log::GetLogger()->info(__VA_ARGS__);
-#define LOG_WARNING(...)	Log::GetLogger()->warn(__VA_ARGS);
+#define LOG_WARNING(...)	Log::GetLogger()->warn(__VA_ARGS__);
 #define LOG_ERROR(...)		Log::GetLogger()->error(__VA_ARGS__);
 
-#define assert(x, ...) { if(!(x) { LOG_ERROR(__VA_ARGS__); __debugbreak; } }
+#define assert(x, ...) { if(!(x)) { LOG_ERROR(__VA_ARGS__); __debugbreak; } }
