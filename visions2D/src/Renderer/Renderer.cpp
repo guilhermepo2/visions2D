@@ -1,5 +1,6 @@
 #include "Renderer.h"
 #include "Shader.h"
+#include "VertexArray.h"
 #include <Log.h>
 
 namespace visions2D {
@@ -42,7 +43,21 @@ namespace visions2D {
 
 		m_SpriteShader = new Shader();
 		m_SpriteShader->Load("./src/DefaultAssets/Shaders/DefaultSprite.vert", "./src/DefaultAssets/Shaders/DefaultSprite.frag");
-		// TODO: Create Default Sprite Vertex
+
+		float vertices[] = {
+			// positions  // texture coords
+			 0.5f,  0.5f, 1.0f, 1.0f,   // top right
+			 0.5f, -0.5f, 1.0f, 0.0f,   // bottom right
+			-0.5f, -0.5f, 0.0f, 0.0f,   // bottom left
+			-0.5f,  0.5f, 0.0f, 1.0f    // top left 
+		};
+
+		unsigned int indices[] = {
+			0, 1, 3,
+			1, 2, 3
+		};
+
+		m_DefaultVertexArray = new VertexArray(vertices, 4,  4, indices, 6);
 
 		// IMGUI
 		IMGUI_CHECKVERSION();
@@ -79,44 +94,8 @@ namespace visions2D {
 		glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		float vertices[] = {
-			// positions  // texture coords
-			 0.5f,  0.5f, 1.0f, 1.0f,   // top right
-			 0.5f, -0.5f, 1.0f, 0.0f,   // bottom right
-			-0.5f, -0.5f, 0.0f, 0.0f,   // bottom left
-			-0.5f,  0.5f, 0.0f, 1.0f    // top left 
-		};
-
-		unsigned int indices[] = {
-			0, 1, 3,
-			1, 2, 3
-		};
-
-		// vertex array object
-		unsigned int VAO;
-		glGenVertexArrays(1, &VAO);
-		glBindVertexArray(VAO);
-
-		// vertex buffer object -> sends data to the vertex shader
-		unsigned int VBO;
-		glGenBuffers(1, &VBO);
-		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); // copies data to the buffer
-
-		// EBO
-		unsigned int EBO;
-		glGenBuffers(1, &EBO);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-		// position attribute
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(0);
-		// texture coords
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
-		glEnableVertexAttribArray(1);
-
-		glBindVertexArray(VAO);
+		
+		m_DefaultVertexArray->SetActive();
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		{
