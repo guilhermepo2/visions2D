@@ -44,13 +44,37 @@ namespace visions2D {
 		m_SpriteShader->Load("./src/DefaultAssets/Shaders/DefaultSprite.vert", "./src/DefaultAssets/Shaders/DefaultSprite.frag");
 		// TODO: Create Default Sprite Vertex
 
+		// IMGUI
+		IMGUI_CHECKVERSION();
+		ImGui::CreateContext();
+		ImGuiIO& io = ImGui::GetIO(); (void)io;
+		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+		ImGui::StyleColorsDark();
+		ImGuiStyle& style = ImGui::GetStyle();
+		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+			style.WindowRounding = 0.0f;
+			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+		}
+		ImGui_ImplSDL2_InitForOpenGL(m_Window, m_GLContext);
+		ImGui_ImplOpenGL3_Init("#version 330");
+		LOG_INFO("[renderer] dearimgui initialized");
+
 		LOG_INFO("[renderer] initialized!");
 		return true;
 	}
 
+	static float color[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+
 	void Renderer::Render() {
 		m_SpriteShader->SetActive();
-		m_SpriteShader->SetVec4("uColor", 1.0f, 0.0f, 0.0f, 1.0f);
+		m_SpriteShader->SetVec4("uColor", color[0], color[1], color[2], color[3]);
+		
+		// dearimgui setting it up
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplSDL2_NewFrame(m_Window);
+		ImGui::NewFrame();
 
 		glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -94,6 +118,25 @@ namespace visions2D {
 
 		glBindVertexArray(VAO);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+		{
+			ImGui::ColorEdit4("square color", color);
+		}
+
+		// rendering ImGui
+		ImGui::Render();
+		ImGuiIO& io = ImGui::GetIO(); (void)io;
+		glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+			SDL_Window* BackupCurrentWindow = SDL_GL_GetCurrentWindow();
+			SDL_GLContext BackupCurrentContext = SDL_GL_GetCurrentContext();
+			ImGui::UpdatePlatformWindows();
+			ImGui::RenderPlatformWindowsDefault();
+			SDL_GL_MakeCurrent(BackupCurrentWindow, BackupCurrentContext);
+		}
+		// finished rendering imgui
 
 		SDL_GL_SwapWindow(m_Window);
 	}
