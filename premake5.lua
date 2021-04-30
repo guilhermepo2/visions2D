@@ -13,6 +13,8 @@ IncludeDirectories["SDL2"] = "%{prj.name}/thirdparty/SDL2-2.0.12/include"
 IncludeDirectories["GLEW"] = "%{prj.name}/thirdparty/glew-2.1.0/include"
 IncludeDirectories["spdlog"] = "%{prj.name}/thirdparty/spdlog/include"
 IncludeDirectories["DEARIMGUI"] = "%{prj.name}/thirdparty/dearimgui"
+IncludeDirectories["STBIMAGE"] = "%{prj.name}/thirdparty/stb"
+IncludeDirectories["GLM"] = "%{prj.name}/thirdparty/glm"
 LibDirectories = {}
 LibDirectories["SDL2"] = "%{prj.name}/thirdparty/SDL2-2.0.12/lib/x64"
 LibDirectories["GLEW"] = "%{prj.name}/thirdparty/glew-2.1.0/lib/Release/x64"
@@ -39,7 +41,9 @@ project "visions2D"
         "%{IncludeDirectories.spdlog}",
         "%{IncludeDirectories.SDL2}",
         "%{IncludeDirectories.GLEW}",
-        "%{IncludeDirectories.DEARIMGUI}"
+        "%{IncludeDirectories.DEARIMGUI}",
+        "%{IncludeDirectories.STBIMAGE}",
+        "%{IncludeDirectories.GLM}"
     }
 
     libdirs

@@ -12,6 +12,7 @@ namespace visions2D {
 	
 	class Shader;
 	class VertexArray;
+	class OrtographicCamera;
 
 	class Renderer {
 	public:
@@ -31,6 +32,7 @@ namespace visions2D {
 		// textures...
 		Shader* m_SpriteShader;
 		VertexArray* m_DefaultVertexArray;
+		OrtographicCamera* m_OrtographicCamera;
 
 		// etc... etc...
 

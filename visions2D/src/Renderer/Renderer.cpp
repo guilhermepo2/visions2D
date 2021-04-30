@@ -1,9 +1,23 @@
 #include "Renderer.h"
 #include "Shader.h"
 #include "VertexArray.h"
+#include "Texture.h"
+#include "Color.h"
+#include "OrtographicCamera.h"
+
 #include <Log.h>
+#include <glm/glm.hpp>
+#include "glm/gtc/quaternion.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtx/transform.hpp"
+
 
 namespace visions2D {
+	// temporaries
+	Texture* text;
+	Color textureColor;
+
+
 	Renderer::Renderer() {}
 	Renderer::~Renderer() {}
 
@@ -44,20 +58,14 @@ namespace visions2D {
 		m_SpriteShader = new Shader();
 		m_SpriteShader->Load("./src/DefaultAssets/Shaders/DefaultSprite.vert", "./src/DefaultAssets/Shaders/DefaultSprite.frag");
 
-		float vertices[] = {
-			// positions  // texture coords
-			 0.5f,  0.5f, 1.0f, 1.0f,   // top right
-			 0.5f, -0.5f, 1.0f, 0.0f,   // bottom right
-			-0.5f, -0.5f, 0.0f, 0.0f,   // bottom left
-			-0.5f,  0.5f, 0.0f, 1.0f    // top left 
-		};
-
-		unsigned int indices[] = {
-			0, 1, 3,
-			1, 2, 3
-		};
-
+		#include "DefaultVertexArray.data"
 		m_DefaultVertexArray = new VertexArray(vertices, 4,  4, indices, 6);
+
+		text = new Texture();
+		text->Load("./src/DefaultAssets/chara_hero.png");
+
+		m_OrtographicCamera = new OrtographicCamera(m_ScreenWidth, m_ScreenHeight);
+		m_OrtographicCamera->SetColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 		// IMGUI
 		IMGUI_CHECKVERSION();
@@ -80,26 +88,56 @@ namespace visions2D {
 		return true;
 	}
 
-	static float color[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-
 	void Renderer::Render() {
 		m_SpriteShader->SetActive();
-		m_SpriteShader->SetVec4("uColor", color[0], color[1], color[2], color[3]);
+		m_SpriteShader->SetColor("uColor", textureColor);
 		
+
 		// dearimgui setting it up
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplSDL2_NewFrame(m_Window);
 		ImGui::NewFrame();
 
-		glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+		glClearColor(
+			m_OrtographicCamera->CameraBackgroundColor.rgba[0],
+			m_OrtographicCamera->CameraBackgroundColor.rgba[1],
+			m_OrtographicCamera->CameraBackgroundColor.rgba[2],
+			m_OrtographicCamera->CameraBackgroundColor.rgba[3]
+		);
+		
 		glClear(GL_COLOR_BUFFER_BIT);
+		glEnable(GL_BLEND);
+		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
 
 		
 		m_DefaultVertexArray->SetActive();
+
+		// m_SpriteShader->SetMatrix4("uViewProj", m_OrtographicCamera->GetCameraViewProjection());
+		/*
+		m_SpriteShader->SetMatrix4("uViewProj", glm::mat4(1.0f));
+
+		glm::mat4 textureScale = glm::scale(
+			glm::vec3(
+				static_cast<float>(text->GetWidth()),
+				static_cast<float>(text->GetHeight()),
+				1.0f
+			)
+		);
+
+		glm::mat4 worldScale = glm::scale(glm::vec3(1.0f, 1.0f, 1.0f));
+		glm::mat4 worldRotation = glm::mat4(1.0f);
+		glm::mat4 worldTranslation = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+		glm::mat4 world = (worldTranslation * worldRotation * worldScale) * textureScale;
+		m_SpriteShader->SetMatrix4("uWorldTransform", world);
+		*/
+
+		text->SetActive();
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		{
-			ImGui::ColorEdit4("square color", color);
+			ImGui::ColorEdit4("square color", textureColor.rgba);
+			ImGui::ColorEdit4("clear color", m_OrtographicCamera->CameraBackgroundColor.rgba);
 		}
 
 		// rendering ImGui

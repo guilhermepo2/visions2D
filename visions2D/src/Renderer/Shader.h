@@ -1,6 +1,8 @@
 #pragma once
 #include <GL/glew.h>
 #include <string>
+#include "Color.h"
+#include <glm/glm.hpp>
 
 namespace visions2D {
 	class Shader {
@@ -17,6 +19,19 @@ namespace visions2D {
 		inline void SetVec4(const std::string& Name, float x, float y, float z, float w) 
 		{
 			glUniform4f(glGetUniformLocation(m_ShaderProgram, Name.c_str()), x, y, z, w);
+		}
+
+		inline void SetColor(const std::string& Name, Color _color) {
+			SetVec4(Name, _color.rgba[0], _color.rgba[1], _color.rgba[2], _color.rgba[3]);
+		}
+
+		inline void SetMatrix4(const std::string& Name, glm::mat4 Mat) {
+			glUniformMatrix4fv(
+				glGetUniformLocation(m_ShaderProgram, Name.c_str()),
+				1,
+				GL_FALSE,
+				reinterpret_cast<const float*>(&Mat[0][0])
+			);
 		}
 
 	private:
