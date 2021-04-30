@@ -14,6 +14,7 @@
 
 namespace visions2D {
 	// temporaries
+	Texture* awesomeFace;
 	Texture* text;
 	Color textureColor;
 
@@ -21,6 +22,13 @@ namespace visions2D {
 	glm::vec2 Position = glm::vec2(0.0f, 0.0f);
 	glm::vec2 SpriteScale = glm::vec2(1.0f, 1.0f);
 	float SpriteRotation = 0.0f;
+
+	float DefaultTexCoords[] = {
+			1.0f, 1.0f,
+			1.0f, 0.0f,
+			0.0f, 0.0f,
+			0.0f, 1.0f
+	};
 
 
 	Renderer::Renderer() {}
@@ -65,31 +73,12 @@ namespace visions2D {
 		m_SpriteShader->Load("./src/DefaultAssets/Shaders/DefaultSprite.vert", "./src/DefaultAssets/Shaders/DefaultSprite.frag");
 
 		#include "DefaultVertexArray.data"
+		m_DefaultVertexArray = new VertexArray(vertices, 4, 4, texCoords, indices, 6);
 		
-
 		text = new Texture();
 		text->Load("./src/DefaultAssets/chara_hero.png");
-
-		float spriteWidth = 48.0f;
-		float spriteHeight = 48.0f;
-		float tw = spriteWidth / text->GetWidth();
-		float th = spriteHeight / text->GetHeight();
-		int xPosition = 0;
-		int yPosition = 0;
-
-		float tx = xPosition * tw;
-		float ty = yPosition * th;
-
-		// this works, but... it loads upside down...
-		// so I will have to abstract the logic...
-		float vertices2[] = {
-			 0.5f,  0.5f, 0.25f, 11 * 0.09,
-			 0.5f, -0.5f, 0.25f, 10 * 0.09f,
-			-0.5f, -0.5f, 0.0f, 10 * 0.09f,
-			-0.5f,  0.5f, 0.0, 11 * 0.09f
-		};
-
-		m_DefaultVertexArray = new VertexArray(vertices2, 4, 4, indices, 6);
+		awesomeFace = new Texture();
+		awesomeFace->Load("./src/DefaultAssets/awesomeface.png");
 
 		m_OrtographicCamera = new OrtographicCamera(m_ScreenWidth, m_ScreenHeight);
 		m_OrtographicCamera->SetColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -137,28 +126,58 @@ namespace visions2D {
 		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
 		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
 
-		// Creating the world transform for the sprite...
-		glm::vec2 SpriteSize = glm::vec2(48.0f, 48.0f);
-		// glm::mat4 textureScale = glm::scale(glm::mat4(1.0f), glm::vec3(text->GetWidth(), text->GetHeight(), 1.0f));
-		glm::mat4 textureScale = glm::scale(glm::mat4(1.0f), glm::vec3(SpriteSize.x, SpriteSize.y, 1.0f));
-		glm::mat4 worldScale = glm::scale(glm::mat4(1.0f), glm::vec3(SpriteScale, 1.0f));
-		glm::mat4 worldRotation = glm::rotate(glm::mat4(1.0f), glm::radians(SpriteRotation), glm::vec3(0.0f, 0.0f, -1.0f));
-		glm::mat4 worldTranslation = glm::translate(glm::mat4(1.0f), glm::vec3(Position, 0.0f));
+		// Drawing Awesome Face with defaults
+		awesomeFace->SetActive();
+		glm::mat4 atextureScale = glm::scale(glm::mat4(1.0f), glm::vec3(awesomeFace->GetWidth(), awesomeFace->GetHeight(), 1.0f));
+		glm::mat4 aworldScale = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+		glm::mat4 aworldRotation = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
+		glm::mat4 aworldTranslation = glm::translate(glm::mat4(1.0f), glm::vec3(-150.0f, 0.0f, 0.0f));
+		glm::mat4 aworld = (aworldTranslation * aworldRotation * aworldScale) * atextureScale;
+		m_SpriteShader->SetMatrix4("uWorldTransform", aworld);
+		m_SpriteShader->SetMatrix4("uCameraViewProjection", m_OrtographicCamera->GetCameraViewProjection());
+		m_DefaultVertexArray->SetActive();
+		m_DefaultVertexArray->SubTexCoords(DefaultTexCoords);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
+		// Drawing hero character
+		// Creating the world transform for the sprite...
+		text->SetActive();
+		glm::vec2 SpriteSize = glm::vec2(48.0f, 48.0f);
+		glm::mat4 textureScale = glm::scale(glm::mat4(1.0f), glm::vec3(SpriteSize.x, SpriteSize.y, 1.0f));
+		glm::mat4 worldScale = glm::scale(glm::mat4(1.0f), glm::vec3(4.0f, 4.0f, 1.0f));
+		glm::mat4 worldRotation = glm::rotate(glm::mat4(1.0f), glm::radians(SpriteRotation), glm::vec3(0.0f, 0.0f, -1.0f));
+		glm::mat4 worldTranslation = glm::translate(glm::mat4(1.0f), glm::vec3(200.0f, 0.0f, 0.0f));
 		glm::mat4 world = (worldTranslation * worldRotation * worldScale) * textureScale;
 		m_SpriteShader->SetMatrix4("uWorldTransform", world);
 		m_SpriteShader->SetMatrix4("uCameraViewProjection", m_OrtographicCamera->GetCameraViewProjection());
+		
 
-		text->SetActive();
+		float spriteWidth = 48.0f;
+		float spriteHeight = 48.0f;
+		float tw = spriteWidth / text->GetWidth();
+		float th = spriteHeight / text->GetHeight();
+		int xPosition = 0;
+		int yPosition = 10;
+
+		float NewTexCoords[] = {
+			(xPosition + 1) * tw, (yPosition + 1) * th,
+			(xPosition + 1) * tw, yPosition * th,
+			xPosition * tw , yPosition * th,
+			xPosition * tw, (yPosition + 1) * th
+		};
 		m_DefaultVertexArray->SetActive();
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		m_DefaultVertexArray->SubTexCoords(NewTexCoords);
 
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		
+		/*
 		{
 			ImGui::ColorEdit4("square color", textureColor.rgba);
 			ImGui::ColorEdit4("clear color", m_OrtographicCamera->CameraBackgroundColor.rgba);
 			ImGui::SliderFloat("Sprite Rotation", &SpriteRotation, -180.0f, 180.0f);
 		}
-
+		*/
+		
 		// rendering ImGui
 		ImGui::Render();
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
