@@ -3,6 +3,7 @@
 #include <string>
 #include "Color.h"
 #include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace visions2D {
 	class Shader {
@@ -30,7 +31,7 @@ namespace visions2D {
 				glGetUniformLocation(m_ShaderProgram, Name.c_str()),
 				1,
 				GL_FALSE,
-				reinterpret_cast<const float*>(&Mat[0][0])
+				glm::value_ptr(Mat)
 			);
 		}
 

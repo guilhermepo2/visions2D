@@ -54,6 +54,7 @@ namespace visions2D {
 
 		glewExperimental = GL_TRUE;
 		assert(glewInit() == GLEW_OK, "[renderer] unable to initialize glew");
+		glViewport(0, 0, m_ScreenWidth, m_ScreenHeight);
 
 		m_SpriteShader = new Shader();
 		m_SpriteShader->Load("./src/DefaultAssets/Shaders/DefaultSprite.vert", "./src/DefaultAssets/Shaders/DefaultSprite.frag");
@@ -62,7 +63,7 @@ namespace visions2D {
 		m_DefaultVertexArray = new VertexArray(vertices, 4,  4, indices, 6);
 
 		text = new Texture();
-		text->Load("./src/DefaultAssets/chara_hero.png");
+		text->Load("./src/DefaultAssets/awesomeface.png");
 
 		m_OrtographicCamera = new OrtographicCamera(m_ScreenWidth, m_ScreenHeight);
 		m_OrtographicCamera->SetColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -111,28 +112,20 @@ namespace visions2D {
 		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
 
 		
-		m_DefaultVertexArray->SetActive();
 
-		// m_SpriteShader->SetMatrix4("uViewProj", m_OrtographicCamera->GetCameraViewProjection());
-		/*
-		m_SpriteShader->SetMatrix4("uViewProj", glm::mat4(1.0f));
+		m_SpriteShader->SetMatrix4("uCameraViewProjection", m_OrtographicCamera->GetCameraViewProjection());
 
-		glm::mat4 textureScale = glm::scale(
-			glm::vec3(
-				static_cast<float>(text->GetWidth()),
-				static_cast<float>(text->GetHeight()),
-				1.0f
-			)
-		);
+		// Sprite information
+		glm::vec2 Position = glm::vec2(0.0f, 0.0f);
+		glm::vec2 Size = glm::vec2(10.0f, 10.0f);
+		float Rotation = 0.0f;
 
-		glm::mat4 worldScale = glm::scale(glm::vec3(1.0f, 1.0f, 1.0f));
-		glm::mat4 worldRotation = glm::mat4(1.0f);
-		glm::mat4 worldTranslation = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-		glm::mat4 world = (worldTranslation * worldRotation * worldScale) * textureScale;
-		m_SpriteShader->SetMatrix4("uWorldTransform", world);
-		*/
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::scale(model, glm::vec3(text->GetWidth(), text->GetHeight(), 1.0f));
+		m_SpriteShader->SetMatrix4("model", model);
 
 		text->SetActive();
+		m_DefaultVertexArray->SetActive();
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		{
