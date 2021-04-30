@@ -113,16 +113,21 @@ namespace visions2D {
 
 		
 
-		m_SpriteShader->SetMatrix4("uCameraViewProjection", m_OrtographicCamera->GetCameraViewProjection());
 
-		// Sprite information
+		// Sprite information...
 		glm::vec2 Position = glm::vec2(0.0f, 0.0f);
-		glm::vec2 Size = glm::vec2(10.0f, 10.0f);
-		float Rotation = 0.0f;
+		glm::vec2 SpriteScale = glm::vec2(1.0f, 1.0f);
+		float SpriteRotation = 0.0f;
 
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::scale(model, glm::vec3(text->GetWidth(), text->GetHeight(), 1.0f));
-		m_SpriteShader->SetMatrix4("model", model);
+		// Creating the world transform for the sprite...
+		glm::mat4 textureScale = glm::scale(glm::mat4(1.0f), glm::vec3(text->GetWidth(), text->GetHeight(), 1.0f));
+		glm::mat4 worldScale = glm::scale(glm::mat4(1.0f), glm::vec3(SpriteScale, 1.0f));
+		glm::mat4 worldRotation = glm::rotate(glm::mat4(1.0f), glm::radians(SpriteRotation), glm::vec3(0.0f, 0.0f, -1.0f));
+		glm::mat4 worldTranslation = glm::translate(glm::mat4(1.0f), glm::vec3(Position, 0.0f));
+
+		glm::mat4 world = (worldTranslation * worldRotation * worldScale) * textureScale;
+		m_SpriteShader->SetMatrix4("uWorldTransform", world);
+		m_SpriteShader->SetMatrix4("uCameraViewProjection", m_OrtographicCamera->GetCameraViewProjection());
 
 		text->SetActive();
 		m_DefaultVertexArray->SetActive();
