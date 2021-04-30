@@ -11,6 +11,5 @@ void main()
 {
     vec4 pos = vec4(aPos, 0.0, 1.0);
     gl_Position = uCameraViewProjection * uWorldTransform * pos;
-    // gl_Position = pos;
     TexCoord = aTexCoord;
 }

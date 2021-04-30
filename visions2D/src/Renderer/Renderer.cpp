@@ -17,6 +17,11 @@ namespace visions2D {
 	Texture* text;
 	Color textureColor;
 
+	// Sprite information...
+	glm::vec2 Position = glm::vec2(0.0f, 0.0f);
+	glm::vec2 SpriteScale = glm::vec2(1.0f, 1.0f);
+	float SpriteRotation = 0.0f;
+
 
 	Renderer::Renderer() {}
 	Renderer::~Renderer() {}
@@ -60,10 +65,31 @@ namespace visions2D {
 		m_SpriteShader->Load("./src/DefaultAssets/Shaders/DefaultSprite.vert", "./src/DefaultAssets/Shaders/DefaultSprite.frag");
 
 		#include "DefaultVertexArray.data"
-		m_DefaultVertexArray = new VertexArray(vertices, 4,  4, indices, 6);
+		
 
 		text = new Texture();
-		text->Load("./src/DefaultAssets/awesomeface.png");
+		text->Load("./src/DefaultAssets/chara_hero.png");
+
+		float spriteWidth = 48.0f;
+		float spriteHeight = 48.0f;
+		float tw = spriteWidth / text->GetWidth();
+		float th = spriteHeight / text->GetHeight();
+		int xPosition = 0;
+		int yPosition = 0;
+
+		float tx = xPosition * tw;
+		float ty = yPosition * th;
+
+		// this works, but... it loads upside down...
+		// so I will have to abstract the logic...
+		float vertices2[] = {
+			 0.5f,  0.5f, 0.25f, 11 * 0.09,
+			 0.5f, -0.5f, 0.25f, 10 * 0.09f,
+			-0.5f, -0.5f, 0.0f, 10 * 0.09f,
+			-0.5f,  0.5f, 0.0, 11 * 0.09f
+		};
+
+		m_DefaultVertexArray = new VertexArray(vertices2, 4, 4, indices, 6);
 
 		m_OrtographicCamera = new OrtographicCamera(m_ScreenWidth, m_ScreenHeight);
 		m_OrtographicCamera->SetColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -111,16 +137,10 @@ namespace visions2D {
 		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
 		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
 
-		
-
-
-		// Sprite information...
-		glm::vec2 Position = glm::vec2(0.0f, 0.0f);
-		glm::vec2 SpriteScale = glm::vec2(1.0f, 1.0f);
-		float SpriteRotation = 0.0f;
-
 		// Creating the world transform for the sprite...
-		glm::mat4 textureScale = glm::scale(glm::mat4(1.0f), glm::vec3(text->GetWidth(), text->GetHeight(), 1.0f));
+		glm::vec2 SpriteSize = glm::vec2(48.0f, 48.0f);
+		// glm::mat4 textureScale = glm::scale(glm::mat4(1.0f), glm::vec3(text->GetWidth(), text->GetHeight(), 1.0f));
+		glm::mat4 textureScale = glm::scale(glm::mat4(1.0f), glm::vec3(SpriteSize.x, SpriteSize.y, 1.0f));
 		glm::mat4 worldScale = glm::scale(glm::mat4(1.0f), glm::vec3(SpriteScale, 1.0f));
 		glm::mat4 worldRotation = glm::rotate(glm::mat4(1.0f), glm::radians(SpriteRotation), glm::vec3(0.0f, 0.0f, -1.0f));
 		glm::mat4 worldTranslation = glm::translate(glm::mat4(1.0f), glm::vec3(Position, 0.0f));
@@ -136,6 +156,7 @@ namespace visions2D {
 		{
 			ImGui::ColorEdit4("square color", textureColor.rgba);
 			ImGui::ColorEdit4("clear color", m_OrtographicCamera->CameraBackgroundColor.rgba);
+			ImGui::SliderFloat("Sprite Rotation", &SpriteRotation, -180.0f, 180.0f);
 		}
 
 		// rendering ImGui
