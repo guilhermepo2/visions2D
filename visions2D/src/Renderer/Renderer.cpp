@@ -145,7 +145,7 @@ namespace visions2D {
 		int mapData[] = { 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 14, 14, 15, 15, 15, 2, 3, 4, 52, 35, 35, 126, 35, 52, 52, 52, 35, 35, 18, 15, 14, 14, 15, 15, 15, 19, 20, 21, 35, 35, 49, 92, 49, 52, 52, 35, 52, 52, 52, 15, 14, 14, 15, 15, 15, 19, 20, 21, 52, 52, 52, 35, 52, 18, 66, 35, 66, 52, 52, 15, 14, 14, 15, 15, 15, 19, 20, 21, 35, 35, 52, 52, 52, 52, 92, 52, 92, 52, 35, 15, 14, 14, 15, 15, 15, 36, 55, 38, 52, 52, 52, 18, 18, 35, 52, 52, 52, 52, 52, 15, 14, 14, 15, 15, 15, 52, 105, 68, 35, 52, 52, 52, 52, 52, 35, 35, 35, 52, 52, 15, 14, 14, 15, 15, 15, 35, 105, 35, 52, 18, 52, 52, 35, 35, 52, 1, 81, 52, 52, 15, 14, 14, 15, 15, 15, 52, 105, 52, 52, 52, 11, 13, 35, 35, 35, 97, 98, 99, 52, 15, 14, 14, 15, 15, 15, 52, 105, 52, 52, 52, 45, 47, 52, 52, 31, 114, 115, 116, 52, 15, 14, 14, 15, 15, 15, 52, 105, 52, 35, 35, 35, 35, 35, 35, 136, 100, 117, 101, 52, 15, 14, 14, 15, 15, 15, 52, 105, 52, 52, 52, 52, 52, 52, 52, 48, 112, 110, 112, 52, 15, 14, 14, 15, 15, 15, 52, 105, 52, 52, 52, 52, 52, 52, 52, 52, 31, 90, 31, 52, 15, 14, 14, 15, 15, 15, 35, 103, 88, 88, 88, 88, 88, 88, 88, 88, 88, 106, 31, 52, 15, 14, 14, 15, 15, 15, 52, 52, 52, 52, 52, 52, 52, 52, 52, 52, 52, 52, 52, 52, 15, 14, 14, 15, 15, 15, 52, 52, 52, 52, 52, 52, 52, 52, 52, 52, 52, 52, 35, 35, 15, 14, 14, 15, 15, 15, 52, 52, 52, 52, 52, 52, 52, 52, 52, 52, 52, 35, 52, 52, 15, 14, 14, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14 };
 		int mapWidth = 20;
 		int mapHeight = 20;
-
+		
 		for (int i = 0; i < mapWidth; i++) {
 			for (int j = 0; j < mapHeight; j++) {
 
@@ -158,15 +158,15 @@ namespace visions2D {
 				m_SpriteShader->SetMatrix4("uCameraViewProjection", m_OrtographicCamera->GetCameraViewProjection());
 
 				m_DefaultVertexArray->SetActive();
-				float* newTexCoord = sheet->GetTexCoordsFromId(mapData[currentData]);
-				m_DefaultVertexArray->SubTexCoords(sheet->GetTexCoordsFromId(mapData[currentData]));
-				glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-				delete newTexCoord;
 
-				Position.x += 16.0f;
+				float* newTexCoord = sheet->GetTexCoordsFromId(mapData[currentData]);
+				m_DefaultVertexArray->SubTexCoords(newTexCoord);
+				glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+				Position.x += sheet->GetTileWidth();
 				currentData++;
 			}
-			Position.y -= 16.0f;
+			Position.y -= sheet->GetTileHeight();
 			Position.x = StartingX;
 		}
 		

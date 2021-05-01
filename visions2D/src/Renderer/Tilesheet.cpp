@@ -28,8 +28,22 @@ namespace visions2D {
 		JsonHelper::GetInt(doc, "tilecount", m_TileCount);
 		JsonHelper::GetInt(doc, "tilewidth", m_TileWidth);
 		JsonHelper::GetInt(doc, "tileheight", m_TileHeight);
+		m_NumberOfVerticalTiles = (m_TextureRef->GetHeight() / m_TileHeight);
 
-		m_NumberOfVerticalTiles = (m_TextureRef->GetHeight() / m_TileHeight) - 1;
+		for (int i = 0; i < m_NumberOfVerticalTiles; i++) {
+			for (int j = (m_NumberOfColumns - 1); j >= 0; j--) {
+				int x = j;
+				int y = i;
+				float tw = (float)m_TileWidth / m_TextureRef->GetWidth();
+				float th = (float)m_TileHeight / m_TextureRef->GetHeight();
+				glm::vec2 min = glm::vec2(x * tw, y * th);
+				glm::vec2 max = glm::vec2((x + 1) * tw, (y + 1) * th);
+
+				m_Tiles.insert(m_Tiles.begin(), new Tile(min, max));
+			}
+		}
+
+		LOG_INFO("loaded tilesheet from {0}, had {1} tiles", _fileName.c_str(), m_Tiles.size());
 	}
 
 	bool Tilesheet::LoadJson(const std::string& FileName, rapidjson::Document& OutDocument) {
@@ -58,36 +72,18 @@ namespace visions2D {
 		return true;
 	}
 
-	// TODO
-	// this is bad
-	// maybe when loading a new tilesheet make an array of Tiles?
-	// and each tile has their own TexCoords
-	// I CANNOT be allocating stuff here lol
-	float* Tilesheet::GetTexCoordsFromPosition(int x, int y) {
-		float tw = (float)m_TileWidth / m_TextureRef->GetWidth();
-		float th = (float)m_TileHeight / m_TextureRef->GetHeight();
-
-		float* NewTexCoords = new float[8];
-		NewTexCoords[0] = (x + 1) * tw;
-		NewTexCoords[1] = (y + 1) * th;
-
-		NewTexCoords[2] = (x + 1) * tw;
-		NewTexCoords[3] = y * th;
-
-		NewTexCoords[4] = x * tw;
-		NewTexCoords[5] = y * th;
-
-		NewTexCoords[6] = x * tw;
-		NewTexCoords[7] = (y + 1) * th;
-
-		// the memory leak lmao
-		return NewTexCoords;
-	}
-
 	float* Tilesheet::GetTexCoordsFromId(int id) {
-		return GetTexCoordsFromPosition(
-			((id % m_NumberOfColumns) - 1),
-			m_NumberOfVerticalTiles - (id / m_NumberOfColumns)
-		);
+		// #important
+		// IMPORTANT thing to keep in mind: "id" on tiled goes from 1 to MaxTiles
+		// but our indices goes from 0 to MaxTiles - 1...
+
+		id -= 1;
+
+		if (id < 0 || id > (m_Tiles.size() - 1)) {
+			LOG_WARNING("trying to access position {0}, but tile vector only has {1} elements, returning first element", id, m_Tiles.size());
+			id = 0;
+		}
+
+		return m_Tiles[id]->TexCoords;
 	}
 }
