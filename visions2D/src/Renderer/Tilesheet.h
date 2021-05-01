@@ -48,9 +48,6 @@ namespace visions2D {
 		inline int GetNumberOfVerticalTiles() const { return m_NumberOfVerticalTiles; }
 
 	private:
-		bool LoadJson(const std::string& FileName, rapidjson::Document& OutDocument);
-
-	private:
 		Texture* m_TextureRef;
 		std::vector<Tile*> m_Tiles;
 

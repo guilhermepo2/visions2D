@@ -1,12 +1,40 @@
 #pragma once
 #include "JsonHelper.h"
-
+#include <rapidjson/rapidjson.h>
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/writer.h>
+#include <fstream>
+#include <vector>
 /*
 TODO
 This probably can use some cleanup, the functions codes are very similar, probably macros or something
 */
 
 namespace visions2D {
+
+	bool JsonHelper::LoadJSON(const std::string& FileName, rapidjson::Document& OutDocument) {
+		std::ifstream File(FileName, std::ios::in | std::ios::binary | std::ios::ate);
+		if (!File.is_open()) {
+			return false;
+		}
+
+		// Get the current position in stream buffer, which is the size of the file
+		std::ifstream::pos_type FileSize = File.tellg();
+		File.seekg(0, std::ios::beg);
+
+		// Create a vector of size + 1 (for null terminator)
+		std::vector<char> Bytes(static_cast<size_t>(FileSize) + 1);
+		// Read int bytes into vector
+		File.read(Bytes.data(), static_cast<size_t>(FileSize));
+
+		// Loading raw data into RapidJSON document
+		OutDocument.Parse(Bytes.data());
+		if (!OutDocument.IsObject()) {
+			return false;
+		}
+
+		return true;
+	}
 
 	bool JsonHelper::GetInt(const rapidjson::Value& InObject, const char* InProperty, int& OutInt) {
 		auto itr = InObject.FindMember(InProperty);

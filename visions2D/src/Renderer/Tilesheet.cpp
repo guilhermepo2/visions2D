@@ -1,8 +1,4 @@
 #include "Tilesheet.h"
-#include <rapidjson/rapidjson.h>
-#include <rapidjson/stringbuffer.h>
-#include <rapidjson/writer.h>
-#include <fstream>
 #include <vector>
 #include "Log.h"
 #include "Utilities/JsonHelper.h"
@@ -17,7 +13,7 @@ namespace visions2D {
 	void Tilesheet::LoadFromTiledJson(const std::string& _fileName) {
 		rapidjson::Document doc;
 
-		if (!LoadJson(_fileName, doc)) {
+		if (!JsonHelper::LoadJSON(_fileName, doc)) {
 			LOG_ERROR("[tilesheet] loading tilesheet: {0}", _fileName.c_str());
 			return;
 		}
@@ -44,32 +40,6 @@ namespace visions2D {
 		}
 
 		LOG_INFO("loaded tilesheet from {0}, had {1} tiles", _fileName.c_str(), m_Tiles.size());
-	}
-
-	bool Tilesheet::LoadJson(const std::string& FileName, rapidjson::Document& OutDocument) {
-		std::ifstream File(FileName, std::ios::in | std::ios::binary | std::ios::ate);
-		if (!File.is_open()) {
-			LOG_ERROR("[tilesheet] file {0} not found", FileName.c_str());
-			return false;
-		}
-
-		// Get the current position in stream buffer, which is the size of the file
-		std::ifstream::pos_type FileSize = File.tellg();
-		File.seekg(0, std::ios::beg);
-
-		// Create a vector of size + 1 (for null terminator)
-		std::vector<char> Bytes(static_cast<size_t>(FileSize) + 1);
-		// Read int bytes into vector
-		File.read(Bytes.data(), static_cast<size_t>(FileSize));
-
-		// Loading raw data into RapidJSON document
-		OutDocument.Parse(Bytes.data());
-		if (!OutDocument.IsObject()) {
-			LOG_ERROR("[tilesheet] File {0} is not a valid JSON!", FileName.c_str());
-			return false;
-		}
-
-		return true;
 	}
 
 	float* Tilesheet::GetTexCoordsFromId(int id) {
