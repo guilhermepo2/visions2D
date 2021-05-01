@@ -4,12 +4,13 @@
 #include "Texture.h"
 #include "Color.h"
 #include "OrtographicCamera.h"
+#include "Tilesheet.h"
 
 #include <Log.h>
 #include <glm/glm.hpp>
-#include "glm/gtc/quaternion.hpp"
-#include "glm/gtc/matrix_transform.hpp"
-#include "glm/gtx/transform.hpp"
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/transform.hpp>
 
 
 namespace visions2D {
@@ -17,6 +18,7 @@ namespace visions2D {
 	Texture* awesomeFace;
 	Texture* text;
 	Texture* tilemap;
+	Tilesheet* sheet;
 	Color textureColor;
 
 	// Sprite information...
@@ -30,13 +32,6 @@ namespace visions2D {
 			0.0f, 0.0f,
 			0.0f, 1.0f
 	};
-
-	int mapData[] = { 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 14, 14, 15, 15, 15, 2, 3, 4, 52, 35, 35, 126, 35, 52, 52, 52, 35, 35, 18, 15, 14, 14, 15, 15, 15, 19, 20, 21, 35, 35, 49, 92, 49, 52, 52, 35, 52, 52, 52, 15, 14, 14, 15, 15, 15, 19, 20, 21, 52, 52, 52, 35, 52, 18, 66, 35, 66, 52, 52, 15, 14, 14, 15, 15, 15, 19, 20, 21, 35, 35, 52, 52, 52, 52, 92, 52, 92, 52, 35, 15, 14, 14, 15, 15, 15, 36, 55, 38, 52, 52, 52, 18, 18, 35, 52, 52, 52, 52, 52, 15, 14, 14, 15, 15, 15, 52, 105, 68, 35, 52, 52, 52, 52, 52, 35, 35, 35, 52, 52, 15, 14, 14, 15, 15, 15, 35, 105, 35, 52, 18, 52, 52, 35, 35, 52, 1, 81, 52, 52, 15, 14, 14, 15, 15, 15, 52, 105, 52, 52, 52, 11, 13, 35, 35, 35, 97, 98, 99, 52, 15, 14, 14, 15, 15, 15, 52, 105, 52, 52, 52, 45, 47, 52, 52, 31, 114, 115, 116, 52, 15, 14, 14, 15, 15, 15, 52, 105, 52, 35, 35, 35, 35, 35, 35, 136, 100, 117, 101, 52, 15, 14, 14, 15, 15, 15, 52, 105, 52, 52, 52, 52, 52, 52, 52, 48, 112, 110, 112, 52, 15, 14, 14, 15, 15, 15, 52, 105, 52, 52, 52, 52, 52, 52, 52, 52, 31, 90, 31, 52, 15, 14, 14, 15, 15, 15, 35, 103, 88, 88, 88, 88, 88, 88, 88, 88, 88, 106, 31, 52, 15, 14, 14, 15, 15, 15, 52, 52, 52, 52, 52, 52, 52, 52, 52, 52, 52, 52, 52, 52, 15, 14, 14, 15, 15, 15, 52, 52, 52, 52, 52, 52, 52, 52, 52, 52, 52, 52, 35, 35, 15, 14, 14, 15, 15, 15, 52, 52, 52, 52, 52, 52, 52, 52, 52, 52, 52, 35, 52, 52, 15, 14, 14, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14 };
-	int mapWidth = 20;
-	int mapHeight = 20;
-	int mapTileWidth = 16;
-	int mapTileHeight = 16;
-	int tilesetColumns = 17;
 
 
 	Renderer::Renderer() {}
@@ -89,6 +84,9 @@ namespace visions2D {
 		awesomeFace->Load("./src/DefaultAssets/awesomeface.png");
 		tilemap = new Texture();
 		tilemap->Load("./src/DefaultAssets/Sprites/tilemap_packed.png");
+
+		sheet = new Tilesheet(tilemap);
+		sheet->LoadFromTiledJson("./src/DefaultAssets/Map/tilemap_packed.json");
 
 		m_OrtographicCamera = new OrtographicCamera(m_ScreenWidth, m_ScreenHeight);
 		m_OrtographicCamera->SetColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -143,13 +141,15 @@ namespace visions2D {
 		float StartingX = - 10.0f * 16.0f;
 		float StartingY = 10.0f * 16.0f;
 		glm::vec2 Position = glm::vec2(StartingX, StartingY);
-		glm::vec2 TileScale = glm::vec2(16.0f, 16.0f);
+
+		int mapData[] = { 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 14, 14, 15, 15, 15, 2, 3, 4, 52, 35, 35, 126, 35, 52, 52, 52, 35, 35, 18, 15, 14, 14, 15, 15, 15, 19, 20, 21, 35, 35, 49, 92, 49, 52, 52, 35, 52, 52, 52, 15, 14, 14, 15, 15, 15, 19, 20, 21, 52, 52, 52, 35, 52, 18, 66, 35, 66, 52, 52, 15, 14, 14, 15, 15, 15, 19, 20, 21, 35, 35, 52, 52, 52, 52, 92, 52, 92, 52, 35, 15, 14, 14, 15, 15, 15, 36, 55, 38, 52, 52, 52, 18, 18, 35, 52, 52, 52, 52, 52, 15, 14, 14, 15, 15, 15, 52, 105, 68, 35, 52, 52, 52, 52, 52, 35, 35, 35, 52, 52, 15, 14, 14, 15, 15, 15, 35, 105, 35, 52, 18, 52, 52, 35, 35, 52, 1, 81, 52, 52, 15, 14, 14, 15, 15, 15, 52, 105, 52, 52, 52, 11, 13, 35, 35, 35, 97, 98, 99, 52, 15, 14, 14, 15, 15, 15, 52, 105, 52, 52, 52, 45, 47, 52, 52, 31, 114, 115, 116, 52, 15, 14, 14, 15, 15, 15, 52, 105, 52, 35, 35, 35, 35, 35, 35, 136, 100, 117, 101, 52, 15, 14, 14, 15, 15, 15, 52, 105, 52, 52, 52, 52, 52, 52, 52, 48, 112, 110, 112, 52, 15, 14, 14, 15, 15, 15, 52, 105, 52, 52, 52, 52, 52, 52, 52, 52, 31, 90, 31, 52, 15, 14, 14, 15, 15, 15, 35, 103, 88, 88, 88, 88, 88, 88, 88, 88, 88, 106, 31, 52, 15, 14, 14, 15, 15, 15, 52, 52, 52, 52, 52, 52, 52, 52, 52, 52, 52, 52, 52, 52, 15, 14, 14, 15, 15, 15, 52, 52, 52, 52, 52, 52, 52, 52, 52, 52, 52, 52, 35, 35, 15, 14, 14, 15, 15, 15, 52, 52, 52, 52, 52, 52, 52, 52, 52, 52, 52, 35, 52, 52, 15, 14, 14, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14 };
+		int mapWidth = 20;
+		int mapHeight = 20;
 
 		for (int i = 0; i < mapWidth; i++) {
 			for (int j = 0; j < mapHeight; j++) {
-				// LOG_INFO("Current Position: ({0}, {1})", Position.x, Position.y);
 
-				glm::mat4 atextureScale = glm::scale(glm::mat4(1.0f), glm::vec3(TileScale.x, TileScale.y, 1.0f));
+				glm::mat4 atextureScale = glm::scale(glm::mat4(1.0f), glm::vec3(sheet->GetTileWidth(), sheet->GetTileHeight(), 1.0f));
 				glm::mat4 aworldScale = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 				glm::mat4 aworldRotation = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
 				glm::mat4 aworldTranslation = glm::translate(glm::mat4(1.0f), glm::vec3(Position.x, Position.y, 0.0f));
@@ -158,24 +158,10 @@ namespace visions2D {
 				m_SpriteShader->SetMatrix4("uCameraViewProjection", m_OrtographicCamera->GetCameraViewProjection());
 
 				m_DefaultVertexArray->SetActive();
-
-				// TODO: Calculate Tex Coords!
-				float tw = TileScale.x / tilemap->GetWidth(); // 0.0588
-				float th = TileScale.y / tilemap->GetHeight(); // .125
-				// int xPosition = mapData[currentData] % 8;
-				int xPosition = (mapData[currentData] % 17) - 1; // has to be between 0 and 16
-				int yPosition = 7 - (mapData[currentData] / 17);
-
-				float NewTexCoords[] = {
-					(xPosition + 1) * tw, (yPosition + 1) * th,
-					(xPosition + 1) * tw, yPosition * th,
-					xPosition * tw , yPosition * th,
-					xPosition * tw, (yPosition + 1) * th
-				};
-
-				m_DefaultVertexArray->SubTexCoords(NewTexCoords);
-
+				float* newTexCoord = sheet->GetTexCoordsFromId(mapData[currentData]);
+				m_DefaultVertexArray->SubTexCoords(sheet->GetTexCoordsFromId(mapData[currentData]));
 				glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+				delete newTexCoord;
 
 				Position.x += 16.0f;
 				currentData++;
@@ -184,13 +170,12 @@ namespace visions2D {
 			Position.x = StartingX;
 		}
 		
-		/*
+		
 		{
 			ImGui::ColorEdit4("square color", textureColor.rgba);
 			ImGui::ColorEdit4("clear color", m_OrtographicCamera->CameraBackgroundColor.rgba);
 			ImGui::SliderFloat("Sprite Rotation", &SpriteRotation, -180.0f, 180.0f);
 		}
-		*/
 		
 		// rendering ImGui
 		ImGui::Render();
