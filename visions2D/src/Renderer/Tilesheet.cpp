@@ -26,6 +26,11 @@ namespace visions2D {
 		JsonHelper::GetInt(doc, "tileheight", m_TileHeight);
 		m_NumberOfVerticalTiles = (m_TextureRef->GetHeight() / m_TileHeight);
 
+		// Filling the Tiles vector so we can successfuly map id => Tile
+		// being ID also the index of the vector (very convenient!)
+		// That's why the x-axis starts from the right and goes to the left
+		// And it's worth considering that the texture is originally loaded upside-down, so the first row is actually the last one
+		// That's why all of this works.
 		for (int i = 0; i < m_NumberOfVerticalTiles; i++) {
 			for (int j = (m_NumberOfColumns - 1); j >= 0; j--) {
 				int x = j;
@@ -42,11 +47,11 @@ namespace visions2D {
 		LOG_INFO("loaded tilesheet from {0}, had {1} tiles", _fileName.c_str(), m_Tiles.size());
 	}
 
+
 	float* Tilesheet::GetTexCoordsFromId(int id) {
 		// #important
 		// IMPORTANT thing to keep in mind: "id" on tiled goes from 1 to MaxTiles
 		// but our indices goes from 0 to MaxTiles - 1...
-
 		id -= 1;
 
 		if (id < 0 || id > (m_Tiles.size() - 1)) {
