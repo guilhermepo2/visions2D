@@ -1,4 +1,8 @@
+// *******************************************************
+// *******************************************************
 // Lucid 2D renderer Standalone
+// *******************************************************
+// *******************************************************
 
 #include "visions2D.h"
 
@@ -19,6 +23,11 @@ int main(void) {
 				switch (Event.type) {
 				case SDL_QUIT:
 					b_IsRunning = false;
+					break;
+				case SDL_KEYDOWN:
+					if (Event.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
+						b_IsRunning = false;
+					}
 					break;
 				}
 			}

@@ -5,6 +5,7 @@
 #include "Color.h"
 #include "OrtographicCamera.h"
 #include "Tilesheet.h"
+#include "DearImGui.h"
 
 #include <Log.h>
 #include <glm/glm.hpp>
@@ -89,21 +90,7 @@ namespace visions2D {
 		m_OrtographicCamera = new OrtographicCamera(m_ScreenWidth, m_ScreenHeight);
 		m_OrtographicCamera->SetColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-		// IMGUI
-		IMGUI_CHECKVERSION();
-		ImGui::CreateContext();
-		ImGuiIO& io = ImGui::GetIO(); (void)io;
-		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-		ImGui::StyleColorsDark();
-		ImGuiStyle& style = ImGui::GetStyle();
-		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
-			style.WindowRounding = 0.0f;
-			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
-		}
-		ImGui_ImplSDL2_InitForOpenGL(m_Window, m_GLContext);
-		ImGui_ImplOpenGL3_Init("#version 330");
+		DearImGui::Initialize(m_Window, m_GLContext);
 		LOG_INFO("[renderer] dearimgui initialized");
 
 		LOG_INFO("[renderer] initialized!");
@@ -114,11 +101,7 @@ namespace visions2D {
 		m_SpriteShader->SetActive();
 		m_SpriteShader->SetColor("uColor", textureColor);
 		
-
-		// dearimgui setting it up
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplSDL2_NewFrame(m_Window);
-		ImGui::NewFrame();
+		DearImGui::BeginRender(m_Window);
 
 		glClearColor(
 			m_OrtographicCamera->CameraBackgroundColor.rgba[0],
@@ -171,21 +154,7 @@ namespace visions2D {
 			ImGui::ColorEdit4("clear color", m_OrtographicCamera->CameraBackgroundColor.rgba);
 		}
 		
-		// rendering ImGui
-		ImGui::Render();
-		ImGuiIO& io = ImGui::GetIO(); (void)io;
-		glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
-			SDL_Window* BackupCurrentWindow = SDL_GL_GetCurrentWindow();
-			SDL_GLContext BackupCurrentContext = SDL_GL_GetCurrentContext();
-			ImGui::UpdatePlatformWindows();
-			ImGui::RenderPlatformWindowsDefault();
-			SDL_GL_MakeCurrent(BackupCurrentWindow, BackupCurrentContext);
-		}
-		// finished rendering imgui
-
+		DearImGui::Present();
 		SDL_GL_SwapWindow(m_Window);
 	}
 
