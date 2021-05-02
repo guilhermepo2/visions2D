@@ -1,6 +1,8 @@
 // *******************************************************
 // *******************************************************
+// 
 // Lucid 2D renderer Standalone
+// 
 // *******************************************************
 // *******************************************************
 
@@ -11,6 +13,9 @@ int main(void) {
 	LOG_INFO("logger initialized!");
 
 	visions2D::Renderer* lucidRenderer = new visions2D::Renderer();
+
+	std::string a = "aahoy";
+
 	if (lucidRenderer->Initialize(1024, 576, "lucid2d renderer")) {
 		bool b_IsRunning = true;
 
@@ -30,6 +35,7 @@ int main(void) {
 					}
 					break;
 				}
+
 			}
 
 			lucidRenderer->Render();
@@ -38,5 +44,6 @@ int main(void) {
 		lucidRenderer->Shutdown();
 	}
 
+	delete lucidRenderer;
 	return 0;
 }
