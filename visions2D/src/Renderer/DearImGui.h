@@ -8,6 +8,7 @@ namespace visions2D {
 	static class DearImGui {
 	public:
 		static void Initialize(SDL_Window* window, SDL_GLContext GLContext);
+		static void ProcessEvent(const SDL_Event* Event);
 		static void BeginRender(SDL_Window* window);
 		static void Present();
 	};

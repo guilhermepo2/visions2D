@@ -8,5 +8,6 @@
 #include "Renderer/Color.h"
 #include "Renderer/OrtographicCamera.h"
 #include "Renderer/Tilesheet.h"
+#include "Renderer/DearImGui.h"
 
 #include "Utilities/JsonHelper.h"

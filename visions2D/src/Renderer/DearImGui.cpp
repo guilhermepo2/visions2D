@@ -19,6 +19,10 @@ namespace visions2D {
 		ImGui_ImplOpenGL3_Init("#version 330");
 	}
 
+	void DearImGui::ProcessEvent(const SDL_Event* Event) {
+		ImGui_ImplSDL2_ProcessEvent(Event);
+	}
+
 	void DearImGui::BeginRender(SDL_Window* window) {
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplSDL2_NewFrame(window);

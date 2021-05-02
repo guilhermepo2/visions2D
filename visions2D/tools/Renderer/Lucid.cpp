@@ -18,7 +18,7 @@ int main(void) {
 			SDL_Event Event;
 			while (SDL_PollEvent(&Event)) {
 
-				ImGui_ImplSDL2_ProcessEvent(&Event);
+				visions2D::DearImGui::ProcessEvent(&Event);
 
 				switch (Event.type) {
 				case SDL_QUIT:
