@@ -14,8 +14,6 @@ int main(void) {
 
 	visions2D::Renderer* lucidRenderer = new visions2D::Renderer();
 
-	std::string a = "aahoy";
-
 	if (lucidRenderer->Initialize(1024, 576, "lucid2d renderer")) {
 		bool b_IsRunning = true;
 

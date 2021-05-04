@@ -9,5 +9,6 @@
 #include "Renderer/OrtographicCamera.h"
 #include "Renderer/Tilesheet.h"
 #include "Renderer/DearImGui.h"
+#include "Renderer/Framebuffer.h"
 
 #include "Utilities/JsonHelper.h"

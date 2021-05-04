@@ -6,6 +6,7 @@
 #include "OrtographicCamera.h"
 #include "Tilesheet.h"
 #include "DearImGui.h"
+#include "Framebuffer.h"
 
 #include <Log.h>
 #include <glm/glm.hpp>
@@ -23,6 +24,7 @@ namespace visions2D {
 	Tilemap* theTilemap;
 	Tilesheet* sheet;
 	Color textureColor;
+	Framebuffer* aFramebuffer = nullptr;
 
 	float DefaultTexCoords[] = {
 			1.0f, 1.0f,
@@ -80,7 +82,6 @@ namespace visions2D {
 		text->Load("./src/DefaultAssets/chara_hero.png");
 		tilemap = new Texture();
 		tilemap->Load("./src/DefaultAssets/Sprites/tilemap_packed.png");
-
 		sheet = new Tilesheet(tilemap);
 		sheet->LoadFromTiledJson("./src/DefaultAssets/Map/tilemap_packed.json");
 
@@ -89,6 +90,14 @@ namespace visions2D {
 
 		m_OrtographicCamera = new OrtographicCamera(m_ScreenWidth, m_ScreenHeight);
 		m_OrtographicCamera->SetColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+		// Framebuffer
+		// TODO: This shouldn't be in the renderer
+		// it should be up to the application or tool whether or not to use a framebuffer and what to do with it!
+		FramebufferSpecification spec;
+		spec.Width = 800;
+		spec.Height = 600;
+		aFramebuffer = new Framebuffer(spec);
 
 		DearImGui::Initialize(m_Window, m_GLContext);
 		LOG_INFO("[renderer] dearimgui initialized");
@@ -110,12 +119,14 @@ namespace visions2D {
 			m_OrtographicCamera->CameraBackgroundColor.rgba[3]
 		);
 		
+		// binding the frame buffer
 		glClear(GL_COLOR_BUFFER_BIT);
 		glEnable(GL_BLEND);
 		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
 		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
 
 		// Drawing Tilemap
+		aFramebuffer->Bind();
 		tilemap->SetActive();
 
 		int currentData = 0;
@@ -147,11 +158,25 @@ namespace visions2D {
 			Position.y -= sheet->GetTileHeight();
 			Position.x = StartingX;
 		}
-		
+
+		// finished drawing the tilemap, so we unbind the framebuffer
+		aFramebuffer->Unbind();
+
+		ImGui::DockSpaceOverViewport();
 		
 		{
+			ImGui::Begin("Scene");
+			// showing the framebuffer with dear imgui
+			unsigned int FramebufferTexture = aFramebuffer->GetColorAttachmentID();
+			ImGui::Image((void*)FramebufferTexture, ImVec2{ 800, 600 });
+			ImGui::End();
+		}
+		
+		{
+			ImGui::Begin("Color Options");
 			ImGui::ColorEdit4("square color", textureColor.rgba);
 			ImGui::ColorEdit4("clear color", m_OrtographicCamera->CameraBackgroundColor.rgba);
+			ImGui::End();
 		}
 		
 		DearImGui::Present();
