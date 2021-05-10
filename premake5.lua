@@ -74,6 +74,49 @@ project "visions2D"
             "visions2D_DEBUG"
         }
 
+project "sandbox"
+        location "visions2D"
+        kind "ConsoleApp"
+        language "C++"
+
+        targetdir("bin/" .. outputdir .. "/%{prj.name}")
+        objdir("binobj/" .. outputdir .. "/%{prj.name}")
+
+        files
+        {
+            "%{prj.name}/**.h",
+            "%{prj.name}/**.cpp",
+        }
+
+        links
+        {
+            "visions2D"
+        }
+
+        includedirs
+        {
+            "visions2D/src",
+            "%{IncludeDirectories.SDL2}",
+            "%{IncludeDirectories.GLEW}",
+            "%{IncludeDirectories.spdlog}",
+            "%{IncludeDirectories.DEARIMGUI}",
+            "%{IncludeDirectories.STBIMAGE}",
+            "%{IncludeDirectories.GLM}",
+            "%{IncludeDirectories.RAPIDJSON}"
+        }
+
+        filter "system:windows"
+            cppdialect "C++17"
+            staticruntime "On"
+            systemversion "latest"
+
+            defines
+            {
+                "visions2D_DEBUG",
+                "sandbox_DEBUG"
+            }
+
+
 project "lucid-renderer"
         location "visions2D"
         kind "ConsoleApp"

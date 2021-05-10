@@ -3,7 +3,10 @@
 #include <GL/glew.h>
 
 namespace visions2D {
-	Framebuffer::Framebuffer(const FramebufferSpecification& specification) : m_Specification(specification) {
+	Framebuffer::Framebuffer(const FramebufferSpecification& specification) {
+		m_Specification.Width = specification.Width;
+		m_Specification.Height = specification.Height;
+
 		Invalidate();
 	}
 
@@ -12,6 +15,7 @@ namespace visions2D {
 	}
 
 	void Framebuffer::Bind() {
+		// glViewport(0, 0, m_Specification.Width, m_Specification.Height);
 		glBindFramebuffer(GL_FRAMEBUFFER, m_FramebufferID);
 	}
 

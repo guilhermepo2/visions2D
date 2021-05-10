@@ -33,7 +33,6 @@ namespace visions2D {
 			0.0f, 1.0f
 	};
 
-
 	Renderer::Renderer() {}
 	Renderer::~Renderer() {}
 
@@ -53,13 +52,11 @@ namespace visions2D {
 		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 		SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
 
-		SDL_WindowFlags WindowFlags = SDL_WINDOW_OPENGL;
-
 		m_Window = SDL_CreateWindow(
 			m_WindowTitle.c_str(),
 			100, 100,
 			static_cast<int>(m_ScreenWidth), static_cast<int>(m_ScreenHeight),
-			WindowFlags
+			SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE
 		);
 
 		assert(m_Window, "[renderer] unable to create window: {0}", SDL_GetError());
@@ -127,6 +124,11 @@ namespace visions2D {
 
 		// Drawing Tilemap
 		aFramebuffer->Bind();
+		glClear(GL_COLOR_BUFFER_BIT);
+		glEnable(GL_BLEND);
+		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+
 		tilemap->SetActive();
 
 		int currentData = 0;
@@ -135,6 +137,16 @@ namespace visions2D {
 		glm::vec2 Position = glm::vec2(StartingX, StartingY);
 		int data;
 		
+		// TODO: this should also be an application call
+		// the application should choose what to render, not the renderer lol
+		// have an static structure of render data?
+		// what should be in this struct?
+		// texture scale (vec2)
+		// world scale (vec2)
+		// world rotation (float)
+		// world translation (vec2)
+		// texture coordinates
+
 		for (int i = 0; i < theTilemap->GetMapWidth(); i++) {
 			for (int j = 0; j < theTilemap->GetMapHeight(); j++) {
 
@@ -162,13 +174,14 @@ namespace visions2D {
 		// finished drawing the tilemap, so we unbind the framebuffer
 		aFramebuffer->Unbind();
 
+		// TODO: all these imgui calls should move to the application
 		ImGui::DockSpaceOverViewport();
 		
 		{
 			ImGui::Begin("Scene");
 			// showing the framebuffer with dear imgui
 			unsigned int FramebufferTexture = aFramebuffer->GetColorAttachmentID();
-			ImGui::Image((void*)FramebufferTexture, ImVec2{ 800, 600 });
+			ImGui::Image((void*)FramebufferTexture, ImVec2{ 800, 600 }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 			ImGui::End();
 		}
 		
