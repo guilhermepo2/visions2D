@@ -13,11 +13,16 @@ int main(void) {
 	LOG_INFO("logger initialized!");
 
 	visions2D::Renderer* sandbox = new visions2D::Renderer();
+	visions2D::InputSystem* inputSystem = new visions2D::InputSystem();
 
 	if (sandbox->Initialize(1024, 576, "sandbox")) {
+		inputSystem->Initialize();
+
 		bool b_IsRunning = true;
 
 		while (b_IsRunning) {
+			inputSystem->PrepareForUpdate();
+
 			SDL_Event Event;
 			while (SDL_PollEvent(&Event)) {
 
@@ -36,12 +41,20 @@ int main(void) {
 
 			}
 
+			inputSystem->Update();
+
+			if (inputSystem->GetState().Keyboard.WasKeyPressedThisFrame(visions2D::v2D_Keycode::KEYCODE_SPACE)) {
+				LOG_INFO("spacebar was pressed and the input system works!");
+			}
+
 			sandbox->Render();
 		}
 
+		inputSystem->Shutdown();
 		sandbox->Shutdown();
 	}
 
+	delete inputSystem;
 	delete sandbox;
 	return 0;
 }

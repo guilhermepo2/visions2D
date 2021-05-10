@@ -11,4 +11,8 @@
 #include "Renderer/DearImGui.h"
 #include "Renderer/Framebuffer.h"
 
+#include "Input/KeyboardInput.h"
+#include "Input/MouseInput.h"
+#include "Input/Input.h"
+
 #include "Utilities/JsonHelper.h"
