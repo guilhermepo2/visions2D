@@ -18,13 +18,6 @@
 
 
 namespace visions2D {
-	// temporaries
-	Texture* text;
-	Texture* tilemap;
-	Tilemap* theTilemap;
-	Tilesheet* sheet;
-	Color textureColor;
-	Framebuffer* aFramebuffer = nullptr;
 
 	float DefaultTexCoords[] = {
 			1.0f, 1.0f,
@@ -69,33 +62,17 @@ namespace visions2D {
 		assert(glewInit() == GLEW_OK, "[renderer] unable to initialize glew");
 		glViewport(0, 0, m_ScreenWidth, m_ScreenHeight);
 
+		m_OrtographicCamera = new OrtographicCamera(m_ScreenWidth, m_ScreenHeight);
+		m_OrtographicCamera->SetColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+		// TODO: Not generic
 		m_SpriteShader = new Shader();
 		m_SpriteShader->Load("./src/DefaultAssets/Shaders/DefaultSprite.vert", "./src/DefaultAssets/Shaders/DefaultSprite.frag");
 
 		#include "DefaultVertexArray.data"
 		m_DefaultVertexArray = new VertexArray(vertices, 4, 4, texCoords, indices, 6);
-		
-		text = new Texture();
-		text->Load("./src/DefaultAssets/chara_hero.png");
-		tilemap = new Texture();
-		tilemap->Load("./src/DefaultAssets/Sprites/tilemap_packed.png");
-		sheet = new Tilesheet(tilemap);
-		sheet->LoadFromTiledJson("./src/DefaultAssets/Map/tilemap_packed.json");
 
-		theTilemap = new Tilemap();
-		theTilemap->LoadFromJSON("./src/DefaultAssets/Map/testMap2.json");
-
-		m_OrtographicCamera = new OrtographicCamera(m_ScreenWidth, m_ScreenHeight);
-		m_OrtographicCamera->SetColor(0.0f, 0.0f, 0.0f, 1.0f);
-
-		// Framebuffer
-		// TODO: This shouldn't be in the renderer
-		// it should be up to the application or tool whether or not to use a framebuffer and what to do with it!
-		FramebufferSpecification spec;
-		spec.Width = 800;
-		spec.Height = 600;
-		aFramebuffer = new Framebuffer(spec);
-
+		// TODO: should every application initialize DearImGui? maybe this should be an option?
 		DearImGui::Initialize(m_Window, m_GLContext);
 		LOG_INFO("[renderer] dearimgui initialized");
 
@@ -103,9 +80,8 @@ namespace visions2D {
 		return true;
 	}
 
-	void Renderer::Render() {
+	void Renderer::PrepareToRender() {
 		m_SpriteShader->SetActive();
-		m_SpriteShader->SetColor("uColor", textureColor);
 		
 		DearImGui::BeginRender(m_Window);
 
@@ -116,83 +92,18 @@ namespace visions2D {
 			m_OrtographicCamera->CameraBackgroundColor.rgba[3]
 		);
 		
-		// binding the frame buffer
 		glClear(GL_COLOR_BUFFER_BIT);
 		glEnable(GL_BLEND);
 		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
 		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+	}
 
-		// Drawing Tilemap
-		aFramebuffer->Bind();
-		glClear(GL_COLOR_BUFFER_BIT);
-		glEnable(GL_BLEND);
-		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+	void Renderer::Render() {
+		// TODO
+		// Have a static list of objects to render maybe?
+	}
 
-		tilemap->SetActive();
-
-		int currentData = 0;
-		float StartingX = -(theTilemap->GetMapWidth() / 2) * sheet->GetTileWidth(); 
-		float StartingY = (theTilemap->GetMapHeight() / 2) * sheet->GetTileHeight();
-		glm::vec2 Position = glm::vec2(StartingX, StartingY);
-		int data;
-		
-		// TODO: this should also be an application call
-		// the application should choose what to render, not the renderer lol
-		// have an static structure of render data?
-		// what should be in this struct?
-		// texture scale (vec2)
-		// world scale (vec2)
-		// world rotation (float)
-		// world translation (vec2)
-		// texture coordinates
-
-		for (int i = 0; i < theTilemap->GetMapWidth(); i++) {
-			for (int j = 0; j < theTilemap->GetMapHeight(); j++) {
-
-				glm::mat4 atextureScale = glm::scale(glm::mat4(1.0f), glm::vec3(sheet->GetTileWidth(), sheet->GetTileHeight(), 1.0f));
-				glm::mat4 aworldScale = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-				glm::mat4 aworldRotation = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
-				glm::mat4 aworldTranslation = glm::translate(glm::mat4(1.0f), glm::vec3(Position.x, Position.y, 0.0f));
-				glm::mat4 aworld = (aworldTranslation * aworldRotation * aworldScale) * atextureScale;
-				m_SpriteShader->SetMatrix4("uWorldTransform", aworld);
-				m_SpriteShader->SetMatrix4("uCameraViewProjection", m_OrtographicCamera->GetCameraViewProjection());
-
-				m_DefaultVertexArray->SetActive();
-				data = theTilemap->GetData(currentData);
-				float* newTexCoord = sheet->GetTexCoordsFromId(data);
-				m_DefaultVertexArray->SubTexCoords(newTexCoord);
-				glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-				Position.x += sheet->GetTileWidth();
-				currentData++;
-			}
-			Position.y -= sheet->GetTileHeight();
-			Position.x = StartingX;
-		}
-
-		// finished drawing the tilemap, so we unbind the framebuffer
-		aFramebuffer->Unbind();
-
-		// TODO: all these imgui calls should move to the application
-		ImGui::DockSpaceOverViewport();
-		
-		{
-			ImGui::Begin("Scene");
-			// showing the framebuffer with dear imgui
-			unsigned int FramebufferTexture = aFramebuffer->GetColorAttachmentID();
-			ImGui::Image((void*)FramebufferTexture, ImVec2{ 800, 600 }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
-			ImGui::End();
-		}
-		
-		{
-			ImGui::Begin("Color Options");
-			ImGui::ColorEdit4("square color", textureColor.rgba);
-			ImGui::ColorEdit4("clear color", m_OrtographicCamera->CameraBackgroundColor.rgba);
-			ImGui::End();
-		}
-		
-		DearImGui::Present();
+	void Renderer::Swap() {
 		SDL_GL_SwapWindow(m_Window);
 	}
 

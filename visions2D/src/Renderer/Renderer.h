@@ -20,9 +20,16 @@ namespace visions2D {
 		~Renderer();
 
 		bool Initialize(float _ScreenWidth, float _ScreenHeight, const std::string& _WindowTitle);
+		void PrepareToRender();
 		void Render();
+		void Swap();
 
 		void Shutdown();
+
+		// TODO temp?
+		Shader* GetSpriteShader() { return m_SpriteShader; }
+		OrtographicCamera* GetCamera() { return m_OrtographicCamera; }
+		VertexArray* GetSpriteVertexArray() { return m_DefaultVertexArray; }
 
 	private:
 		float m_ScreenWidth;
