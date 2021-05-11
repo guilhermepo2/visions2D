@@ -7,6 +7,8 @@
 #include <imgui.h>
 #include <imgui_impl_sdl.h>
 #include <imgui_impl_opengl3.h>
+#include "RenderData.h"
+#include <vector>
 
 namespace visions2D {
 	
@@ -30,6 +32,8 @@ namespace visions2D {
 		Shader* GetSpriteShader() { return m_SpriteShader; }
 		OrtographicCamera* GetCamera() { return m_OrtographicCamera; }
 		VertexArray* GetSpriteVertexArray() { return m_DefaultVertexArray; }
+
+		std::vector<RenderData> SpriteRenderData;
 
 	private:
 		float m_ScreenWidth;

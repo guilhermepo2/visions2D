@@ -98,9 +98,29 @@ namespace visions2D {
 		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
 	}
 
+	// TODO: Batch
+	// How do colors work in batching?
 	void Renderer::Render() {
-		// TODO
-		// Have a static list of objects to render maybe?
+		for (int i = 0; i < SpriteRenderData.size(); i++) {
+			m_SpriteShader->SetColor("uColor", SpriteRenderData[i].tint);
+			SpriteRenderData[i].Texture->SetActive();
+
+			glm::mat4 TextureScale = glm::scale(glm::mat4(1.0f), glm::vec3(SpriteRenderData[i].TextureScale, 1.0f));
+			glm::mat4 WorldScale = glm::scale(glm::mat4(1.0f), glm::vec3(SpriteRenderData[i].WorldScale, 1.0f));
+			glm::mat4 WorldRotation = glm::rotate(glm::mat4(1.0f), glm::radians(SpriteRenderData[i].WorldRotation), glm::vec3(0.0f, 0.0f, -1.0f));
+			glm::mat4 WorldTranslation = glm::translate(glm::mat4(1.0f), glm::vec3(SpriteRenderData[i].WorldPosition, 0.0f));
+			glm::mat4 World = (WorldTranslation * WorldRotation * WorldScale) * TextureScale;
+
+			m_SpriteShader->SetMatrix4("uWorldTransform", World);
+			m_SpriteShader->SetMatrix4("uCameraViewProjection", m_OrtographicCamera->GetCameraViewProjection());
+
+			m_DefaultVertexArray->SetActive();
+			m_DefaultVertexArray->SubTexCoords(SpriteRenderData[i].TexCoords);
+
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		}
+
+		SpriteRenderData.clear();
 	}
 
 	void Renderer::Swap() {

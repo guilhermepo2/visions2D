@@ -10,6 +10,7 @@
 #include "Renderer/Tilesheet.h"
 #include "Renderer/DearImGui.h"
 #include "Renderer/Framebuffer.h"
+#include "Renderer/RenderData.h"
 
 #include "Input/KeyboardInput.h"
 #include "Input/MouseInput.h"
