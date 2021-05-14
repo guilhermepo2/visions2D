@@ -16,5 +16,9 @@
 #include "Input/MouseInput.h"
 #include "Input/Input.h"
 
+#include "Entity/GameWorld.h"
+#include "Entity/Entity.h"
+#include "Entity/Component/Component.h"
+
 #include "Utilities/JsonHelper.h"
 #include "Utilities/Tilemap.h"
