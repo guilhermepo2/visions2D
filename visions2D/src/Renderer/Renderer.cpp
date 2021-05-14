@@ -124,6 +124,7 @@ namespace visions2D {
 	}
 
 	void Renderer::Swap() {
+		DearImGui::Present();
 		SDL_GL_SwapWindow(m_Window);
 	}
 

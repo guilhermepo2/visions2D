@@ -47,7 +47,9 @@ int main(void) {
 				LOG_INFO("spacebar was pressed and the input system works!");
 			}
 
+			sandbox->PrepareToRender();
 			sandbox->Render();
+			sandbox->Swap();
 		}
 
 		inputSystem->Shutdown();

@@ -113,7 +113,6 @@ int main(void) {
 				ImGui::End();
 			}
 
-			visions2D::DearImGui::Present();
 			lucidRenderer->Swap();
 		}
 
