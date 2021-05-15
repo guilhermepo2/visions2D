@@ -24,7 +24,8 @@ namespace visions2D {
 	}
 
 	void Framebuffer::Invalidate() {
-		glCreateFramebuffers(1, &m_FramebufferID);
+		glGenFramebuffers(1, &m_FramebufferID);
+
 		glBindFramebuffer(GL_FRAMEBUFFER, m_FramebufferID);
 
 		glCreateTextures(GL_TEXTURE_2D, 1, &m_ColorAttachmentID);

@@ -19,6 +19,7 @@
 #include "Entity/GameWorld.h"
 #include "Entity/Entity.h"
 #include "Entity/Component/Component.h"
+#include "Entity/Component/TransformComponent.h"
 
 #include "Utilities/JsonHelper.h"
 #include "Utilities/Tilemap.h"

@@ -98,6 +98,7 @@ int main(void) {
 
 			ImGui::DockSpaceOverViewport();
 
+			
 			{
 				ImGui::Begin("Scene");
 				// showing the framebuffer with dear imgui
@@ -105,6 +106,7 @@ int main(void) {
 				ImGui::Image((void*)FramebufferTexture, ImVec2{ 800, 600 }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 				ImGui::End();
 			}
+			
 
 			{
 				ImGui::Begin("Color Options");

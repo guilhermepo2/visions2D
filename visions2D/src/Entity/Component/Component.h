@@ -6,6 +6,8 @@ namespace visions2D {
 
 	class Component {
 	public:
+		Entity* Owner;
+
 		Component() {}
 		virtual ~Component() {}
 		virtual void Initialize() {}
