@@ -20,6 +20,8 @@
 #include "Entity/Entity.h"
 #include "Entity/Component/Component.h"
 #include "Entity/Component/TransformComponent.h"
+#include "Entity/Component/SpriteComponent.h"
+#include "Entity/Component/TileComponent.h"
 
 #include "Utilities/JsonHelper.h"
 #include "Utilities/Tilemap.h"

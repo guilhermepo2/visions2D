@@ -2,6 +2,7 @@
 // *******************************************************
 // 
 // 
+// 
 // *******************************************************
 // *******************************************************
 
@@ -37,6 +38,7 @@ int main(void) {
 
 		visions2D::Entity& Player = gameWorld->AddEntity("Player");
 		Player.AddComponent<visions2D::TransformComponent>(glm::vec2(0.0f, 0.0f), 0.0f, glm::vec2(4.0f, 4.0f));
+		Player.AddComponent<visions2D::TileComponent>(characterTilesheet, 1, 0);
 
 		gameWorld->BeginPlay();
 		float TicksLastFrame = 0.0f;
@@ -51,7 +53,6 @@ int main(void) {
 
 			SDL_Event Event;
 			while (SDL_PollEvent(&Event)) {
-
 				visions2D::DearImGui::ProcessEvent(&Event);
 
 				switch (Event.type) {
@@ -64,7 +65,6 @@ int main(void) {
 					}
 					break;
 				}
-
 			}
 
 			inputSystem->Update();
@@ -75,23 +75,32 @@ int main(void) {
 			}
 
 			gameWorld->Update(DeltaTime);
-
 			sandbox->PrepareToRender();
-
 			gameWorld->Render();
 
-			visions2D::RenderData rd;
-			rd.Texture = characterTexture;
-			rd.TextureScale = glm::vec2(characterTilesheet->GetTileWidth(), characterTilesheet->GetTileHeight());
-			rd.TexCoords = characterTilesheet->GetTexCoordsFromId(1);
-			rd.WorldRotation = Player.GetComponentOfType<visions2D::TransformComponent>()->Rotation;
-			rd.WorldPosition = Player.GetComponentOfType<visions2D::TransformComponent>()->Position;
-			rd.WorldScale = Player.GetComponentOfType<visions2D::TransformComponent>()->Scale;
-			rd.tint = visions2D::Color(1.0f, 1.0f, 1.0f, 1.0f);
-			sandbox->SpriteRenderData.push_back(rd);
+			// ----------------------------------------------------------------------------------------------------------------------------
+			// ----------------------------------------------------------------------------------------------------------------------------
+			// Move this to game world render or something like that
+			if (Player.HasComponentOfType<visions2D::TransformComponent>() && Player.HasComponentOfType<visions2D::TileComponent>()) {
+				visions2D::RenderData rd;
+				visions2D::TileComponent* t = Player.GetComponentOfType<visions2D::TileComponent>();
+
+				// get this from the tilecomponent	//
+				rd.Texture = characterTexture;		//
+				// -------------------------------	//
+
+				rd.TextureScale = glm::vec2(characterTilesheet->GetTileWidth(), characterTilesheet->GetTileHeight());
+				rd.TexCoords = characterTilesheet->GetTexCoordsFromId(t->Data);
+				rd.WorldRotation = Player.GetComponentOfType<visions2D::TransformComponent>()->Rotation;
+				rd.WorldPosition = Player.GetComponentOfType<visions2D::TransformComponent>()->Position;
+				rd.WorldScale = Player.GetComponentOfType<visions2D::TransformComponent>()->Scale;
+				rd.tint = visions2D::Color(1.0f, 1.0f, 1.0f, 1.0f);
+				sandbox->SpriteRenderData.push_back(rd);
+			}
+			// ----------------------------------------------------------------------------------------------------------------------------
+			// ----------------------------------------------------------------------------------------------------------------------------
 
 			sandbox->Render();
-
 			sandbox->Swap();
 
 			// -----------------------------------------------------------------
@@ -103,12 +112,12 @@ int main(void) {
 
 		gameWorld->Destroy();
 		inputSystem->Shutdown();
-
 		sandbox->Shutdown();
 	}
 
 	delete gameWorld;
 	delete inputSystem;
 	delete sandbox;
+
 	return 0;
 }
