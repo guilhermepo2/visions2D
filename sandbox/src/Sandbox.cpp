@@ -22,12 +22,6 @@ int main(void) {
 
 	visions2D::Color textureColor;
 
-	visions2D::FramebufferSpecification spec;
-	spec.Width = 1024;
-	spec.Height = 576;
-	visions2D::Framebuffer* theFrameBuffer = nullptr;
-	theFrameBuffer = new visions2D::Framebuffer(spec);
-
 	float DefaultTexCoords[] = {
 			1.0f, 1.0f,
 			1.0f, 0.0f,
@@ -36,6 +30,12 @@ int main(void) {
 	};
 
 	if (sandbox->Initialize(1024, 576, "sandbox")) {
+		visions2D::FramebufferSpecification spec;
+		spec.Width = 1024;
+		spec.Height = 576;
+		visions2D::Framebuffer* theFrameBuffer = nullptr;
+		theFrameBuffer = new visions2D::Framebuffer(spec);
+
 		inputSystem->Initialize();
 
 		bool b_IsRunning = true;
@@ -82,13 +82,13 @@ int main(void) {
 			gameWorld->Update(DeltaTime);
 
 			sandbox->PrepareToRender();
-			theFrameBuffer->Bind();
+			// theFrameBuffer->Bind();
 			glClear(GL_COLOR_BUFFER_BIT);
 			glEnable(GL_BLEND);
 			glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
 			glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
 
-			gameWorld->Render();
+			// gameWorld->Render();
 
 			visions2D::RenderData rd;
 			rd.Texture = characterTexture;
@@ -101,7 +101,7 @@ int main(void) {
 			sandbox->SpriteRenderData.push_back(rd);
 
 			sandbox->Render();
-			theFrameBuffer->Unbind();
+			// theFrameBuffer->Unbind();
 
 			{
 				ImGui::Begin("Scene");
