@@ -26,6 +26,11 @@ namespace visions2D {
 		}
 
 		glGenTextures(1, &m_TextureID);
+		
+		if (m_TextureID == 0) {
+			LOG_ERROR("[renderer] failed to create texture {0}", _fileName);
+		}
+
 		glBindTexture(GL_TEXTURE_2D, m_TextureID);
 		glTexImage2D(GL_TEXTURE_2D, 0, format, m_Width, m_Height, 0, format, GL_UNSIGNED_BYTE, data);
 		stbi_image_free(data);

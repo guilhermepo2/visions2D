@@ -10,6 +10,29 @@ namespace visions2D {
 		
 	}
 
+	void Tilesheet::Slice(int TileWidth, int TileHeight) {
+		m_TileWidth = TileWidth;
+		m_TileHeight = TileHeight;
+		m_NumberOfVerticalTiles = (m_TextureRef->GetHeight() / m_TileHeight);
+		m_NumberOfColumns = (m_TextureRef->GetWidth() / m_TileWidth);
+		m_TileCount = 0;
+
+		for (int i = 0; i < m_NumberOfVerticalTiles; i++) {
+			for (int j = (m_NumberOfColumns - 1); j >= 0; j--) {
+				int x = j;
+				int y = i;
+				float tw = (float)m_TileWidth / m_TextureRef->GetWidth();
+				float th = (float)m_TileHeight / m_TextureRef->GetHeight();
+				glm::vec2 min = glm::vec2(x * tw, y * th);
+				glm::vec2 max = glm::vec2((x + 1) * tw, (y + 1) * th);
+
+				m_Tiles.insert(m_Tiles.begin(), new Tile(min, max));
+
+				m_TileCount++;
+			}
+		}
+	}
+
 	void Tilesheet::LoadFromTiledJson(const std::string& _fileName) {
 		rapidjson::Document doc;
 

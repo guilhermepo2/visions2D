@@ -40,6 +40,7 @@ namespace visions2D {
 		// TODO: Destructor, have to delete all Tiles
 
 		void LoadFromTiledJson(const std::string& _fileName);
+		void Slice(int TileWidth, int TileHeight);
 		float* GetTexCoordsFromId(int id);
 
 		inline int GetTileWidth() const { return m_TileWidth; }

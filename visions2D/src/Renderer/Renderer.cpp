@@ -60,6 +60,7 @@ namespace visions2D {
 
 		glewExperimental = GL_TRUE;
 		assert(glewInit() == GLEW_OK, "[renderer] unable to initialize glew");
+		glGetError();
 		glViewport(0, 0, m_ScreenWidth, m_ScreenHeight);
 
 		m_OrtographicCamera = new OrtographicCamera(m_ScreenWidth, m_ScreenHeight);
@@ -106,8 +107,8 @@ namespace visions2D {
 		for (int i = 0; i < SpriteRenderData.size(); i++) {
 			m_SpriteShader->SetActive();
 			m_SpriteShader->SetColor("uColor", SpriteRenderData[i].tint);
-
 			SpriteRenderData[i].Texture->SetActive();
+
 
 			glm::mat4 TextureScale = glm::scale(glm::mat4(1.0f), glm::vec3(SpriteRenderData[i].TextureScale, 1.0f));
 			glm::mat4 WorldScale = glm::scale(glm::mat4(1.0f), glm::vec3(SpriteRenderData[i].WorldScale, 1.0f));
