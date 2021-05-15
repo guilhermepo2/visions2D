@@ -16,7 +16,10 @@ namespace visions2D {
 			Scale = InScale;
 		}
 
-		// TODO: Translate
+		void Translate(glm::vec2 Delta) {
+			Position += Delta;
+		}
+
 		// TODO: ChangeScaleXSign
 	};
 }

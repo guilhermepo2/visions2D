@@ -32,12 +32,19 @@ int main(void) {
 		visions2D::Tilesheet* characterTilesheet = new visions2D::Tilesheet(characterTexture);
 		characterTilesheet->Slice(48, 48);
 
+		visions2D::Texture* mapTexture = new visions2D::Texture();
+		mapTexture->Load("./src/DefaultAssets/tiles_dungeon_v1.1.png");
+		visions2D::Tilesheet* mapTilesheet = new visions2D::Tilesheet(mapTexture);
+		mapTilesheet->LoadFromTiledJson("./src/DefaultAssets/Map/dungeon_tiles.json");
+		visions2D::Tilemap* dungeon = new visions2D::Tilemap();
+		dungeon->LoadFromJSON("./src/DefaultAssets/Map/dungeon_map.json");
+
 		inputSystem->Initialize();
 
 		bool b_IsRunning = true;
 
 		visions2D::Entity& Player = gameWorld->AddEntity("Player");
-		Player.AddComponent<visions2D::TransformComponent>(glm::vec2(0.0f, 0.0f), 0.0f, glm::vec2(4.0f, 4.0f));
+		Player.AddComponent<visions2D::TransformComponent>(glm::vec2(0.0f, 0.0f), 0.0f, glm::vec2(1.0f, 1.0f));
 		Player.AddComponent<visions2D::TileComponent>(characterTilesheet, 1, 0);
 
 		gameWorld->BeginPlay();
@@ -74,9 +81,53 @@ int main(void) {
 				LOG_INFO("spacebar was pressed and the input system works!");
 			}
 
+			// This should be a player component!
+			// translating the transform with input should be a scriptable thing
+			if (inputSystem->GetState().Keyboard.WasKeyPressedThisFrame(visions2D::v2D_Keycode::KEYCODE_D)) {
+				Player.GetComponentOfType<visions2D::TransformComponent>()->Translate(glm::vec2(16.0f, 0.0f));
+			}
+			else if (inputSystem->GetState().Keyboard.WasKeyPressedThisFrame(visions2D::v2D_Keycode::KEYCODE_A)) {
+				Player.GetComponentOfType<visions2D::TransformComponent>()->Translate(glm::vec2(-16.0f, 0.0f));
+			}
+			else if (inputSystem->GetState().Keyboard.WasKeyPressedThisFrame(visions2D::v2D_Keycode::KEYCODE_W)) {
+				Player.GetComponentOfType<visions2D::TransformComponent>()->Translate(glm::vec2(0.0f, 16.0f));
+			}
+			else if (inputSystem->GetState().Keyboard.WasKeyPressedThisFrame(visions2D::v2D_Keycode::KEYCODE_S)) {
+				Player.GetComponentOfType<visions2D::TransformComponent>()->Translate(glm::vec2(0.0f, -16.0f));
+			}
+
 			gameWorld->Update(DeltaTime);
 			sandbox->PrepareToRender();
 			gameWorld->Render();
+
+			int currentData = 0;
+			float StartingX = -(dungeon->GetMapWidth() / 2) * mapTilesheet->GetTileWidth();
+			float StartingY = (dungeon->GetMapHeight() / 2) * mapTilesheet->GetTileHeight();
+			glm::vec2 Position = glm::vec2(StartingX, StartingY);
+			int data;
+
+			for (int i = 0; i < dungeon->GetMapWidth(); i++) {
+				for (int j = 0; j < dungeon->GetMapHeight(); j++) {
+					visions2D::RenderData rd;
+					rd.Texture = mapTexture;
+					rd.TextureScale = glm::vec2(mapTilesheet->GetTileWidth(), mapTilesheet->GetTileHeight());
+					data = dungeon->GetData(currentData);
+					rd.TexCoords = mapTilesheet->GetTexCoordsFromId(data);
+
+					rd.WorldRotation = 0.0f;
+					rd.WorldPosition = glm::vec2(Position.x, Position.y);
+					rd.WorldScale = glm::vec2(1.0f, 1.0f);
+
+					rd.tint = visions2D::Color(1.0f, 1.0f, 1.0f, 1.0f);
+
+					sandbox->SpriteRenderData.push_back(rd);
+
+					Position.x += mapTilesheet->GetTileWidth();
+					currentData++;
+				}
+				Position.y -= mapTilesheet->GetTileHeight();
+				Position.x = StartingX;
+			}
 
 			// ----------------------------------------------------------------------------------------------------------------------------
 			// ----------------------------------------------------------------------------------------------------------------------------
