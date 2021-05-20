@@ -11,6 +11,7 @@ namespace visions2D {
 	class Entity {
 	public:
 		std::string Name;
+		Entity();
 		Entity(const std::string& InName);
 		inline bool IsActive() const { return m_bIsActive; }
 

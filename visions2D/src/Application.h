@@ -7,7 +7,9 @@ using ApplicationEvent = Function<void()>;
 using UpdateEvent = Function<void(float)>;
 
 namespace visions2D {
+
 	class Renderer;
+	using RenderEvent = Function<void(Renderer*)>;
 
 	struct AppConfig {
 		const char* WindowName;
@@ -19,9 +21,10 @@ namespace visions2D {
 
 		ApplicationEvent PreProcessInput;
 		ApplicationEvent ProcessInput;
+
 		UpdateEvent Update;
 
-		ApplicationEvent Render;
+		RenderEvent Render;
 		ApplicationEvent ImGuiRender;
 
 	};

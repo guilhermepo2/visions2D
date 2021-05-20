@@ -20,6 +20,8 @@ namespace visions2D {
 			Position += Delta;
 		}
 
-		// TODO: ChangeScaleXSign
+		void SetScaleXSign(int Sign) {
+			Scale.x = Sign;
+		}
 	};
 }

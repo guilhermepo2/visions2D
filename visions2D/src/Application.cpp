@@ -38,12 +38,13 @@ namespace visions2D {
 				TicksLastFrame = SDL_GetTicks();
 				// -----------------------------------------------------------------
 
+				if (ConfigBeingUsed.PreProcessInput != nullptr) {
+					ConfigBeingUsed.PreProcessInput();
+				}
+
 				SDL_Event Event;
 				while (SDL_PollEvent(&Event)) {
 					DearImGui::ProcessEvent(&Event);
-					if (ConfigBeingUsed.PreProcessInput != nullptr) {
-						ConfigBeingUsed.PreProcessInput();
-					}
 
 					switch (Event.type) {
 					case SDL_QUIT:
@@ -68,7 +69,7 @@ namespace visions2D {
 				m_RendererRef->PrepareToRender();
 				
 				if (ConfigBeingUsed.Render != nullptr) {
-					ConfigBeingUsed.Render();
+					ConfigBeingUsed.Render(m_RendererRef);
 				}
 
 				m_RendererRef->Render();

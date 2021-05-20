@@ -20,14 +20,11 @@ visions2D::Texture* mapTexture = nullptr;
 visions2D::Tilesheet* characterTilesheet = nullptr;
 visions2D::Tilesheet* mapTilesheet = nullptr;
 visions2D::Tilemap* dungeon = nullptr;
-// visions2D::Entity& Player;
+visions2D::Entity Player;
 
 void Start() {
-
 	inputSystem = new visions2D::InputSystem();
 	gameWorld = new visions2D::GameWorld();
-
-	
 
 	characterTexture = new visions2D::Texture();
 	characterTexture->Load("./src/DefaultAssets/chara_hero.png");
@@ -43,12 +40,9 @@ void Start() {
 	dungeon = new visions2D::Tilemap();
 	dungeon->LoadFromJSON("./src/DefaultAssets/Map/dungeon_map.json");
 
-	/*
 	Player = gameWorld->AddEntity("Player");
 	Player.AddComponent<visions2D::TransformComponent>(glm::vec2(0.0f, 0.0f), 0.0f, glm::vec2(1.0f, 1.0f));
 	Player.AddComponent<visions2D::TileComponent>(characterTilesheet, 1, 0);
-	*/
-
 
 	inputSystem->Initialize();
 	gameWorld->BeginPlay();
@@ -68,12 +62,13 @@ void Input() {
 
 	// This should be a player component!
 	// translating the transform with input should be a scriptable thing
-	/*
 	if (inputSystem->GetState().Keyboard.WasKeyPressedThisFrame(visions2D::v2D_Keycode::KEYCODE_D)) {
 		Player.GetComponentOfType<visions2D::TransformComponent>()->Translate(glm::vec2(16.0f, 0.0f));
+		Player.GetComponentOfType<visions2D::TransformComponent>()->SetScaleXSign(1);
 	}
 	else if (inputSystem->GetState().Keyboard.WasKeyPressedThisFrame(visions2D::v2D_Keycode::KEYCODE_A)) {
 		Player.GetComponentOfType<visions2D::TransformComponent>()->Translate(glm::vec2(-16.0f, 0.0f));
+		Player.GetComponentOfType<visions2D::TransformComponent>()->SetScaleXSign(-1);
 	}
 	else if (inputSystem->GetState().Keyboard.WasKeyPressedThisFrame(visions2D::v2D_Keycode::KEYCODE_W)) {
 		Player.GetComponentOfType<visions2D::TransformComponent>()->Translate(glm::vec2(0.0f, 16.0f));
@@ -81,7 +76,6 @@ void Input() {
 	else if (inputSystem->GetState().Keyboard.WasKeyPressedThisFrame(visions2D::v2D_Keycode::KEYCODE_S)) {
 		Player.GetComponentOfType<visions2D::TransformComponent>()->Translate(glm::vec2(0.0f, -16.0f));
 	}
-	*/
 }
 
 void Update(float DeltaTime) {
@@ -89,10 +83,9 @@ void Update(float DeltaTime) {
 	SandboxStats_Data.LastDeltaTime = DeltaTime;
 }
 
-void Render() {
+void Render(visions2D::Renderer* RendererReference) {
 	gameWorld->Render();
 
-	/*
 	int currentData = 0;
 	float StartingX = -(dungeon->GetMapWidth() / 2) * mapTilesheet->GetTileWidth();
 	float StartingY = (dungeon->GetMapHeight() / 2) * mapTilesheet->GetTileHeight();
@@ -113,7 +106,7 @@ void Render() {
 
 			rd.tint = visions2D::Color(1.0f, 1.0f, 1.0f, 1.0f);
 
-			sandbox->SpriteRenderData.push_back(rd);
+			RendererReference->SpriteRenderData.push_back(rd);
 
 			Position.x += mapTilesheet->GetTileWidth();
 			currentData++;
@@ -139,11 +132,10 @@ void Render() {
 		rd.WorldPosition = Player.GetComponentOfType<visions2D::TransformComponent>()->Position;
 		rd.WorldScale = Player.GetComponentOfType<visions2D::TransformComponent>()->Scale;
 		rd.tint = visions2D::Color(1.0f, 1.0f, 1.0f, 1.0f);
-		sandbox->SpriteRenderData.push_back(rd);
+		RendererReference->SpriteRenderData.push_back(rd);
 	}
 	// ----------------------------------------------------------------------------------------------------------------------------
 	// ----------------------------------------------------------------------------------------------------------------------------
-	*/
 }
 
 void OnImGui() {
@@ -178,8 +170,10 @@ int main(void) {
 
 	conf.Startup = Start;
 	conf.PreProcessInput = PreInput;
+	conf.ProcessInput = Input;
 	conf.ImGuiRender = OnImGui;
 	conf.Update = Update;
+	conf.Render = Render;
 
 	// maybe I should have a static Application::Run(AppConfig) ?!
 	visions2D::Application* app = new visions2D::Application(conf);

@@ -2,6 +2,7 @@
 #include "Component/Component.h"
 
 namespace visions2D {
+	Entity::Entity() {}
 	Entity::Entity(const std::string& InName) : Name(InName) {}
 
 	void Entity::BeginPlay() {
