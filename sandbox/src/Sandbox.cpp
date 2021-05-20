@@ -12,15 +12,28 @@ static struct {
 	float LastDeltaTime;
 } SandboxStats_Data;
 
+float DefaultTexCoords[] = {
+	1.0f, 1.0f,
+	1.0f, 0.0f,
+	0.0f, 0.0f,
+	0.0f, 1.0f
+};
+
 visions2D::InputSystem* inputSystem = nullptr;
 visions2D::GameWorld* gameWorld = nullptr;
 visions2D::Texture* characterTexture = nullptr;
 visions2D::Texture* mapTexture = nullptr;
+visions2D::Texture* shipTexture = nullptr;
 
 visions2D::Tilesheet* characterTilesheet = nullptr;
 visions2D::Tilesheet* mapTilesheet = nullptr;
 visions2D::Tilemap* dungeon = nullptr;
 visions2D::Entity Player;
+
+int MovementDirection = 0;
+float RotationSpeed = 135.0f;
+bool Accelerating = false;
+float ShipSpeed = 180.0f;
 
 void Start() {
 	inputSystem = new visions2D::InputSystem();
@@ -32,6 +45,9 @@ void Start() {
 	characterTilesheet = new visions2D::Tilesheet(characterTexture);
 	characterTilesheet->Slice(48, 48);
 
+	shipTexture = new visions2D::Texture();
+	shipTexture->Load("./src/DefaultAssets/Spaceship/playerShip3_blue.png");
+
 	mapTexture = new visions2D::Texture();
 	mapTexture->Load("./src/DefaultAssets/tiles_dungeon_v1.1.png");
 	mapTilesheet = new visions2D::Tilesheet(mapTexture);
@@ -42,7 +58,7 @@ void Start() {
 
 	Player = gameWorld->AddEntity("Player");
 	Player.AddComponent<visions2D::TransformComponent>(glm::vec2(0.0f, 0.0f), 0.0f, glm::vec2(1.0f, 1.0f));
-	Player.AddComponent<visions2D::TileComponent>(characterTilesheet, 1, 0);
+	Player.AddComponent<visions2D::SpriteComponent>(shipTexture, 0);
 
 	inputSystem->Initialize();
 	gameWorld->BeginPlay();
@@ -60,25 +76,34 @@ void Input() {
 		LOG_INFO("spacebar was pressed and the input system works!");
 	}
 
-	// This should be a player component!
-	// translating the transform with input should be a scriptable thing
-	if (inputSystem->GetState().Keyboard.WasKeyPressedThisFrame(visions2D::v2D_Keycode::KEYCODE_D)) {
-		Player.GetComponentOfType<visions2D::TransformComponent>()->Translate(glm::vec2(16.0f, 0.0f));
-		Player.GetComponentOfType<visions2D::TransformComponent>()->SetScaleXSign(1);
+	MovementDirection = 0;
+	if (inputSystem->GetState().Keyboard.IsKeyDown(visions2D::v2D_Keycode::KEYCODE_D)) {
+		MovementDirection += 1;
 	}
-	else if (inputSystem->GetState().Keyboard.WasKeyPressedThisFrame(visions2D::v2D_Keycode::KEYCODE_A)) {
-		Player.GetComponentOfType<visions2D::TransformComponent>()->Translate(glm::vec2(-16.0f, 0.0f));
-		Player.GetComponentOfType<visions2D::TransformComponent>()->SetScaleXSign(-1);
+	else if (inputSystem->GetState().Keyboard.IsKeyDown(visions2D::v2D_Keycode::KEYCODE_A)) {
+		MovementDirection -= 1;
 	}
-	else if (inputSystem->GetState().Keyboard.WasKeyPressedThisFrame(visions2D::v2D_Keycode::KEYCODE_W)) {
-		Player.GetComponentOfType<visions2D::TransformComponent>()->Translate(glm::vec2(0.0f, 16.0f));
+
+	if (inputSystem->GetState().Mouse.IsMouseKeyDown(visions2D::v2D_Mousecode::MOUSECODE_LEFT)) {
+		Accelerating = true;
 	}
-	else if (inputSystem->GetState().Keyboard.WasKeyPressedThisFrame(visions2D::v2D_Keycode::KEYCODE_S)) {
-		Player.GetComponentOfType<visions2D::TransformComponent>()->Translate(glm::vec2(0.0f, -16.0f));
+	else {
+		Accelerating = false;
 	}
 }
 
 void Update(float DeltaTime) {
+	
+	visions2D::TransformComponent* playerTransform = Player.GetComponentOfType<visions2D::TransformComponent>();
+
+	if (Accelerating) {
+		
+		float XSpeed = ShipSpeed * glm::sin(glm::radians(playerTransform->Rotation));
+		float YSpeed = ShipSpeed * glm::cos(glm::radians(playerTransform->Rotation));
+		playerTransform->Translate(glm::vec2(XSpeed, YSpeed) * DeltaTime);
+	}
+
+	playerTransform->Rotate(MovementDirection * RotationSpeed * DeltaTime);
 	gameWorld->Update(DeltaTime);
 	SandboxStats_Data.LastDeltaTime = DeltaTime;
 }
@@ -86,6 +111,7 @@ void Update(float DeltaTime) {
 void Render(visions2D::Renderer* RendererReference) {
 	gameWorld->Render();
 
+	/*
 	int currentData = 0;
 	float StartingX = -(dungeon->GetMapWidth() / 2) * mapTilesheet->GetTileWidth();
 	float StartingY = (dungeon->GetMapHeight() / 2) * mapTilesheet->GetTileHeight();
@@ -114,20 +140,19 @@ void Render(visions2D::Renderer* RendererReference) {
 		Position.y -= mapTilesheet->GetTileHeight();
 		Position.x = StartingX;
 	}
+	*/
 
 	// ----------------------------------------------------------------------------------------------------------------------------
 	// ----------------------------------------------------------------------------------------------------------------------------
 	// Move this to game world render or something like that
-	if (Player.HasComponentOfType<visions2D::TransformComponent>() && Player.HasComponentOfType<visions2D::TileComponent>()) {
+	if (Player.HasComponentOfType<visions2D::TransformComponent>() && Player.HasComponentOfType<visions2D::SpriteComponent>()) {
 		visions2D::RenderData rd;
-		visions2D::TileComponent* t = Player.GetComponentOfType<visions2D::TileComponent>();
+		// visions2D::TileComponent* t = Player.GetComponentOfType<visions2D::TileComponent>();
+		visions2D::SpriteComponent* s = Player.GetComponentOfType<visions2D::SpriteComponent>();
+		rd.Texture = s->tex;
 
-		// get this from the tilecomponent	//
-		rd.Texture = characterTexture;		//
-		// -------------------------------	//
-
-		rd.TextureScale = glm::vec2(characterTilesheet->GetTileWidth(), characterTilesheet->GetTileHeight());
-		rd.TexCoords = characterTilesheet->GetTexCoordsFromId(t->Data);
+		rd.TextureScale = glm::vec2(shipTexture->GetWidth(), shipTexture->GetHeight());
+		rd.TexCoords = DefaultTexCoords;
 		rd.WorldRotation = Player.GetComponentOfType<visions2D::TransformComponent>()->Rotation;
 		rd.WorldPosition = Player.GetComponentOfType<visions2D::TransformComponent>()->Position;
 		rd.WorldScale = Player.GetComponentOfType<visions2D::TransformComponent>()->Scale;

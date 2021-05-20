@@ -16,6 +16,10 @@ namespace visions2D {
 			Scale = InScale;
 		}
 
+		void Rotate(float DeltaRotation) {
+			Rotation += DeltaRotation;
+		}
+
 		void Translate(glm::vec2 Delta) {
 			Position += Delta;
 		}
