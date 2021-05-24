@@ -120,7 +120,12 @@ namespace visions2D {
 			m_SpriteShader->SetMatrix4("uCameraViewProjection", m_OrtographicCamera->GetCameraViewProjection());
 
 			m_DefaultVertexArray->SetActive();
-			m_DefaultVertexArray->SubTexCoords(SpriteRenderData[i].TexCoords);
+			if (SpriteRenderData[i].TexCoords == nullptr) {
+				m_DefaultVertexArray->SubTexCoords(DefaultTexCoords);
+			}
+			else {
+				m_DefaultVertexArray->SubTexCoords(SpriteRenderData[i].TexCoords);
+			}
 
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		}

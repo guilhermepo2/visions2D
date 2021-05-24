@@ -12,13 +12,6 @@ static struct {
 	float LastDeltaTime;
 } SandboxStats_Data;
 
-float DefaultTexCoords[] = {
-	1.0f, 1.0f,
-	1.0f, 0.0f,
-	0.0f, 0.0f,
-	0.0f, 1.0f
-};
-
 visions2D::InputSystem* inputSystem = nullptr;
 visions2D::GameWorld* gameWorld = nullptr;
 visions2D::Texture* characterTexture = nullptr;
@@ -111,56 +104,19 @@ void Update(float DeltaTime) {
 void Render(visions2D::Renderer* RendererReference) {
 	gameWorld->Render();
 
-	/*
-	int currentData = 0;
-	float StartingX = -(dungeon->GetMapWidth() / 2) * mapTilesheet->GetTileWidth();
-	float StartingY = (dungeon->GetMapHeight() / 2) * mapTilesheet->GetTileHeight();
-	glm::vec2 Position = glm::vec2(StartingX, StartingY);
-	int data;
-
-	for (int i = 0; i < dungeon->GetMapWidth(); i++) {
-		for (int j = 0; j < dungeon->GetMapHeight(); j++) {
-			visions2D::RenderData rd;
-			rd.Texture = mapTexture;
-			rd.TextureScale = glm::vec2(mapTilesheet->GetTileWidth(), mapTilesheet->GetTileHeight());
-			data = dungeon->GetData(currentData);
-			rd.TexCoords = mapTilesheet->GetTexCoordsFromId(data);
-
-			rd.WorldRotation = 0.0f;
-			rd.WorldPosition = glm::vec2(Position.x, Position.y);
-			rd.WorldScale = glm::vec2(1.0f, 1.0f);
-
-			rd.tint = visions2D::Color(1.0f, 1.0f, 1.0f, 1.0f);
-
-			RendererReference->SpriteRenderData.push_back(rd);
-
-			Position.x += mapTilesheet->GetTileWidth();
-			currentData++;
-		}
-		Position.y -= mapTilesheet->GetTileHeight();
-		Position.x = StartingX;
-	}
-	*/
-
-	// ----------------------------------------------------------------------------------------------------------------------------
-	// ----------------------------------------------------------------------------------------------------------------------------
-	// Move this to game world render or something like that
 	if (Player.HasComponentOfType<visions2D::TransformComponent>() && Player.HasComponentOfType<visions2D::SpriteComponent>()) {
 		visions2D::RenderData rd;
-		// visions2D::TileComponent* t = Player.GetComponentOfType<visions2D::TileComponent>();
 		visions2D::SpriteComponent* s = Player.GetComponentOfType<visions2D::SpriteComponent>();
 		rd.Texture = s->tex;
 
 		rd.TextureScale = glm::vec2(shipTexture->GetWidth(), shipTexture->GetHeight());
-		rd.TexCoords = DefaultTexCoords;
+		rd.TexCoords = nullptr;
 		rd.WorldRotation = Player.GetComponentOfType<visions2D::TransformComponent>()->Rotation;
 		rd.WorldPosition = Player.GetComponentOfType<visions2D::TransformComponent>()->Position;
 		rd.WorldScale = Player.GetComponentOfType<visions2D::TransformComponent>()->Scale;
 		rd.tint = visions2D::Color(1.0f, 1.0f, 1.0f, 1.0f);
 		RendererReference->SpriteRenderData.push_back(rd);
 	}
-	// ----------------------------------------------------------------------------------------------------------------------------
-	// ----------------------------------------------------------------------------------------------------------------------------
 }
 
 void OnImGui() {
