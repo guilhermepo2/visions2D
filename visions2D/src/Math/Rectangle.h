@@ -49,7 +49,15 @@ namespace visions2D {
 			// is empty
 			// center
 
-			// contains
+			
+			bool Contains(float x, float y) {
+				return (x >= Left() && x <= Right() && y >= Top() && y <= Bottom());
+			}
+
+			bool Contains(glm::vec2 Position) {
+				return Contains(Position.x, Position.y);
+			}
+
 			// intersects
 			// inflate
 			// contract

@@ -14,9 +14,7 @@ namespace visions2D {
 		void Update(float DeltaTime);
 		virtual void Render();
 		virtual void InternalDraw(); 
-
-		// TODO: Make this a std::function?
-		virtual void CustomDrawFunction();
+		ControlEvent CustomDrawCall;
 
 		float& Alpha() { return m_Alpha; }
 		const glm::vec2 Position() const { return m_Rect.Position(); }
@@ -46,7 +44,8 @@ namespace visions2D {
 		bool m_Focused;
 		bool m_MouseOver;
 
-		// TODO: Viewport?
+		// TODO: Viewport
+		// Have to research what the viewport is supposed to represent, how to get in runtime, and how I can get around it if I need.
 
 		ControlEvent m_OnFocusReceived;
 		ControlEvent m_OnFocusLost;
