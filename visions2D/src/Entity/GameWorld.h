@@ -15,7 +15,7 @@ namespace visions2D {
 		void Render();
 		void Destroy();
 
-		inline int GetEntitiesCount() const { return m_Entities.size(); }
+		inline size_t GetEntitiesCount() const { return m_Entities.size(); }
 		inline bool HasEntities() const { return m_Entities.size() != 0; }
 		Entity& AddEntity(const std::string& EntityName);
 		Entity* GetEntityByName(const std::string& EntityName);

@@ -25,7 +25,7 @@ namespace visions2D {
 		}
 
 		void SetScaleXSign(int Sign) {
-			Scale.x = Sign;
+			Scale.x = static_cast<float>(Sign);
 		}
 	};
 }

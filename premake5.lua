@@ -30,6 +30,7 @@ project "visions2D"
 
     targetdir("bin/" .. outputdir .. "/%{prj.name}")
     objdir("binobj/" .. outputdir .. "/%{prj.name}")
+    warnings "Extra"
 
     files 
     {
@@ -78,6 +79,7 @@ project "sandbox"
         location "visions2D"
         kind "ConsoleApp"
         language "C++"
+        warnings "Extra"
 
         targetdir("bin/" .. outputdir .. "/%{prj.name}")
         objdir("binobj/" .. outputdir .. "/%{prj.name}")
@@ -121,6 +123,7 @@ project "lucid-renderer"
         location "visions2D"
         kind "ConsoleApp"
         language "C++"
+        warnings "Extra"
 
         targetdir("bin/" .. outputdir .. "/%{prj.name}")
         objdir("binobj/" .. outputdir .. "/%{prj.name}")

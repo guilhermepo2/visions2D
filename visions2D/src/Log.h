@@ -15,4 +15,8 @@ private:
 #define LOG_WARNING(...)	Log::GetLogger()->warn(__VA_ARGS__);
 #define LOG_ERROR(...)		Log::GetLogger()->error(__VA_ARGS__);
 
+#ifdef assert
+#undef assert
+#endif
+
 #define assert(x, ...) { if(!(x)) { LOG_ERROR(__VA_ARGS__); __debugbreak; } }

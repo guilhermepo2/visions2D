@@ -62,5 +62,5 @@ namespace visions2D {
 		}
 	}
 
-	void Control::InternalDraw() { // do nothing? }
+	void Control::InternalDraw() { } // do nothing? 
 }

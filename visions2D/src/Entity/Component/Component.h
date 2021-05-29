@@ -1,4 +1,5 @@
 #pragma once
+#include "Common.h"
 
 namespace visions2D {
 	class Entity;
@@ -12,8 +13,8 @@ namespace visions2D {
 		virtual ~Component() {}
 		virtual void Initialize() {}
 		virtual void BeginPlay() {}
-		virtual bool ProcessInput(const InputState& CurrentInputState) { return false; }
-		virtual void Update(float DeltaTime) {}
+		virtual bool ProcessInput(const InputState& CurrentInputState) { unreferenced(CurrentInputState); return false; }
+		virtual void Update(float DeltaTime) { unreferenced(DeltaTime); }
 		virtual void Render() {}
 		virtual void Destroy() {}
 	};

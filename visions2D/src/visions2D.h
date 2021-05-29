@@ -1,6 +1,7 @@
 #pragma once
 #include "Log.h"
 #include "Application.h"
+#include "Common.h"
 
 #include "Renderer/Renderer.h"
 #include "Renderer/Shader.h"
