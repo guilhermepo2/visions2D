@@ -1,6 +1,8 @@
 #pragma once
 #include <string>
 
+struct SDL_Surface;
+
 namespace visions2D {
 	class Texture {
 	public:
@@ -10,8 +12,7 @@ namespace visions2D {
 		bool Load(const std::string& _fileName);
 		void Unload();
 		void SetActive();
-
-		// Create from Surface?
+		void CreateFromSurface(SDL_Surface* Surface);
 
 		inline unsigned int GetWidth() const { return m_Width; }
 		inline unsigned int GetHeight() const { return m_Height; }
