@@ -63,6 +63,12 @@ namespace visions2D {
 		glGetError();
 		glViewport(0, 0, m_ScreenWidth, m_ScreenHeight);
 
+		// Initializing Fonts
+		if (TTF_Init() != 0) {
+			LOG_ERROR("Failed to initialize SDL_ttf!");
+			return false;
+		}
+
 		m_OrtographicCamera = new OrtographicCamera(m_ScreenWidth, m_ScreenHeight);
 		m_OrtographicCamera->SetColor(0.0f, 0.0f, 0.0f, 1.0f);
 

@@ -2,6 +2,7 @@
 #include <GL/glew.h>
 #include <SDL.h>
 #undef main
+#include <SDL_ttf.h>
 #include <string>
 #include <imgui.h>
 #include <imgui_impl_sdl.h>

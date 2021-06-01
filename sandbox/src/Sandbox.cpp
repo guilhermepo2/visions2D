@@ -1,4 +1,4 @@
-// *******************************************************
+﻿// *******************************************************
 // *******************************************************
 // 
 // 
@@ -7,6 +7,7 @@
 // *******************************************************
 
 #include "visions2D.h"
+#include <SDL_ttf.h>
 
 static struct {
 	float LastDeltaTime;
@@ -27,6 +28,11 @@ int MovementDirection = 0;
 float RotationSpeed = 135.0f;
 bool Accelerating = false;
 float ShipSpeed = 180.0f;
+
+visions2D::Texture* HelloWorldTexture = nullptr;
+visions2D::Texture* ltText = nullptr;
+visions2D::Texture* zhongguoText = nullptr;
+visions2D::Texture* kafei = nullptr;
 
 void Start() {
 	inputSystem = new visions2D::InputSystem();
@@ -52,6 +58,58 @@ void Start() {
 	Player = gameWorld->AddEntity("Player");
 	Player.AddComponent<visions2D::TransformComponent>(glm::vec2(0.0f, 0.0f), 0.0f, glm::vec2(1.0f, 1.0f));
 	Player.AddComponent<visions2D::SpriteComponent>(shipTexture, 0);
+
+	// This is being done purely to test out putting a font in the screen!
+	TTF_Font* LazytownFont = TTF_OpenFont("./src/DefaultAssets/ChevyRay - Lazytown.ttf", 12);
+	if (LazytownFont == nullptr) {
+		LOG_WARNING("Couldn't load lazytown font!");
+	}
+	HelloWorldTexture = new visions2D::Texture();
+	SDL_Color color;
+	color.r = 255; color.g = 255; color.b = 255; color.a = 255;
+	SDL_Surface* surf = TTF_RenderUTF8_Blended(LazytownFont, "Hello World", color);
+	if (surf != nullptr) {
+		HelloWorldTexture->CreateFromSurface(surf);
+		SDL_FreeSurface(surf);
+	}
+	// Font should be ready to render now!
+
+	const char* LatinXText = "olÃ¡, como estÃ¡s?";
+	TTF_Font* Arial = TTF_OpenFont("./src/DefaultAssets/Arial.ttf", 12);
+	if (Arial == nullptr) {
+		LOG_WARNING("SDL2_TTF is racist!");
+	}
+	SDL_Surface* surf2 = TTF_RenderUTF8_Blended(Arial, LatinXText, color);
+	if (surf == nullptr) {
+		LOG_WARNING("Couldn't create texture for {0}", LatinXText);
+	}
+
+	if (surf2 != nullptr) {
+		
+		ltText = new visions2D::Texture();
+		ltText->CreateFromSurface(surf2);
+		SDL_FreeSurface(surf2);
+	}
+
+
+	Uint16 NoWay[32] = { 0x6211,0x559c,0x6b22,0x5496,0x5561, 0 }; // wo xihuan kafei
+	Uint16 msg[1024] = { 0x4F60,0x597D, 0 }; //= Unicode encoding: Hello
+	TTF_Font* NotoSans = TTF_OpenFont("./src/DefaultAssets/NotoSansSC-Light.otf", 40);
+	TTF_Font* SentyWen = TTF_OpenFont("./src/DefaultAssets/SentyWEN2017.ttf", 40);
+	SDL_Surface* surf3 = TTF_RenderUNICODE_Blended(NotoSans, NoWay, color);
+	SDL_Surface* surf4 = TTF_RenderUNICODE_Blended(SentyWen, msg, color);
+
+	if (surf3 != nullptr) {
+		zhongguoText = new visions2D::Texture();
+		zhongguoText->CreateFromSurface(surf3);
+		SDL_FreeSurface(surf3);
+	}
+
+	if (surf4 != nullptr) {
+		kafei = new visions2D::Texture();
+		kafei->CreateFromSurface(surf4);
+		SDL_FreeSurface(surf4);
+	}
 
 	inputSystem->Initialize();
 	gameWorld->BeginPlay();
@@ -103,6 +161,57 @@ void Update(float DeltaTime) {
 
 void Render(visions2D::Renderer* RendererReference) {
 	gameWorld->Render();
+
+	
+	{
+		visions2D::RenderData rd;
+		rd.Texture = HelloWorldTexture;
+		rd.TextureScale = glm::vec2(HelloWorldTexture->GetWidth(), HelloWorldTexture->GetHeight());
+		rd.TexCoords = nullptr;
+		rd.WorldRotation = 0.0f;
+		rd.WorldPosition = glm::vec2(200.0f, 200.0f);
+		// turns out fonts are upside down... wtf...
+		rd.WorldScale = glm::vec2(1.0f, -1.0f);
+		RendererReference->SpriteRenderData.push_back(rd);
+	}
+	
+
+	{
+		visions2D::RenderData rd;
+		rd.Texture = ltText;
+		rd.TextureScale = glm::vec2(ltText->GetWidth(), ltText->GetHeight());
+		rd.TexCoords = nullptr;
+		rd.WorldRotation = 0.0f;
+		rd.WorldPosition = glm::vec2(200.0f, 150.0f);
+		// turns out fonts are upside down... wtf...
+		rd.WorldScale = glm::vec2(1.0f, -1.0f);
+		RendererReference->SpriteRenderData.push_back(rd);
+	}
+
+	{
+		visions2D::RenderData rd;
+		rd.Texture = zhongguoText;
+		rd.TextureScale = glm::vec2(zhongguoText->GetWidth(), zhongguoText->GetHeight());
+		rd.TexCoords = nullptr;
+		rd.WorldRotation = 0.0f;
+		rd.WorldPosition = glm::vec2(200.0f, 100.0f);
+		// turns out fonts are upside down... wtf...
+		rd.WorldScale = glm::vec2(1.0f, -1.0f);
+		RendererReference->SpriteRenderData.push_back(rd);
+	}
+
+	{
+		visions2D::RenderData rd;
+		rd.Texture = kafei;
+		rd.TextureScale = glm::vec2(kafei->GetWidth(), kafei->GetHeight());
+		rd.TexCoords = nullptr;
+		rd.WorldRotation = 0.0f;
+		rd.WorldPosition = glm::vec2(200.0f, 50.0f);
+		// turns out fonts are upside down... wtf...
+		rd.WorldScale = glm::vec2(1.0f, -1.0f);
+		RendererReference->SpriteRenderData.push_back(rd);
+	}
+
 
 	if (Player.HasComponentOfType<visions2D::TransformComponent>() && Player.HasComponentOfType<visions2D::SpriteComponent>()) {
 		visions2D::RenderData rd;
