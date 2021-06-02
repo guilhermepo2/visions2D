@@ -92,12 +92,17 @@ void Start() {
 	}
 
 
-	Uint16 NoWay[32] = { 0x6211,0x559c,0x6b22,0x5496,0x5561, 0 }; // wo xihuan kafei
-	Uint16 msg[1024] = { 0x4F60,0x597D, 0 }; //= Unicode encoding: Hello
+
+	Uint16 ILikeCoffee_Unicode[32] = { 0x6211,0x559c,0x6b22,0x5496,0x5561, 0 };
+	Uint16 Hello_UnicodeHex[1024] = { 0x4F60,0x597D, 0 }; //= (Hexadecimal) Unicode encoding: Hello
+	Uint16 Hello_UnicodeDec[1024] = { 20320, 22909, 0 }; //= (Decimal) Unicode encoding: Hello
+	const char* Hello_UTF8 = u8"\u4F60\u597D";
+	const char* ILikeCoffee_UTF8 = u8"\u6211\u559c\u6b22\u5496\u5561\0";
+
 	TTF_Font* NotoSans = TTF_OpenFont("./src/DefaultAssets/NotoSansSC-Light.otf", 40);
-	TTF_Font* SentyWen = TTF_OpenFont("./src/DefaultAssets/SentyWEN2017.ttf", 40);
-	SDL_Surface* surf3 = TTF_RenderUNICODE_Blended(NotoSans, NoWay, color);
-	SDL_Surface* surf4 = TTF_RenderUNICODE_Blended(SentyWen, msg, color);
+	TTF_Font* SentyWen = TTF_OpenFont("./src/DefaultAssets/SentyWEN2017.ttf", 64);
+	SDL_Surface* surf3 = TTF_RenderUNICODE_Blended(NotoSans, ILikeCoffee_Unicode, color); // any unicode (uint16) will work here
+	SDL_Surface* surf4 = TTF_RenderUTF8_Blended(SentyWen, ILikeCoffee_UTF8, color); // any utf8 will work here
 
 	if (surf3 != nullptr) {
 		zhongguoText = new visions2D::Texture();
@@ -206,7 +211,7 @@ void Render(visions2D::Renderer* RendererReference) {
 		rd.TextureScale = glm::vec2(kafei->GetWidth(), kafei->GetHeight());
 		rd.TexCoords = nullptr;
 		rd.WorldRotation = 0.0f;
-		rd.WorldPosition = glm::vec2(200.0f, 50.0f);
+		rd.WorldPosition = glm::vec2(200.0f, 0.0f);
 		// turns out fonts are upside down... wtf...
 		rd.WorldScale = glm::vec2(1.0f, -1.0f);
 		RendererReference->SpriteRenderData.push_back(rd);
