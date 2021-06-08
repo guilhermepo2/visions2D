@@ -22,9 +22,9 @@ namespace visions2D {
 		// Run game loop, also with the defined updates on the application.
 
 		bool bIsRunning = false;
-		float TicksLastFrame = 0.0f;
+		unsigned int TicksLastFrame = 0;
 		m_RendererRef = new Renderer();
-		if (m_RendererRef->Initialize(ConfigBeingUsed.Width, ConfigBeingUsed.Height, ConfigBeingUsed.WindowName)) {
+		if (m_RendererRef->Initialize(static_cast<float>(ConfigBeingUsed.Width), static_cast<float>(ConfigBeingUsed.Height), ConfigBeingUsed.WindowName)) {
 			bIsRunning = true;
 
 			if (ConfigBeingUsed.Startup != nullptr) {
@@ -33,7 +33,7 @@ namespace visions2D {
 
 			while (bIsRunning) {
 				// -----------------------------------------------------------------
-				float DeltaTime = (SDL_GetTicks() - TicksLastFrame) / 1000.0f;
+				float DeltaTime = (static_cast<float>((SDL_GetTicks() - TicksLastFrame))) / 1000.0f;
 				DeltaTime = (DeltaTime > 0.05f) ? 0.05f : DeltaTime;
 				TicksLastFrame = SDL_GetTicks();
 				// -----------------------------------------------------------------

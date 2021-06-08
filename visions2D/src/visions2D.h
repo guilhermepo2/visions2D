@@ -1,6 +1,7 @@
 #pragma once
 #include "Log.h"
 #include "Application.h"
+#include "Common.h"
 
 #include "Renderer/Renderer.h"
 #include "Renderer/Shader.h"
@@ -23,6 +24,8 @@
 #include "Entity/Component/TransformComponent.h"
 #include "Entity/Component/SpriteComponent.h"
 #include "Entity/Component/TileComponent.h"
+
+#include "UI/Font.h"
 
 #include "Utilities/JsonHelper.h"
 #include "Utilities/Tilemap.h"

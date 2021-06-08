@@ -41,6 +41,17 @@ namespace visions2D {
 		return true;
 	}
 
+	void Texture::CreateFromSurface(SDL_Surface* Surface) {
+		m_Width = Surface->w;
+		m_Height = Surface->h;
+		glGenTextures(1, &m_TextureID);
+		glBindTexture(GL_TEXTURE_2D, m_TextureID);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_Width, m_Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, Surface->pixels);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	}
+
 	void Texture::Unload() {
 		glDeleteTextures(1, &m_TextureID);
 	}

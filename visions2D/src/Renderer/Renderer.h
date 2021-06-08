@@ -1,9 +1,9 @@
 #pragma once
-#pragma once
+#include <GL/glew.h>
 #include <SDL.h>
 #undef main
+#include <SDL_ttf.h>
 #include <string>
-#include <GL/glew.h>
 #include <imgui.h>
 #include <imgui_impl_sdl.h>
 #include <imgui_impl_opengl3.h>

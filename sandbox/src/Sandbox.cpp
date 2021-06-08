@@ -1,4 +1,4 @@
-// *******************************************************
+﻿// *******************************************************
 // *******************************************************
 // 
 // 
@@ -28,6 +28,15 @@ float RotationSpeed = 135.0f;
 bool Accelerating = false;
 float ShipSpeed = 180.0f;
 
+visions2D::Font* LazyTownFont = nullptr;
+visions2D::Font* ArialFont = nullptr;
+visions2D::Font* NotoSans = nullptr;
+visions2D::Font* SentyWen = nullptr;
+visions2D::Texture* HelloWorldTexture = nullptr;
+visions2D::Texture* ltText = nullptr;
+visions2D::Texture* zhongguoText = nullptr;
+visions2D::Texture* kafei = nullptr;
+
 void Start() {
 	inputSystem = new visions2D::InputSystem();
 	gameWorld = new visions2D::GameWorld();
@@ -52,6 +61,32 @@ void Start() {
 	Player = gameWorld->AddEntity("Player");
 	Player.AddComponent<visions2D::TransformComponent>(glm::vec2(0.0f, 0.0f), 0.0f, glm::vec2(1.0f, 1.0f));
 	Player.AddComponent<visions2D::SpriteComponent>(shipTexture, 0);
+
+	// TODO: Have a static method to create and load fonts?!
+	// TODO: It's probably better to have a centralized "Asset Manager" with Textures, Fonts, etc...
+	LazyTownFont = new visions2D::Font();
+	ArialFont = new visions2D::Font();
+	NotoSans = new visions2D::Font();
+	SentyWen = new visions2D::Font();
+
+	LazyTownFont->Load("./src/DefaultAssets/ChevyRay - Lazytown.ttf");
+	ArialFont->Load("./src/DefaultAssets/Arial.ttf");
+	NotoSans->Load("./src/DefaultAssets/NotoSansSC-Light.otf");
+	SentyWen->Load("./src/DefaultAssets/SentyWEN2017.ttf");
+
+	HelloWorldTexture = LazyTownFont->RenderToTexture("Hello World", 12);
+
+	const char* LatinXText = "olÃ¡, como estÃ¡s?";
+	ltText = ArialFont->RenderToTexture(LatinXText, 12);
+
+	Uint16 ILikeCoffee_Unicode[32] = { 0x6211,0x559c,0x6b22,0x5496,0x5561, 0 };
+	Uint16 Hello_UnicodeHex[1024] = { 0x4F60,0x597D, 0 }; //= (Hexadecimal) Unicode encoding: Hello
+	Uint16 Hello_UnicodeDec[1024] = { 20320, 22909, 0 }; //= (Decimal) Unicode encoding: Hello
+	const char* Hello_UTF8 = u8"\u4F60\u597D";
+	const char* ILikeCoffee_UTF8 = u8"\u6211\u559c\u6b22\u5496\u5561\0";
+
+	zhongguoText = NotoSans->RenderToTexture(Hello_UTF8, 40);
+	kafei = SentyWen->RenderToTexture(ILikeCoffee_UTF8, 64);
 
 	inputSystem->Initialize();
 	gameWorld->BeginPlay();
@@ -103,6 +138,57 @@ void Update(float DeltaTime) {
 
 void Render(visions2D::Renderer* RendererReference) {
 	gameWorld->Render();
+
+	
+	{
+		visions2D::RenderData rd;
+		rd.Texture = HelloWorldTexture;
+		rd.TextureScale = glm::vec2(HelloWorldTexture->GetWidth(), HelloWorldTexture->GetHeight());
+		rd.TexCoords = nullptr;
+		rd.WorldRotation = 0.0f;
+		rd.WorldPosition = glm::vec2(200.0f, 200.0f);
+		// turns out fonts are upside down... wtf...
+		rd.WorldScale = glm::vec2(1.0f, -1.0f);
+		RendererReference->SpriteRenderData.push_back(rd);
+	}
+	
+
+	{
+		visions2D::RenderData rd;
+		rd.Texture = ltText;
+		rd.TextureScale = glm::vec2(ltText->GetWidth(), ltText->GetHeight());
+		rd.TexCoords = nullptr;
+		rd.WorldRotation = 0.0f;
+		rd.WorldPosition = glm::vec2(200.0f, 150.0f);
+		// turns out fonts are upside down... wtf...
+		rd.WorldScale = glm::vec2(1.0f, -1.0f);
+		RendererReference->SpriteRenderData.push_back(rd);
+	}
+
+	{
+		visions2D::RenderData rd;
+		rd.Texture = zhongguoText;
+		rd.TextureScale = glm::vec2(zhongguoText->GetWidth(), zhongguoText->GetHeight());
+		rd.TexCoords = nullptr;
+		rd.WorldRotation = 0.0f;
+		rd.WorldPosition = glm::vec2(200.0f, 100.0f);
+		// turns out fonts are upside down... wtf...
+		rd.WorldScale = glm::vec2(1.0f, -1.0f);
+		RendererReference->SpriteRenderData.push_back(rd);
+	}
+
+	{
+		visions2D::RenderData rd;
+		rd.Texture = kafei;
+		rd.TextureScale = glm::vec2(kafei->GetWidth(), kafei->GetHeight());
+		rd.TexCoords = nullptr;
+		rd.WorldRotation = 0.0f;
+		rd.WorldPosition = glm::vec2(200.0f, 0.0f);
+		// turns out fonts are upside down... wtf...
+		rd.WorldScale = glm::vec2(1.0f, -1.0f);
+		RendererReference->SpriteRenderData.push_back(rd);
+	}
+
 
 	if (Player.HasComponentOfType<visions2D::TransformComponent>() && Player.HasComponentOfType<visions2D::SpriteComponent>()) {
 		visions2D::RenderData rd;
