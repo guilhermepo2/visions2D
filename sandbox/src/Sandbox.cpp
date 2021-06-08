@@ -29,6 +29,10 @@ float RotationSpeed = 135.0f;
 bool Accelerating = false;
 float ShipSpeed = 180.0f;
 
+visions2D::Font* LazyTownFont = nullptr;
+visions2D::Font* ArialFont = nullptr;
+visions2D::Font* NotoSans = nullptr;
+visions2D::Font* SentyWen = nullptr;
 visions2D::Texture* HelloWorldTexture = nullptr;
 visions2D::Texture* ltText = nullptr;
 visions2D::Texture* zhongguoText = nullptr;
@@ -59,39 +63,22 @@ void Start() {
 	Player.AddComponent<visions2D::TransformComponent>(glm::vec2(0.0f, 0.0f), 0.0f, glm::vec2(1.0f, 1.0f));
 	Player.AddComponent<visions2D::SpriteComponent>(shipTexture, 0);
 
-	// This is being done purely to test out putting a font in the screen!
-	TTF_Font* LazytownFont = TTF_OpenFont("./src/DefaultAssets/ChevyRay - Lazytown.ttf", 12);
-	if (LazytownFont == nullptr) {
-		LOG_WARNING("Couldn't load lazytown font!");
-	}
-	HelloWorldTexture = new visions2D::Texture();
-	SDL_Color color;
-	color.r = 255; color.g = 255; color.b = 255; color.a = 255;
-	SDL_Surface* surf = TTF_RenderUTF8_Blended(LazytownFont, "Hello World", color);
-	if (surf != nullptr) {
-		HelloWorldTexture->CreateFromSurface(surf);
-		SDL_FreeSurface(surf);
-	}
-	// Font should be ready to render now!
+	// TODO: Have a static method to create and load fonts?!
+	// TODO: It's probably better to have a centralized "Asset Manager" with Textures, Fonts, etc...
+	LazyTownFont = new visions2D::Font();
+	ArialFont = new visions2D::Font();
+	NotoSans = new visions2D::Font();
+	SentyWen = new visions2D::Font();
+
+	LazyTownFont->Load("./src/DefaultAssets/ChevyRay - Lazytown.ttf");
+	ArialFont->Load("./src/DefaultAssets/Arial.ttf");
+	NotoSans->Load("./src/DefaultAssets/NotoSansSC-Light.otf");
+	SentyWen->Load("./src/DefaultAssets/SentyWEN2017.ttf");
+
+	HelloWorldTexture = LazyTownFont->RenderToTexture("Hello World", 12);
 
 	const char* LatinXText = "olÃ¡, como estÃ¡s?";
-	TTF_Font* Arial = TTF_OpenFont("./src/DefaultAssets/Arial.ttf", 12);
-	if (Arial == nullptr) {
-		LOG_WARNING("SDL2_TTF is racist!");
-	}
-	SDL_Surface* surf2 = TTF_RenderUTF8_Blended(Arial, LatinXText, color);
-	if (surf == nullptr) {
-		LOG_WARNING("Couldn't create texture for {0}", LatinXText);
-	}
-
-	if (surf2 != nullptr) {
-		
-		ltText = new visions2D::Texture();
-		ltText->CreateFromSurface(surf2);
-		SDL_FreeSurface(surf2);
-	}
-
-
+	ltText = ArialFont->RenderToTexture(LatinXText, 12);
 
 	Uint16 ILikeCoffee_Unicode[32] = { 0x6211,0x559c,0x6b22,0x5496,0x5561, 0 };
 	Uint16 Hello_UnicodeHex[1024] = { 0x4F60,0x597D, 0 }; //= (Hexadecimal) Unicode encoding: Hello
@@ -99,22 +86,8 @@ void Start() {
 	const char* Hello_UTF8 = u8"\u4F60\u597D";
 	const char* ILikeCoffee_UTF8 = u8"\u6211\u559c\u6b22\u5496\u5561\0";
 
-	TTF_Font* NotoSans = TTF_OpenFont("./src/DefaultAssets/NotoSansSC-Light.otf", 40);
-	TTF_Font* SentyWen = TTF_OpenFont("./src/DefaultAssets/SentyWEN2017.ttf", 64);
-	SDL_Surface* surf3 = TTF_RenderUNICODE_Blended(NotoSans, ILikeCoffee_Unicode, color); // any unicode (uint16) will work here
-	SDL_Surface* surf4 = TTF_RenderUTF8_Blended(SentyWen, ILikeCoffee_UTF8, color); // any utf8 will work here
-
-	if (surf3 != nullptr) {
-		zhongguoText = new visions2D::Texture();
-		zhongguoText->CreateFromSurface(surf3);
-		SDL_FreeSurface(surf3);
-	}
-
-	if (surf4 != nullptr) {
-		kafei = new visions2D::Texture();
-		kafei->CreateFromSurface(surf4);
-		SDL_FreeSurface(surf4);
-	}
+	zhongguoText = NotoSans->RenderToTexture(Hello_UTF8, 40);
+	kafei = SentyWen->RenderToTexture(ILikeCoffee_UTF8, 64);
 
 	inputSystem->Initialize();
 	gameWorld->BeginPlay();
