@@ -7,7 +7,6 @@
 // *******************************************************
 
 #include "visions2D.h"
-#include <SDL_ttf.h>
 
 static struct {
 	float LastDeltaTime;
