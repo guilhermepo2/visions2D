@@ -1,6 +1,7 @@
 #include "CollisionWorld.h"
 #include "Log.h"
 #include "Entity/Component/BoxCollider.h"
+#include "Collider.h"
 
 namespace visions2D {
 	CollisionWorld* CollisionWorld::s_Instance = nullptr;
@@ -24,7 +25,24 @@ namespace visions2D {
 	void CollisionWorld::Shutdown() { } // TODO 
 
 	void CollisionWorld::VerifyAllCollisions() {
-		// TODO
+		for (size_t i = 0; i < m_WorldColliders.size(); i++) {
+			for (size_t j = i + 1; j < m_WorldColliders.size(); j++) {
+				BoxCollider* a = m_WorldColliders[i];
+				BoxCollider* b = m_WorldColliders[j];
+
+				if (Overlaps(a, b)) {
+					a->HandleCollisionCallback(b);
+					b->HandleCollisionCallback(a);
+				}
+			}
+		}
+	}
+
+	bool CollisionWorld::Overlaps(BoxCollider* a, BoxCollider* b) {
+		return Collider_CheckCollision(
+			a->GetWorldPositionRectangle(),
+			b->GetWorldPositionRectangle()
+		);
 	}
 
 	void CollisionWorld::AddColliderToWorld(BoxCollider* Collider) {

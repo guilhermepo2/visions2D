@@ -35,7 +35,7 @@ namespace visions2D {
 			}
 
 			glm::vec2 MinPoint() const {
-				return glm::vec2(m_Left, m_Top + m_Height);
+				return glm::vec2(m_Left, m_Top - m_Height);
 			}
 			// extents?
 

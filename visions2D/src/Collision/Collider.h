@@ -2,7 +2,8 @@
 #include "Math/Rectangle.h"
 
 namespace visions2D {
-	static bool CheckCollision(const Math::Rectangle RectA, const Math::Rectangle RectB) {
+	static bool Collider_CheckCollision(const Math::Rectangle RectA, const Math::Rectangle RectB) {
+
 		bool NotIntersected =
 			RectA.MaxPoint().x < RectB.MinPoint().x ||
 			RectA.MaxPoint().y < RectB.MinPoint().y ||

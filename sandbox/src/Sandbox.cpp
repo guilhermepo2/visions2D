@@ -19,11 +19,13 @@ visions2D::CollisionWorld* collisionWorld = nullptr;
 visions2D::Texture* characterTexture = nullptr;
 visions2D::Texture* mapTexture = nullptr;
 visions2D::Texture* shipTexture = nullptr;
+visions2D::Texture* meteorTexture = nullptr;
 
 visions2D::Tilesheet* characterTilesheet = nullptr;
 visions2D::Tilesheet* mapTilesheet = nullptr;
 visions2D::Tilemap* dungeon = nullptr;
-visions2D::Entity Player;
+visions2D::Entity* Player;
+visions2D::Entity* Meteor;
 
 int MovementDirection = 0;
 float RotationSpeed = 135.0f;
@@ -61,6 +63,9 @@ void Start() {
 	shipTexture = new visions2D::Texture();
 	shipTexture->Load("./src/DefaultAssets/Spaceship/playerShip3_blue.png");
 
+	meteorTexture = new visions2D::Texture();
+	meteorTexture->Load("./src/DefaultAssets/Spaceship/meteorBrown_big4.png");
+
 	mapTexture = new visions2D::Texture();
 	mapTexture->Load("./src/DefaultAssets/tiles_dungeon_v1.1.png");
 	mapTilesheet = new visions2D::Tilesheet(mapTexture);
@@ -70,10 +75,14 @@ void Start() {
 	dungeon->LoadFromJSON("./src/DefaultAssets/Map/dungeon_map.json");
 
 	Player = gameWorld->AddEntity("Player");
-	Player.AddComponent<visions2D::TransformComponent>(glm::vec2(0.0f, 0.0f), 0.0f, glm::vec2(1.0f, 1.0f));
-	Player.AddComponent<visions2D::SpriteComponent>(shipTexture, 0);
-	visions2D::BoxCollider& b = Player.AddComponent<visions2D::BoxCollider>("PlayerShip", glm::vec2(0.0f, 0.0f), glm::vec2(100.0f, 100.0f));
-	b.BeginPlay();
+	Player->AddComponent<visions2D::TransformComponent>(glm::vec2(0.0f, 0.0f), 0.0f, glm::vec2(1.0f, 1.0f));
+	Player->AddComponent<visions2D::SpriteComponent>(shipTexture, 0);
+	Player->AddComponent<visions2D::BoxCollider>("PlayerShip", glm::vec2(0.0f, 0.0f), glm::vec2(60.0f, 60.0f));
+
+	Meteor = gameWorld->AddEntity("Meteor");
+	Meteor->AddComponent<visions2D::TransformComponent>(glm::vec2(200.0f, 100.0f), 0.0f, glm::vec2(1.0f, 1.0f));
+	Meteor->AddComponent<visions2D::SpriteComponent>(meteorTexture, 0);
+	Meteor->AddComponent<visions2D::BoxCollider>("Meteor", glm::vec2(0.0f, 0.0f), glm::vec2(90.0f, 90.0f));
 
 	// TODO: Have a static method to create and load fonts?!
 	// TODO: It's probably better to have a centralized "Asset Manager" with Textures, Fonts, etc...
@@ -135,7 +144,7 @@ void Input() {
 
 void Update(float DeltaTime) {
 	
-	visions2D::TransformComponent* playerTransform = Player.GetComponentOfType<visions2D::TransformComponent>();
+	visions2D::TransformComponent* playerTransform = Player->GetComponentOfType<visions2D::TransformComponent>();
 
 	if (Accelerating) {
 		
@@ -147,6 +156,8 @@ void Update(float DeltaTime) {
 	playerTransform->Rotate(MovementDirection * RotationSpeed * DeltaTime);
 	gameWorld->Update(DeltaTime);
 	SandboxStats_Data.LastDeltaTime = DeltaTime;
+
+	collisionWorld->VerifyAllCollisions();
 }
 
 void Render(visions2D::Renderer* RendererReference) {
@@ -202,31 +213,62 @@ void Render(visions2D::Renderer* RendererReference) {
 		RendererReference->SpriteRenderData.push_back(rd);
 	}
 
-
-	if (Player.HasComponentOfType<visions2D::TransformComponent>() && Player.HasComponentOfType<visions2D::SpriteComponent>()) {
+	// Rendering Player
+	if (Player->HasComponentOfType<visions2D::TransformComponent>() && Player->HasComponentOfType<visions2D::SpriteComponent>()) {
 		visions2D::RenderData rd;
-		visions2D::SpriteComponent* s = Player.GetComponentOfType<visions2D::SpriteComponent>();
+		visions2D::SpriteComponent* s = Player->GetComponentOfType<visions2D::SpriteComponent>();
 		rd.Texture = s->tex;
 
 		rd.TextureScale = glm::vec2(shipTexture->GetWidth(), shipTexture->GetHeight());
 		rd.TexCoords = nullptr;
-		rd.WorldRotation = Player.GetComponentOfType<visions2D::TransformComponent>()->Rotation;
-		rd.WorldPosition = Player.GetComponentOfType<visions2D::TransformComponent>()->Position;
-		rd.WorldScale = Player.GetComponentOfType<visions2D::TransformComponent>()->Scale;
+		rd.WorldRotation = Player->GetComponentOfType<visions2D::TransformComponent>()->Rotation;
+		rd.WorldPosition = Player->GetComponentOfType<visions2D::TransformComponent>()->Position;
+		rd.WorldScale = Player->GetComponentOfType<visions2D::TransformComponent>()->Scale;
 		rd.tint = visions2D::Color(1.0f, 1.0f, 1.0f, 1.0f);
 		RendererReference->SpriteRenderData.push_back(rd);
 	}
 
-	if (Player.HasComponentOfType<visions2D::TransformComponent>() && Player.HasComponentOfType<visions2D::BoxCollider>()) {
+	if (Player->HasComponentOfType<visions2D::TransformComponent>() && Player->HasComponentOfType<visions2D::BoxCollider>()) {
 		visions2D::RenderData rd;
-		visions2D::TransformComponent* t = Player.GetComponentOfType<visions2D::TransformComponent>();
-		visions2D::BoxCollider* b = Player.GetComponentOfType<visions2D::BoxCollider>();
+		visions2D::TransformComponent* t = Player->GetComponentOfType<visions2D::TransformComponent>();
+		visions2D::BoxCollider* b = Player->GetComponentOfType<visions2D::BoxCollider>();
 		visions2D::Math::Rectangle rect = b->GetWorldPositionRectangle();
 
 		rd.Texture = WhiteTexture;
 		rd.TextureScale = glm::vec2(rect.Width(), rect.Height());
 		rd.TexCoords = nullptr;
-		rd.WorldRotation = t->Rotation;
+		rd.WorldRotation = 0;
+		rd.WorldPosition = glm::vec2(rect.Position().x, rect.Top() - rect.Height());
+		rd.WorldScale = t->Scale;
+		rd.tint = visions2D::Color(1.0f, 0.0f, 0.0f, 0.5f);
+		RendererReference->SpriteRenderData.push_back(rd);
+	}
+
+	// Rendering Meteor
+	if (Meteor->HasComponentOfType<visions2D::TransformComponent>() && Meteor->HasComponentOfType<visions2D::SpriteComponent>()) {
+		visions2D::RenderData rd;
+		visions2D::SpriteComponent* s = Meteor->GetComponentOfType<visions2D::SpriteComponent>();
+		rd.Texture = s->tex;
+
+		rd.TextureScale = glm::vec2(meteorTexture->GetWidth(), meteorTexture->GetHeight());
+		rd.TexCoords = nullptr;
+		rd.WorldRotation = Meteor->GetComponentOfType<visions2D::TransformComponent>()->Rotation;
+		rd.WorldPosition = Meteor->GetComponentOfType<visions2D::TransformComponent>()->Position;
+		rd.WorldScale = Meteor->GetComponentOfType<visions2D::TransformComponent>()->Scale;
+		rd.tint = visions2D::Color(1.0f, 1.0f, 1.0f, 1.0f);
+		RendererReference->SpriteRenderData.push_back(rd);
+	}
+
+	if (Meteor->HasComponentOfType<visions2D::TransformComponent>() && Meteor->HasComponentOfType<visions2D::BoxCollider>()) {
+		visions2D::RenderData rd;
+		visions2D::TransformComponent* t = Meteor->GetComponentOfType<visions2D::TransformComponent>();
+		visions2D::BoxCollider* b = Meteor->GetComponentOfType<visions2D::BoxCollider>();
+		visions2D::Math::Rectangle rect = b->GetWorldPositionRectangle();
+
+		rd.Texture = WhiteTexture;
+		rd.TextureScale = glm::vec2(rect.Width(), rect.Height());
+		rd.TexCoords = nullptr;
+		rd.WorldRotation = 0;
 		rd.WorldPosition = glm::vec2(rect.Position().x, rect.Top() - rect.Height());
 		rd.WorldScale = t->Scale;
 		rd.tint = visions2D::Color(1.0f, 0.0f, 0.0f, 0.5f);

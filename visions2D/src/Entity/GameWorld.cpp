@@ -36,10 +36,10 @@ namespace visions2D {
 		}
 	}
 
-	Entity& GameWorld::AddEntity(const std::string& EntityName) {
+	Entity* GameWorld::AddEntity(const std::string& EntityName) {
 		Entity* NewEntity = new Entity(EntityName);
 		m_Entities.push_back(NewEntity);
-		return *NewEntity;
+		return NewEntity;
 	}
 
 	Entity* GameWorld::GetEntityByName(const std::string& EntityName) {

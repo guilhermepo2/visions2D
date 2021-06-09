@@ -17,7 +17,7 @@ namespace visions2D {
 
 		inline size_t GetEntitiesCount() const { return m_Entities.size(); }
 		inline bool HasEntities() const { return m_Entities.size() != 0; }
-		Entity& AddEntity(const std::string& EntityName);
+		Entity* AddEntity(const std::string& EntityName);
 		Entity* GetEntityByName(const std::string& EntityName);
 
 	private:

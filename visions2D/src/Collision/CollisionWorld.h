@@ -18,6 +18,7 @@ namespace visions2D {
 
 		void VerifyAllCollisions();
 		// TODO: SegmentCast
+		bool Overlaps(BoxCollider* a, BoxCollider* b);
 
 		void AddColliderToWorld(BoxCollider* Collider);
 		void RemoveColliderFromWorld(BoxCollider* Collider);
