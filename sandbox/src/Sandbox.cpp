@@ -14,6 +14,8 @@ static struct {
 
 visions2D::InputSystem* inputSystem = nullptr;
 visions2D::GameWorld* gameWorld = nullptr;
+visions2D::CollisionWorld* collisionWorld = nullptr;
+
 visions2D::Texture* characterTexture = nullptr;
 visions2D::Texture* mapTexture = nullptr;
 visions2D::Texture* shipTexture = nullptr;
@@ -37,12 +39,21 @@ visions2D::Texture* ltText = nullptr;
 visions2D::Texture* zhongguoText = nullptr;
 visions2D::Texture* kafei = nullptr;
 
+visions2D::Texture* WhiteTexture = nullptr;
+
 void Start() {
 	inputSystem = new visions2D::InputSystem();
 	gameWorld = new visions2D::GameWorld();
+	collisionWorld = new visions2D::CollisionWorld();
+	if (collisionWorld->Initialize()) {
+		LOG_INFO("app: collision world initialized");
+	}
 
 	characterTexture = new visions2D::Texture();
 	characterTexture->Load("./src/DefaultAssets/chara_hero.png");
+
+	WhiteTexture = new visions2D::Texture();
+	WhiteTexture->Load("./src/DefaultAssets/White.png");
 
 	characterTilesheet = new visions2D::Tilesheet(characterTexture);
 	characterTilesheet->Slice(48, 48);
@@ -61,6 +72,8 @@ void Start() {
 	Player = gameWorld->AddEntity("Player");
 	Player.AddComponent<visions2D::TransformComponent>(glm::vec2(0.0f, 0.0f), 0.0f, glm::vec2(1.0f, 1.0f));
 	Player.AddComponent<visions2D::SpriteComponent>(shipTexture, 0);
+	visions2D::BoxCollider& b = Player.AddComponent<visions2D::BoxCollider>("PlayerShip", glm::vec2(0.0f, 0.0f), glm::vec2(100.0f, 100.0f));
+	b.BeginPlay();
 
 	// TODO: Have a static method to create and load fonts?!
 	// TODO: It's probably better to have a centralized "Asset Manager" with Textures, Fonts, etc...
@@ -201,6 +214,22 @@ void Render(visions2D::Renderer* RendererReference) {
 		rd.WorldPosition = Player.GetComponentOfType<visions2D::TransformComponent>()->Position;
 		rd.WorldScale = Player.GetComponentOfType<visions2D::TransformComponent>()->Scale;
 		rd.tint = visions2D::Color(1.0f, 1.0f, 1.0f, 1.0f);
+		RendererReference->SpriteRenderData.push_back(rd);
+	}
+
+	if (Player.HasComponentOfType<visions2D::TransformComponent>() && Player.HasComponentOfType<visions2D::BoxCollider>()) {
+		visions2D::RenderData rd;
+		visions2D::TransformComponent* t = Player.GetComponentOfType<visions2D::TransformComponent>();
+		visions2D::BoxCollider* b = Player.GetComponentOfType<visions2D::BoxCollider>();
+		visions2D::Math::Rectangle rect = b->GetWorldPositionRectangle();
+
+		rd.Texture = WhiteTexture;
+		rd.TextureScale = glm::vec2(rect.Width(), rect.Height());
+		rd.TexCoords = nullptr;
+		rd.WorldRotation = t->Rotation;
+		rd.WorldPosition = glm::vec2(rect.Position().x, rect.Top() - rect.Height());
+		rd.WorldScale = t->Scale;
+		rd.tint = visions2D::Color(1.0f, 0.0f, 0.0f, 0.5f);
 		RendererReference->SpriteRenderData.push_back(rd);
 	}
 }

@@ -4,8 +4,8 @@ namespace visions2D {
 	namespace Math {
 		class Rectangle {
 		public:
-			Rectangle();
-			Rectangle(float Left, float Top, float Width, float Height);
+			Rectangle() {}
+			Rectangle(float Left, float Top, float Width, float Height) : m_Left(Left), m_Top(Top), m_Width(Width), m_Height(Height) {}
 
 			// TODO: static MakeRectangle
 
@@ -29,16 +29,32 @@ namespace visions2D {
 			glm::vec2 Size() const {
 				return glm::vec2(m_Width, m_Height);
 			}
+
+			glm::vec2 MaxPoint() const {
+				return glm::vec2(m_Left + m_Width, m_Top);
+			}
+
+			glm::vec2 MinPoint() const {
+				return glm::vec2(m_Left, m_Top + m_Height);
+			}
 			// extents?
 
+			void SetPosition(float left, float top) {
+				m_Left = left;
+				m_Top = top;
+			}
+
 			void SetPosition(const glm::vec2& Position) {
-				m_Left = Position.x;
-				m_Top = Position.y;
+				SetPosition(Position.x, Position.y);
+			}
+
+			void SetSize(float Width, float Height) {
+				m_Width = Width;
+				m_Height = Height;
 			}
 
 			void SetSize(const glm::vec2& Size) {
-				m_Width = Size.x;
-				m_Height = Size.y;
+				SetSize(Size.x, Size.y);
 			}
 
 			// extents?

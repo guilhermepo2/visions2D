@@ -3,6 +3,9 @@
 #include "Application.h"
 #include "Common.h"
 
+#include "Collision/CollisionWorld.h"
+#include "Collision/Collider.h"
+
 #include "Renderer/Renderer.h"
 #include "Renderer/Shader.h"
 #include "Renderer/Texture.h"
@@ -24,6 +27,7 @@
 #include "Entity/Component/TransformComponent.h"
 #include "Entity/Component/SpriteComponent.h"
 #include "Entity/Component/TileComponent.h"
+#include "Entity/Component/BoxCollider.h"
 
 #include "UI/Font.h"
 
