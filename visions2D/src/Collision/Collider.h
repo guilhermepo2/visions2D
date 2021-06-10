@@ -1,4 +1,5 @@
 #pragma once
+#include "LineSegment.h"
 #include "Math/Rectangle.h"
 
 namespace visions2D {
@@ -13,5 +14,16 @@ namespace visions2D {
 		return !NotIntersected;
 	}
 
-	// TODO: Check Line Collision
+	static bool Collider_CheckLineCollision(const LineSegment& l, const Math::Rectangle& Rect, float& OutT) {
+		float steps = 0.1f;
+
+		for (float i = 0.0f; i <= 1.0f; i += steps) {
+			if (Rect.Contains(l.PointOnSegment(i))) {
+				OutT = i;
+				return true;
+			}
+		}
+
+		return false;
+	}
 }

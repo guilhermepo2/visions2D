@@ -45,6 +45,28 @@ namespace visions2D {
 		);
 	}
 
+	bool CollisionWorld::SegmentCast(glm::vec2 StartingPoint, glm::vec2 EndingPoint, CollisionInfo& OutCollisionInfo) {
+		bool bCollided = false;
+		LineSegment l(StartingPoint, EndingPoint);
+		float closestT = 1.1f; // t will be maximum 1.0f, so 1.1f is enough?
+
+		for (BoxCollider* collider : m_WorldColliders) {
+			float t;
+			Math::Rectangle colliderRect = collider->GetWorldPositionRectangle();
+
+			if (Collider_CheckLineCollision(l, colliderRect, t)) {
+				if (t < closestT) {
+					OutCollisionInfo.PointOfCollision = l.PointOnSegment(t);
+					OutCollisionInfo.CollidedWith = collider;
+					OutCollisionInfo.CollidedEntity = collider->Owner;
+					bCollided = true;
+				}
+			}
+		}
+
+		return bCollided;
+	}
+
 	void CollisionWorld::AddColliderToWorld(BoxCollider* Collider) {
 		m_WorldColliders.push_back(Collider);
 	}

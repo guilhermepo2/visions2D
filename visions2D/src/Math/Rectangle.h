@@ -66,11 +66,11 @@ namespace visions2D {
 			// center
 
 			
-			bool Contains(float x, float y) {
+			bool Contains(float x, float y) const {
 				return (x >= Left() && x <= Right() && y >= Top() && y <= Bottom());
 			}
 
-			bool Contains(glm::vec2 Position) {
+			bool Contains(glm::vec2 Position) const {
 				return Contains(Position.x, Position.y);
 			}
 

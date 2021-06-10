@@ -5,6 +5,12 @@ namespace visions2D {
 	
 	class BoxCollider;
 
+	struct CollisionInfo {
+		glm::vec2 PointOfCollision;
+		BoxCollider* CollidedWith;
+		Entity* CollidedEntity;
+	};
+
 	class CollisionWorld {
 	public:
 		CollisionWorld();
@@ -17,7 +23,7 @@ namespace visions2D {
 		void Shutdown();
 
 		void VerifyAllCollisions();
-		// TODO: SegmentCast
+		bool SegmentCast(glm::vec2 StartingPoint, glm::vec2 EndingPoint, CollisionInfo& OutCollisionInfo);
 		bool Overlaps(BoxCollider* a, BoxCollider* b);
 
 		void AddColliderToWorld(BoxCollider* Collider);
