@@ -25,6 +25,8 @@ namespace visions2D {
 		void VerifyAllCollisions();
 		bool SegmentCast(glm::vec2 StartingPoint, glm::vec2 EndingPoint, CollisionInfo& OutCollisionInfo);
 		bool Overlaps(BoxCollider* a, BoxCollider* b);
+		bool HasCollisionAt(float x, float y);
+		bool HasCollisionAt(glm::vec2 Position);
 
 		void AddColliderToWorld(BoxCollider* Collider);
 		void RemoveColliderFromWorld(BoxCollider* Collider);

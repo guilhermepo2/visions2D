@@ -67,6 +67,21 @@ namespace visions2D {
 		return bCollided;
 	}
 
+	// TODO: Return what has collided with?!
+	bool CollisionWorld::HasCollisionAt(float x, float y) {
+		for (int i = 0; i < m_WorldColliders.size(); i++) {
+			if (m_WorldColliders[i]->GetWorldPositionRectangle().Contains(x, y)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	bool CollisionWorld::HasCollisionAt(glm::vec2 Position) {
+		return HasCollisionAt(Position.x, Position.y);
+	}
+
 	void CollisionWorld::AddColliderToWorld(BoxCollider* Collider) {
 		m_WorldColliders.push_back(Collider);
 	}
