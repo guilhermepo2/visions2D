@@ -1,9 +1,12 @@
 #pragma once
 #include <vector>
+#include <glm/glm.hpp>
 
 namespace visions2D {
 	
 	class BoxCollider;
+	class Entity;
+	class Renderer;
 
 	struct CollisionInfo {
 		glm::vec2 PointOfCollision;
@@ -19,7 +22,7 @@ namespace visions2D {
 		static CollisionWorld* s_Instance;
 
 		bool Initialize();
-		void Render();
+		void Render(Renderer* RendererReference);
 		void Shutdown();
 
 		void VerifyAllCollisions();

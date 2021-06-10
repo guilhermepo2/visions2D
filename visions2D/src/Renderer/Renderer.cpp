@@ -83,6 +83,10 @@ namespace visions2D {
 		DearImGui::Initialize(m_Window, m_GLContext);
 		LOG_INFO("[renderer] dearimgui initialized");
 
+		// Initializing some common components maybe?
+		WhiteTexture = new Texture();
+		WhiteTexture->Load("./src/DefaultAssets/White.png");
+
 		LOG_INFO("[renderer] OpenGL version: {0}", glGetString(GL_VERSION));
 		LOG_INFO("[renderer] OpenGL vendor: {0}", glGetString(GL_VENDOR));
 		LOG_INFO("[renderer] OpenGL renderer: {0}", glGetString(GL_RENDERER));
@@ -110,11 +114,17 @@ namespace visions2D {
 	// TODO: Batch
 	// How do colors work in batching?
 	void Renderer::Render() {
+		Uint32 TicksAtBeginning = SDL_GetTicks();
 		for (int i = 0; i < SpriteRenderData.size(); i++) {
 			m_SpriteShader->SetActive();
 			m_SpriteShader->SetColor("uColor", SpriteRenderData[i].tint);
-			SpriteRenderData[i].Texture->SetActive();
 
+			if (SpriteRenderData[i].Texture != nullptr) {
+				SpriteRenderData[i].Texture->SetActive();
+			}
+			else {
+				WhiteTexture->SetActive();
+			}
 
 			glm::mat4 TextureScale = glm::scale(glm::mat4(1.0f), glm::vec3(SpriteRenderData[i].TextureScale, 1.0f));
 			glm::mat4 WorldScale = glm::scale(glm::mat4(1.0f), glm::vec3(SpriteRenderData[i].WorldScale, 1.0f));

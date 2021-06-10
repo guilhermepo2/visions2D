@@ -2,6 +2,7 @@
 #include "Log.h"
 #include "Entity/Component/BoxCollider.h"
 #include "Collider.h"
+#include "Renderer/Renderer.h"
 
 namespace visions2D {
 	CollisionWorld* CollisionWorld::s_Instance = nullptr;
@@ -19,7 +20,23 @@ namespace visions2D {
 		return true;
 	}
 
-	void CollisionWorld::Render() {}
+	void CollisionWorld::Render(Renderer* RendererReference) {
+		for (BoxCollider* collider : m_WorldColliders) {
+			RenderData rd;
+			TransformComponent* t = collider->Owner->GetComponentOfType<TransformComponent>();
+			BoxCollider* b = collider->Owner->GetComponentOfType<BoxCollider>();
+			Math::Rectangle rect = b->GetWorldPositionRectangle();
+
+			rd.Texture = nullptr;
+			rd.TextureScale = glm::vec2(rect.Width(), rect.Height());
+			rd.TexCoords = nullptr;
+			rd.WorldRotation = 0;
+			rd.WorldPosition = glm::vec2(rect.Position().x, rect.Top() - rect.Height());
+			rd.WorldScale = t->Scale;
+			rd.tint = visions2D::Color(1.0f, 0.0f, 0.0f, 0.5f);
+			RendererReference->SpriteRenderData.push_back(rd);
+		}
+	}
 
 	// TODO: Clean all BoxColliders?
 	void CollisionWorld::Shutdown() { } // TODO 

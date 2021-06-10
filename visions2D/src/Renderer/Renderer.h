@@ -49,5 +49,7 @@ namespace visions2D {
 
 		SDL_Window* m_Window;
 		SDL_GLContext m_GLContext;
+
+		Texture* WhiteTexture;
 	};
 }

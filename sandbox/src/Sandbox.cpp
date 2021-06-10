@@ -16,14 +16,31 @@ visions2D::InputSystem* inputSystem = nullptr;
 visions2D::GameWorld* gameWorld = nullptr;
 visions2D::CollisionWorld* collisionWorld = nullptr;
 
+// Assets... Should I have a resource manager on the engine?
+// Textures
 visions2D::Texture* characterTexture = nullptr;
 visions2D::Texture* mapTexture = nullptr;
 visions2D::Texture* shipTexture = nullptr;
 visions2D::Texture* meteorTexture = nullptr;
+visions2D::Texture* HelloWorldTexture = nullptr;
+visions2D::Texture* ltText = nullptr;
+visions2D::Texture* zhongguoText = nullptr;
+visions2D::Texture* kafei = nullptr;
 
+// Fonts
+visions2D::Font* LazyTownFont = nullptr;
+visions2D::Font* ArialFont = nullptr;
+visions2D::Font* NotoSans = nullptr;
+visions2D::Font* SentyWen = nullptr;
+
+// Tilesheets
 visions2D::Tilesheet* characterTilesheet = nullptr;
 visions2D::Tilesheet* mapTilesheet = nullptr;
+
+// Tilemaps
 visions2D::Tilemap* dungeon = nullptr;
+
+// Entities - Entities should not be on a resource manager
 visions2D::Entity* Player;
 visions2D::Entity* Meteor;
 
@@ -31,17 +48,7 @@ int MovementDirection = 0;
 float RotationSpeed = 135.0f;
 bool Accelerating = false;
 float ShipSpeed = 180.0f;
-
-visions2D::Font* LazyTownFont = nullptr;
-visions2D::Font* ArialFont = nullptr;
-visions2D::Font* NotoSans = nullptr;
-visions2D::Font* SentyWen = nullptr;
-visions2D::Texture* HelloWorldTexture = nullptr;
-visions2D::Texture* ltText = nullptr;
-visions2D::Texture* zhongguoText = nullptr;
-visions2D::Texture* kafei = nullptr;
-
-visions2D::Texture* WhiteTexture = nullptr;
+bool bRenderCollision = false;
 
 void Start() {
 	inputSystem = new visions2D::InputSystem();
@@ -53,9 +60,6 @@ void Start() {
 
 	characterTexture = new visions2D::Texture();
 	characterTexture->Load("./src/DefaultAssets/chara_hero.png");
-
-	WhiteTexture = new visions2D::Texture();
-	WhiteTexture->Load("./src/DefaultAssets/White.png");
 
 	characterTilesheet = new visions2D::Tilesheet(characterTexture);
 	characterTilesheet->Slice(48, 48);
@@ -140,6 +144,10 @@ void Input() {
 	else {
 		Accelerating = false;
 	}
+
+	if (inputSystem->GetState().Keyboard.WasKeyPressedThisFrame(visions2D::v2D_Keycode::KEYCODE_I)) {
+		bRenderCollision = !bRenderCollision;
+	}
 }
 
 void Update(float DeltaTime) {
@@ -163,6 +171,9 @@ void Update(float DeltaTime) {
 void Render(visions2D::Renderer* RendererReference) {
 	gameWorld->Render();
 
+	if (bRenderCollision) {
+		collisionWorld->Render(RendererReference);
+	}
 	
 	{
 		visions2D::RenderData rd;
@@ -228,22 +239,6 @@ void Render(visions2D::Renderer* RendererReference) {
 		RendererReference->SpriteRenderData.push_back(rd);
 	}
 
-	if (Player->HasComponentOfType<visions2D::TransformComponent>() && Player->HasComponentOfType<visions2D::BoxCollider>()) {
-		visions2D::RenderData rd;
-		visions2D::TransformComponent* t = Player->GetComponentOfType<visions2D::TransformComponent>();
-		visions2D::BoxCollider* b = Player->GetComponentOfType<visions2D::BoxCollider>();
-		visions2D::Math::Rectangle rect = b->GetWorldPositionRectangle();
-
-		rd.Texture = WhiteTexture;
-		rd.TextureScale = glm::vec2(rect.Width(), rect.Height());
-		rd.TexCoords = nullptr;
-		rd.WorldRotation = 0;
-		rd.WorldPosition = glm::vec2(rect.Position().x, rect.Top() - rect.Height());
-		rd.WorldScale = t->Scale;
-		rd.tint = visions2D::Color(1.0f, 0.0f, 0.0f, 0.5f);
-		RendererReference->SpriteRenderData.push_back(rd);
-	}
-
 	// Rendering Meteor
 	if (Meteor->HasComponentOfType<visions2D::TransformComponent>() && Meteor->HasComponentOfType<visions2D::SpriteComponent>()) {
 		visions2D::RenderData rd;
@@ -256,22 +251,6 @@ void Render(visions2D::Renderer* RendererReference) {
 		rd.WorldPosition = Meteor->GetComponentOfType<visions2D::TransformComponent>()->Position;
 		rd.WorldScale = Meteor->GetComponentOfType<visions2D::TransformComponent>()->Scale;
 		rd.tint = visions2D::Color(1.0f, 1.0f, 1.0f, 1.0f);
-		RendererReference->SpriteRenderData.push_back(rd);
-	}
-
-	if (Meteor->HasComponentOfType<visions2D::TransformComponent>() && Meteor->HasComponentOfType<visions2D::BoxCollider>()) {
-		visions2D::RenderData rd;
-		visions2D::TransformComponent* t = Meteor->GetComponentOfType<visions2D::TransformComponent>();
-		visions2D::BoxCollider* b = Meteor->GetComponentOfType<visions2D::BoxCollider>();
-		visions2D::Math::Rectangle rect = b->GetWorldPositionRectangle();
-
-		rd.Texture = WhiteTexture;
-		rd.TextureScale = glm::vec2(rect.Width(), rect.Height());
-		rd.TexCoords = nullptr;
-		rd.WorldRotation = 0;
-		rd.WorldPosition = glm::vec2(rect.Position().x, rect.Top() - rect.Height());
-		rd.WorldScale = t->Scale;
-		rd.tint = visions2D::Color(1.0f, 0.0f, 0.0f, 0.5f);
 		RendererReference->SpriteRenderData.push_back(rd);
 	}
 }
