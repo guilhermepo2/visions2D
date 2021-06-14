@@ -8,10 +8,6 @@
 
 #include "visions2D.h"
 
-static struct {
-	float LastDeltaTime;
-} SandboxStats_Data;
-
 visions2D::InputSystem* inputSystem = nullptr;
 visions2D::GameWorld* gameWorld = nullptr;
 visions2D::CollisionWorld* collisionWorld = nullptr;
@@ -51,7 +47,6 @@ void Input() {
 
 void Update(float DeltaTime) {
 	gameWorld->Update(DeltaTime);
-	SandboxStats_Data.LastDeltaTime = DeltaTime;
 	collisionWorld->VerifyAllCollisions();
 }
 
@@ -64,19 +59,7 @@ void Render(visions2D::Renderer* RendererReference) {
 }
 
 void OnImGui() {
-	{
-		ImGui::Begin("Stats");
 
-		ImGui::Text("Last Delta Time: ");
-		ImGui::SameLine();
-		ImGui::Text("%.2f", SandboxStats_Data.LastDeltaTime);
-
-		ImGui::Text("Estimated FPS based on Delta Time: ");
-		ImGui::SameLine();
-		ImGui::Text("%.2f", (1.0f / SandboxStats_Data.LastDeltaTime));
-
-		ImGui::End();
-	}
 }
 
 void Shutdown() {
