@@ -12,6 +12,10 @@ visions2D::InputSystem* inputSystem = nullptr;
 visions2D::GameWorld* gameWorld = nullptr;
 visions2D::CollisionWorld* collisionWorld = nullptr;
 
+visions2D::Texture* PlayerTexture = nullptr;
+// "Player"
+visions2D::Entity* PlayerEntity = nullptr;
+
 bool bRenderCollision = false;
 
 void Start() {
@@ -23,6 +27,15 @@ void Start() {
 	}
 
 	// load assets here...
+	// loading textures
+	PlayerTexture = new visions2D::Texture();
+	PlayerTexture->Load("./src/DefaultAssets/White.png");
+
+	// creating entities
+	PlayerEntity = gameWorld->AddEntity("player-entity");
+	PlayerEntity->AddComponent<visions2D::TransformComponent>(glm::vec2(0.0f, 0.0f), 0.0f, glm::vec2(1.0f, 1.0f));
+	visions2D::SpriteComponent& spriteComponent = PlayerEntity->AddComponent<visions2D::SpriteComponent>(PlayerTexture, 0);
+	spriteComponent.SpriteColor.SetColor(0.0f, 1.0f, 0.0f, 1.0f);
 
 	inputSystem->Initialize();
 	gameWorld->BeginPlay();
@@ -50,8 +63,11 @@ void Update(float DeltaTime) {
 	collisionWorld->VerifyAllCollisions();
 }
 
+// TODO: RendererReference here because the reference is needed to push the draw information.
+// I want to keep this here because I can substitute it for the batch.
+// So the engine gives the application a drawing batch
 void Render(visions2D::Renderer* RendererReference) {
-	gameWorld->Render();
+	gameWorld->Render(RendererReference);
 
 	if (bRenderCollision) {
 		collisionWorld->Render(RendererReference);

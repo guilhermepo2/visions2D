@@ -24,9 +24,9 @@ namespace visions2D {
 		}
 	}
 	
-	void GameWorld::Render() {
+	void GameWorld::Render(Renderer* RendererReference) {
 		for (Entity* e : m_Entities) {
-			e->Render();
+			e->Render(RendererReference);
 		}
 	}
 	

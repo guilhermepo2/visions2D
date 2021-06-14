@@ -16,7 +16,9 @@ namespace visions2D {
 		TileComponent() : tilesheet(nullptr) {}
 		TileComponent(Tilesheet* _Tilesheet, int _Data, int _DrawOrder) : tilesheet(_Tilesheet), Data(_Data), DrawOrder(_DrawOrder) {}
 
-		void Render() override {
+		void Render(Renderer* RendererReference) override {
+			unreferenced(RendererReference);
+
 			// TODO
 			// TransformComponent* transform = Owner->GetComponentOfType<TransformComponent>();
 		}

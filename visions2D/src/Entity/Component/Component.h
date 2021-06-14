@@ -3,6 +3,7 @@
 
 namespace visions2D {
 	class Entity;
+	class Renderer;
 	struct InputState;
 
 	class Component {
@@ -15,7 +16,7 @@ namespace visions2D {
 		virtual void BeginPlay() {}
 		virtual bool ProcessInput(const InputState& CurrentInputState) { unreferenced(CurrentInputState); return false; }
 		virtual void Update(float DeltaTime) { unreferenced(DeltaTime); }
-		virtual void Render() {}
+		virtual void Render(Renderer* RendererReference) { unreferenced(RendererReference); }
 		virtual void Destroy() {}
 	};
 }

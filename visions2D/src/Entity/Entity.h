@@ -6,6 +6,7 @@
 
 namespace visions2D {
 	class Component;
+	class Renderer;
 	struct InputState;
 
 	class Entity {
@@ -28,7 +29,7 @@ namespace visions2D {
 		bool ProcessInput(const InputState& CurrentInputState);
 		void Update(float DeltaTime);
 		// TODO: Do I really need this function here?
-		void Render();
+		void Render(Renderer* RendererReference);
 		void Destroy();
 
 		template<typename T, typename... TArgs>
