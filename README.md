@@ -8,4 +8,4 @@
 - glm
 - rapidjson
 - spdlog
-- stb
+- stb_image
