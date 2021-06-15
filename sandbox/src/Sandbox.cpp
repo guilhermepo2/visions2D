@@ -15,6 +15,10 @@ visions2D::CollisionWorld* collisionWorld = nullptr;
 visions2D::Texture* PlayerTexture = nullptr;
 // "Player"
 visions2D::Entity* PlayerEntity = nullptr;
+float m_UpForce = 325.0f;
+float RotationSpeed = 100.0f;
+float m_VerticalVelocity = 0.0f;
+float m_Gravity = 500.0f;
 
 bool bRenderCollision = false;
 
@@ -56,10 +60,28 @@ void Input() {
 	if (inputSystem->GetState().Keyboard.WasKeyPressedThisFrame(visions2D::v2D_Keycode::KEYCODE_I)) {
 		bRenderCollision = !bRenderCollision;
 	}
+
+	if (inputSystem->GetState().Mouse.WasMouseKeyPressedThisFrame(visions2D::v2D_Mousecode::MOUSECODE_LEFT)) {
+		m_VerticalVelocity = m_UpForce;
+	}
 }
 
 void Update(float DeltaTime) {
 	gameWorld->Update(DeltaTime);
+
+	// Player Update (should move into its own component)
+	m_VerticalVelocity -= DeltaTime * m_Gravity;
+	PlayerEntity->GetComponentOfType<visions2D::TransformComponent>()->Translate(glm::vec2(0.0f, m_VerticalVelocity * DeltaTime));
+
+	if (m_VerticalVelocity <= 0.0f) {
+		float CurrentRotation = PlayerEntity->GetComponentOfType<visions2D::TransformComponent>()->Rotation;
+		CurrentRotation = glm::min(CurrentRotation + (1.0f * DeltaTime * RotationSpeed), 45.0f);
+		PlayerEntity->GetComponentOfType<visions2D::TransformComponent>()->Rotation = CurrentRotation;
+	}
+	else {
+		PlayerEntity->GetComponentOfType<visions2D::TransformComponent>()->Rotation = -30.0f;
+	}
+
 	collisionWorld->VerifyAllCollisions();
 }
 
