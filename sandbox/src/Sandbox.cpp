@@ -15,12 +15,45 @@ visions2D::CollisionWorld* collisionWorld = nullptr;
 visions2D::Texture* PlayerTexture = nullptr;
 // "Player"
 visions2D::Entity* PlayerEntity = nullptr;
-float m_UpForce = 325.0f;
-float RotationSpeed = 100.0f;
-float m_VerticalVelocity = 0.0f;
-float m_Gravity = 500.0f;
 
 bool bRenderCollision = false;
+
+class PlayerInput : public visions2D::Component {
+public:
+	void BeginPlay() override {
+		m_TransformReference = Owner->GetComponentOfType<visions2D::TransformComponent>();
+	}
+
+	bool ProcessInput(const visions2D::InputState& CurrentInputState) override { 
+		
+		if (CurrentInputState.Mouse.WasMouseKeyPressedThisFrame(visions2D::v2D_Mousecode::MOUSECODE_LEFT)) {
+			m_VerticalVelocity = m_UpForce;
+			return true;
+		}
+
+		return false;
+	}
+	
+	void Update(float DeltaTime) override {
+		m_VerticalVelocity -= DeltaTime * m_Gravity;
+		m_TransformReference->Translate(glm::vec2(0.0f, m_VerticalVelocity * DeltaTime));
+
+		if (m_VerticalVelocity <= 0.0f) {
+			float CurrentRotation = m_TransformReference->Rotation;
+			CurrentRotation = glm::min(CurrentRotation + (1.0f * DeltaTime * m_RotationSpeed), 45.0f);
+			m_TransformReference->Rotation = CurrentRotation;
+		}
+		else {
+			m_TransformReference->Rotation = -30.0f;
+		}
+	}
+private:
+	visions2D::TransformComponent* m_TransformReference = nullptr;
+	float m_UpForce = 325.0f;
+	float m_RotationSpeed = 100.0f;
+	float m_VerticalVelocity = 0.0f;
+	float m_Gravity = 500.0f;
+};
 
 void Start() {
 	inputSystem = new visions2D::InputSystem();
@@ -40,6 +73,7 @@ void Start() {
 	PlayerEntity->AddComponent<visions2D::TransformComponent>(glm::vec2(0.0f, 0.0f), 0.0f, glm::vec2(1.0f, 1.0f));
 	visions2D::SpriteComponent& spriteComponent = PlayerEntity->AddComponent<visions2D::SpriteComponent>(PlayerTexture, 0);
 	spriteComponent.SpriteColor.SetColor(0.0f, 1.0f, 0.0f, 1.0f);
+	PlayerEntity->AddComponent<PlayerInput>();
 
 	inputSystem->Initialize();
 	gameWorld->BeginPlay();
@@ -61,27 +95,11 @@ void Input() {
 		bRenderCollision = !bRenderCollision;
 	}
 
-	if (inputSystem->GetState().Mouse.WasMouseKeyPressedThisFrame(visions2D::v2D_Mousecode::MOUSECODE_LEFT)) {
-		m_VerticalVelocity = m_UpForce;
-	}
+	
 }
 
 void Update(float DeltaTime) {
 	gameWorld->Update(DeltaTime);
-
-	// Player Update (should move into its own component)
-	m_VerticalVelocity -= DeltaTime * m_Gravity;
-	PlayerEntity->GetComponentOfType<visions2D::TransformComponent>()->Translate(glm::vec2(0.0f, m_VerticalVelocity * DeltaTime));
-
-	if (m_VerticalVelocity <= 0.0f) {
-		float CurrentRotation = PlayerEntity->GetComponentOfType<visions2D::TransformComponent>()->Rotation;
-		CurrentRotation = glm::min(CurrentRotation + (1.0f * DeltaTime * RotationSpeed), 45.0f);
-		PlayerEntity->GetComponentOfType<visions2D::TransformComponent>()->Rotation = CurrentRotation;
-	}
-	else {
-		PlayerEntity->GetComponentOfType<visions2D::TransformComponent>()->Rotation = -30.0f;
-	}
-
 	collisionWorld->VerifyAllCollisions();
 }
 
@@ -115,8 +133,8 @@ int main(void) {
 
 	visions2D::AppConfig conf;
 	conf.WindowName = "Flappy Thing";
-	conf.Width = 1024;
-	conf.Height = 576;
+	conf.Width = 640;
+	conf.Height = 360;
 
 	conf.Startup = Start;
 	conf.PreProcessInput = PreInput;
