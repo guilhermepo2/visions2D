@@ -6,7 +6,8 @@
 // *******************************************************
 // *******************************************************
 
-#include "visions2D.h"
+#include <visions2D.h>
+#include "PlayerInputComponent.h"
 
 visions2D::InputSystem* inputSystem = nullptr;
 visions2D::GameWorld* gameWorld = nullptr;
@@ -15,45 +16,9 @@ visions2D::CollisionWorld* collisionWorld = nullptr;
 visions2D::Texture* PlayerTexture = nullptr;
 // "Player"
 visions2D::Entity* PlayerEntity = nullptr;
+visions2D::Font* LazyTown = nullptr;
 
 bool bRenderCollision = false;
-
-class PlayerInput : public visions2D::Component {
-public:
-	void BeginPlay() override {
-		m_TransformReference = Owner->GetComponentOfType<visions2D::TransformComponent>();
-	}
-
-	bool ProcessInput(const visions2D::InputState& CurrentInputState) override { 
-		
-		if (CurrentInputState.Mouse.WasMouseKeyPressedThisFrame(visions2D::v2D_Mousecode::MOUSECODE_LEFT)) {
-			m_VerticalVelocity = m_UpForce;
-			return true;
-		}
-
-		return false;
-	}
-	
-	void Update(float DeltaTime) override {
-		m_VerticalVelocity -= DeltaTime * m_Gravity;
-		m_TransformReference->Translate(glm::vec2(0.0f, m_VerticalVelocity * DeltaTime));
-
-		if (m_VerticalVelocity <= 0.0f) {
-			float CurrentRotation = m_TransformReference->Rotation;
-			CurrentRotation = glm::min(CurrentRotation + (1.0f * DeltaTime * m_RotationSpeed), 45.0f);
-			m_TransformReference->Rotation = CurrentRotation;
-		}
-		else {
-			m_TransformReference->Rotation = -30.0f;
-		}
-	}
-private:
-	visions2D::TransformComponent* m_TransformReference = nullptr;
-	float m_UpForce = 325.0f;
-	float m_RotationSpeed = 100.0f;
-	float m_VerticalVelocity = 0.0f;
-	float m_Gravity = 500.0f;
-};
 
 void Start() {
 	inputSystem = new visions2D::InputSystem();
@@ -64,13 +29,16 @@ void Start() {
 	}
 
 	// load assets here...
+	LazyTown = new visions2D::Font();
+	LazyTown->Load("./src/DefaultAssets/ChevyRay - Lazytown.ttf");
 	// loading textures
 	PlayerTexture = new visions2D::Texture();
-	PlayerTexture->Load("./src/DefaultAssets/White.png");
+	PlayerTexture = LazyTown->RenderToTexture("@", 32);
+	// PlayerTexture->Load("./src/DefaultAssets/White.png");
 
 	// creating entities
 	PlayerEntity = gameWorld->AddEntity("player-entity");
-	PlayerEntity->AddComponent<visions2D::TransformComponent>(glm::vec2(0.0f, 0.0f), 0.0f, glm::vec2(1.0f, 1.0f));
+	PlayerEntity->AddComponent<visions2D::TransformComponent>(glm::vec2(0.0f, 0.0f), 0.0f, glm::vec2(1.0f, -1.0f));
 	visions2D::SpriteComponent& spriteComponent = PlayerEntity->AddComponent<visions2D::SpriteComponent>(PlayerTexture, 0);
 	spriteComponent.SpriteColor.SetColor(0.0f, 1.0f, 0.0f, 1.0f);
 	PlayerEntity->AddComponent<PlayerInput>();
