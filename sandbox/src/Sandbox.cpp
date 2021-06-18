@@ -30,7 +30,7 @@ void Start() {
 
 	// load assets here...
 	LazyTown = new visions2D::Font();
-	LazyTown->Load("./src/DefaultAssets/ChevyRay - Lazytown.ttf");
+	LazyTown->Load("./assets/ChevyRay - Lazytown.ttf");
 	// loading textures
 	PlayerTexture = new visions2D::Texture();
 	PlayerTexture = LazyTown->RenderToTexture("@", 32);
