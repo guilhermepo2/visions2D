@@ -31,9 +31,12 @@ namespace visions2D {
 			rd.TextureScale = glm::vec2(rect.Width(), rect.Height());
 			rd.TexCoords = nullptr;
 			rd.WorldRotation = 0;
-			rd.WorldPosition = glm::vec2(rect.Position().x, rect.Top() - rect.Height());
+			rd.WorldPosition = glm::vec2(rect.Position().x, rect.Position().y);
 			rd.WorldScale = t->Scale;
 			rd.tint = visions2D::Color(1.0f, 0.0f, 0.0f, 0.5f);
+
+			// LOG_INFO("Collision Rendering on Position ({0},{1}) and Texture Scale ({2},{3})", rect.Position().x, rect.Position().y, rect.Width(), rect.Height());
+
 			RendererReference->SpriteRenderData.push_back(rd);
 		}
 	}

@@ -38,9 +38,11 @@ void Start() {
 
 	// creating entities
 	PlayerEntity = gameWorld->AddEntity("player-entity");
-	PlayerEntity->AddComponent<visions2D::TransformComponent>(glm::vec2(0.0f, 0.0f), 0.0f, glm::vec2(1.0f, -1.0f));
+	PlayerEntity->AddComponent<visions2D::TransformComponent>(glm::vec2(0.0f, 0.0f), 0.0f, glm::vec2(1.0f, 1.0f));
 	visions2D::SpriteComponent& spriteComponent = PlayerEntity->AddComponent<visions2D::SpriteComponent>(PlayerTexture, 0);
 	spriteComponent.SpriteColor.SetColor(0.0f, 1.0f, 0.0f, 1.0f);
+	spriteComponent.FlipVertical = true;
+	PlayerEntity->AddComponent<visions2D::BoxCollider>("PlayerCollider", glm::vec2(-16.0f, -16.0f), glm::vec2(16.0f, 16.0f));
 	PlayerEntity->AddComponent<PlayerInput>();
 
 	inputSystem->Initialize();

@@ -23,7 +23,9 @@ namespace visions2D {
 			float Bottom() const { return m_Top + m_Height; }
 
 			glm::vec2 Position() const {
-				return glm::vec2(m_Left, m_Top);
+				// return glm::vec2(m_Left, m_Top);
+				// the above returns the top left corner, we want to return the middle center point
+				return glm::vec2(m_Left + (m_Width / 2), m_Top - (m_Height / 2));
 			}
 
 			glm::vec2 Size() const {
