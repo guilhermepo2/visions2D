@@ -36,6 +36,25 @@ namespace visions2D {
 		}
 	}
 
+	Texture* Font::RenderToTextureWrapped(const std::string& Text, int PointSize, int WrappedSize) {
+		Texture* tex = nullptr;
+		SDL_Color color = { 255, 255, 255, 255 };
+		auto iter = m_FontData.find(PointSize);
+		if (iter != m_FontData.end()) {
+			TTF_Font* font = iter->second;
+
+			SDL_Surface* surf = TTF_RenderUTF8_Blended_Wrapped(font, Text.c_str(), color, WrappedSize);
+
+			if (surf != nullptr) {
+				tex = new Texture();
+				tex->CreateFromSurface(surf);
+				SDL_FreeSurface(surf);
+			}
+		}
+
+		return tex;
+	}
+
 	// TODO: Make the color optional here?!
 	Texture* Font::RenderToTexture(const std::string& Text, int PointSize) {
 		Texture* tex = nullptr;

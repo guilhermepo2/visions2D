@@ -14,8 +14,11 @@ visions2D::GameWorld* gameWorld = nullptr;
 visions2D::CollisionWorld* collisionWorld = nullptr;
 
 visions2D::Texture* PlayerTexture = nullptr;
+visions2D::Texture* ObstacleTexture = nullptr;
 // "Player"
 visions2D::Entity* PlayerEntity = nullptr;
+visions2D::Entity* ObstacleEntityLower = nullptr;
+visions2D::Entity* ObstacleEntityUpper = nullptr;
 visions2D::Font* LazyTown = nullptr;
 
 bool bRenderCollision = false;
@@ -34,6 +37,7 @@ void Start() {
 	// loading textures
 	PlayerTexture = new visions2D::Texture();
 	PlayerTexture = LazyTown->RenderToTexture("@", 32);
+	ObstacleTexture = LazyTown->RenderToTextureWrapped("xxx\nxxx\nxxx\nxxx\nxxx", 32, 128);
 	// PlayerTexture->Load("./src/DefaultAssets/White.png");
 
 	// creating entities
@@ -44,6 +48,18 @@ void Start() {
 	spriteComponent.FlipVertical = true;
 	PlayerEntity->AddComponent<visions2D::BoxCollider>("PlayerCollider", glm::vec2(-16.0f, -16.0f), glm::vec2(16.0f, 16.0f));
 	PlayerEntity->AddComponent<PlayerInput>();
+
+	//
+	ObstacleEntityLower = gameWorld->AddEntity("obstacle");
+	ObstacleEntityLower->AddComponent<visions2D::TransformComponent>(glm::vec2(125.0f, -125.0f), 0.0f, glm::vec2(1.0f, 1.0f));
+	visions2D::SpriteComponent& obstacleSprite = ObstacleEntityLower->AddComponent<visions2D::SpriteComponent>(ObstacleTexture, 0);
+	obstacleSprite.SpriteColor.SetColor(1.0f, 0.0f, 0.0f, 1.0f);
+
+	//
+	ObstacleEntityUpper = gameWorld->AddEntity("obstacle2");
+	ObstacleEntityUpper->AddComponent<visions2D::TransformComponent>(glm::vec2(125.0f, 125.0f), 0.0f, glm::vec2(1.0f, 1.0f));
+	visions2D::SpriteComponent& obstacleSprite2 = ObstacleEntityUpper->AddComponent<visions2D::SpriteComponent>(ObstacleTexture, 0);
+	obstacleSprite2.SpriteColor.SetColor(1.0f, 0.0f, 0.0f, 1.0f);
 
 	inputSystem->Initialize();
 	gameWorld->BeginPlay();
@@ -102,7 +118,7 @@ void Shutdown() {
 int main(void) {
 
 	visions2D::AppConfig conf;
-	conf.WindowName = "Flappy Thing";
+	conf.WindowName = "Flappy ASCII";
 	conf.Width = 640;
 	conf.Height = 360;
 
