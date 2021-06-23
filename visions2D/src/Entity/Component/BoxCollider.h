@@ -32,13 +32,22 @@ namespace visions2D {
 			m_TransformReference = Owner->GetComponentOfType<TransformComponent>();
 		}
 
-		void HandleCollisionCallback(BoxCollider* Other) {
-			if (CollisionCallback != nullptr) {
-				CollisionCallback(Other);
-			}
-		}
+		void HandleCollisionCallback(BoxCollider* Other) { if (CollisionCallback != nullptr) { CollisionCallback(Other); } }
+		void HandleOnCollisionEnter(BoxCollider* Other) { if (OnCollisionEnter != nullptr) { OnCollisionEnter(Other); } }
+		void HandleOnCollisionStay(BoxCollider* Other) { if (OnCollisionStay != nullptr) { OnCollisionStay(Other); } }
+		void HandleOnCollisionExit(BoxCollider* Other) { if (OnCollisionExit != nullptr) { OnCollisionExit(Other); } }
+		// Called the first time a collision with something happens
+		CollisionCallbackFunction OnCollisionEnter;
 
+		// Called when the collision with something is repeated
+		CollisionCallbackFunction OnCollisionStay;
+
+		// Called when it is no longer colliding with something
+		CollisionCallbackFunction OnCollisionExit;
+
+		// Called everytime there is an overlap
 		CollisionCallbackFunction CollisionCallback;
+
 		const std::string& GetTag() const { return m_ColliderTag; }
 
 		Math::Rectangle GetScaledRect() {

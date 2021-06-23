@@ -9,14 +9,22 @@ public:
 
 		// TODO: Have an easier way to bind the callback!
 		if (b != nullptr) {
-			b->CollisionCallback = COLLISION_CALLBACK(&PlayerInput::HandlePlayerCollision);
+			b->OnCollisionEnter = COLLISION_CALLBACK(&PlayerInput::PlayerOnCollisionEnter);
+			b->OnCollisionExit = COLLISION_CALLBACK(&PlayerInput::PlayerOnCollisionExit);
 		}
 	}
 
-	void HandlePlayerCollision(visions2D::BoxCollider* other) {
-		if (other->GetTag() == "obstacle") {
+	void PlayerOnCollisionEnter(visions2D::BoxCollider* Other) {
+		if (Other->GetTag() == "obstacle") {
 			LOG_INFO("Game Over!");
 		}
+		else if (Other->GetTag() == "point-collider") {
+			m_Points++;
+		}
+	}
+
+	void PlayerOnCollisionExit(visions2D::BoxCollider* Other) {
+		// LOG_INFO("Player OnCollisionExit with {0}", Other->Owner->Name);
 	}
 
 	bool ProcessInput(const visions2D::InputState& CurrentInputState) override {
@@ -42,10 +50,14 @@ public:
 			m_TransformReference->Rotation = -30.0f;
 		}
 	}
+
+	inline int GetPoints() const { return m_Points; }
 private:
 	visions2D::TransformComponent* m_TransformReference = nullptr;
 	float m_UpForce = 225.0f;
 	float m_RotationSpeed = 100.0f;
 	float m_VerticalVelocity = 0.0f;
 	float m_Gravity = 500.0f;
+
+	int m_Points = 0;
 };

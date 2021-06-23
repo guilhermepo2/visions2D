@@ -22,6 +22,10 @@ visions2D::Entity* PlayerEntity = nullptr;
 visions2D::Entity* ObstacleEntity = nullptr;
 visions2D::Entity* ObstacleEntity2 = nullptr;
 
+// TODO: "Points" should be a child of the Obstacles...
+visions2D::Entity* PointsComponent = nullptr;
+visions2D::Entity* PointsComponent2 = nullptr;
+
 visions2D::Entity* LowerCollider = nullptr;
 visions2D::Entity* UpperCollider = nullptr;
 visions2D::Font* LazyTown = nullptr;
@@ -94,6 +98,11 @@ void Start() {
 	ObstacleEntity->AddComponent<visions2D::BoxCollider>("obstacle", glm::vec2(-56.0f, -75.0f), glm::vec2(56.0f, 75.0f));
 	ObstacleEntity->AddComponent<ObstacleComponent>();
 
+	PointsComponent = gameWorld->AddEntity("points1");
+	PointsComponent->AddComponent<visions2D::TransformComponent>(glm::vec2(300.0f, 0.0f), 0.0f, glm::vec2(1.0f, 1.0f));
+	PointsComponent->AddComponent<visions2D::BoxCollider>("point-collider", glm::vec2(-5.0f, -300.0f), glm::vec2(5.0f, 300.0f));
+	PointsComponent->AddComponent<ObstacleComponent>();
+
 	//
 	//
 	ObstacleEntity2 = gameWorld->AddEntity("obstacle2");
@@ -153,6 +162,11 @@ void Render(visions2D::Renderer* RendererReference) {
 }
 
 void OnImGui() {
+	ImGui::Begin("Debug");
+	int Points = PlayerEntity->GetComponentOfType<PlayerInput>()->GetPoints();
+	ImGui::InputInt("Points", &Points);
+	ImGui::End();
+
 	/*
 	ImGui::Begin("Debug");
 	ImGui::InputFloat("Obstacle X", &ObstacleXPosition, 1.0f);
