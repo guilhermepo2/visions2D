@@ -5,6 +5,18 @@ class PlayerInput : public visions2D::Component {
 public:
 	void BeginPlay() override {
 		m_TransformReference = Owner->GetComponentOfType<visions2D::TransformComponent>();
+		visions2D::BoxCollider* b = Owner->GetComponentOfType<visions2D::BoxCollider>();
+
+		// TODO: Have an easier way to bind the callback!
+		if (b != nullptr) {
+			b->CollisionCallback = COLLISION_CALLBACK(&PlayerInput::HandlePlayerCollision);
+		}
+	}
+
+	void HandlePlayerCollision(visions2D::BoxCollider* other) {
+		if (other->GetTag() == "obstacle") {
+			LOG_INFO("Game Over!");
+		}
 	}
 
 	bool ProcessInput(const visions2D::InputState& CurrentInputState) override {
@@ -32,7 +44,7 @@ public:
 	}
 private:
 	visions2D::TransformComponent* m_TransformReference = nullptr;
-	float m_UpForce = 325.0f;
+	float m_UpForce = 225.0f;
 	float m_RotationSpeed = 100.0f;
 	float m_VerticalVelocity = 0.0f;
 	float m_Gravity = 500.0f;

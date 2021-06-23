@@ -9,6 +9,7 @@
 #include "Entity/Entity.h"
 
 using CollisionCallbackFunction = std::function<void(visions2D::BoxCollider*)>;
+#define COLLISION_CALLBACK(...) std::bind(__VA_ARGS__, this, std::placeholders::_1);
 
 namespace visions2D {
 	class BoxCollider : public Component {

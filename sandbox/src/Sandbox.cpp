@@ -9,6 +9,8 @@
 #include <visions2D.h>
 #include "PlayerInputComponent.h"
 
+#include <glm/gtc/random.hpp>
+
 visions2D::InputSystem* inputSystem = nullptr;
 visions2D::GameWorld* gameWorld = nullptr;
 visions2D::CollisionWorld* collisionWorld = nullptr;
@@ -17,11 +19,44 @@ visions2D::Texture* PlayerTexture = nullptr;
 visions2D::Texture* ObstacleTexture = nullptr;
 // "Player"
 visions2D::Entity* PlayerEntity = nullptr;
-visions2D::Entity* ObstacleEntityLower = nullptr;
-visions2D::Entity* ObstacleEntityUpper = nullptr;
+visions2D::Entity* ObstacleEntity = nullptr;
+visions2D::Entity* ObstacleEntity2 = nullptr;
+
+visions2D::Entity* LowerCollider = nullptr;
+visions2D::Entity* UpperCollider = nullptr;
 visions2D::Font* LazyTown = nullptr;
 
 bool bRenderCollision = false;
+
+float MaxObstacleY = 90.0f;
+float MinObstacleY = -90.0f;
+float ObstacleYPosition = 0.0f;
+
+float OutOfScreenToTheRight = 390.0f;
+float OutOfScreenToTheLeft = -390.0f;
+
+class ObstacleComponent : public visions2D::Component {
+public:
+
+	void BeginPlay() override {
+		m_Transform = Owner->GetComponentOfType<visions2D::TransformComponent>();
+	}
+
+	void Update(float DeltaTime) override {
+		if (m_Transform->Position.x <= OutOfScreenToTheLeft) {
+			float NewY = glm::linearRand(-1.0f, 1.0f) * MaxObstacleY;
+
+			m_Transform->Position.x = OutOfScreenToTheRight;
+			m_Transform->Position.y = NewY;
+		}
+
+		m_Transform->Translate(glm::vec2(m_Velocity * DeltaTime, 0.0f));
+	}
+
+private:
+	float m_Velocity = -150.0f;
+	visions2D::TransformComponent* m_Transform;
+};
 
 void Start() {
 	inputSystem = new visions2D::InputSystem();
@@ -42,7 +77,7 @@ void Start() {
 
 	// creating entities
 	PlayerEntity = gameWorld->AddEntity("player-entity");
-	PlayerEntity->AddComponent<visions2D::TransformComponent>(glm::vec2(0.0f, 0.0f), 0.0f, glm::vec2(1.0f, 1.0f));
+	PlayerEntity->AddComponent<visions2D::TransformComponent>(glm::vec2(-150.0f, 0.0f), 0.0f, glm::vec2(1.0f, 1.0f));
 	visions2D::SpriteComponent& spriteComponent = PlayerEntity->AddComponent<visions2D::SpriteComponent>(PlayerTexture, 0);
 	spriteComponent.SpriteColor.SetColor(0.0f, 1.0f, 0.0f, 1.0f);
 	spriteComponent.FlipVertical = true;
@@ -50,16 +85,33 @@ void Start() {
 	PlayerEntity->AddComponent<PlayerInput>();
 
 	//
-	ObstacleEntityLower = gameWorld->AddEntity("obstacle");
-	ObstacleEntityLower->AddComponent<visions2D::TransformComponent>(glm::vec2(125.0f, -125.0f), 0.0f, glm::vec2(1.0f, 1.0f));
-	visions2D::SpriteComponent& obstacleSprite = ObstacleEntityLower->AddComponent<visions2D::SpriteComponent>(ObstacleTexture, 0);
+	ObstacleEntity = gameWorld->AddEntity("obstacle");
+	ObstacleEntity->AddComponent<visions2D::TransformComponent>(glm::vec2(300.0f, 0.0f), 0.0f, glm::vec2(1.0f, 1.0f));
+	visions2D::SpriteComponent& obstacleSprite = ObstacleEntity->AddComponent<visions2D::SpriteComponent>(ObstacleTexture, 0);
 	obstacleSprite.SpriteColor.SetColor(1.0f, 0.0f, 0.0f, 1.0f);
+	// TODO: Add the option to offset a box collider
+	// TODO: Make the box collider render the right box positions
+	ObstacleEntity->AddComponent<visions2D::BoxCollider>("obstacle", glm::vec2(-56.0f, -75.0f), glm::vec2(56.0f, 75.0f));
+	ObstacleEntity->AddComponent<ObstacleComponent>();
 
 	//
-	ObstacleEntityUpper = gameWorld->AddEntity("obstacle2");
-	ObstacleEntityUpper->AddComponent<visions2D::TransformComponent>(glm::vec2(125.0f, 125.0f), 0.0f, glm::vec2(1.0f, 1.0f));
-	visions2D::SpriteComponent& obstacleSprite2 = ObstacleEntityUpper->AddComponent<visions2D::SpriteComponent>(ObstacleTexture, 0);
+	//
+	ObstacleEntity2 = gameWorld->AddEntity("obstacle2");
+	ObstacleEntity2->AddComponent<visions2D::TransformComponent>(glm::vec2(600.0f, 150.0f), 0.0f, glm::vec2(1.0f, 1.0f));
+	visions2D::SpriteComponent& obstacleSprite2 = ObstacleEntity2->AddComponent<visions2D::SpriteComponent>(ObstacleTexture, 0);
 	obstacleSprite2.SpriteColor.SetColor(1.0f, 0.0f, 0.0f, 1.0f);
+	// TODO: Add the option to offset a box collider
+	// TODO: Make the box collider render the right box positions
+	ObstacleEntity2->AddComponent<visions2D::BoxCollider>("obstacle", glm::vec2(-56.0f, -75.0f), glm::vec2(56.0f, 75.0f));
+	ObstacleEntity2->AddComponent<ObstacleComponent>();
+
+	UpperCollider = gameWorld->AddEntity("upper collider");
+	UpperCollider->AddComponent<visions2D::TransformComponent>(glm::vec2(0.0f, 180.0f), 0.0f, glm::vec2(1.0f, 1.0f));
+	UpperCollider->AddComponent<visions2D::BoxCollider>("obstacle", glm::vec2(-320.0f, -5.0f), glm::vec2(320.0f, 5.0f));
+
+	LowerCollider = gameWorld->AddEntity("lower collider");
+	LowerCollider->AddComponent<visions2D::TransformComponent>(glm::vec2(0.0f, -180.0f), 0.0f, glm::vec2(1.0f, 1.0f));
+	LowerCollider->AddComponent<visions2D::BoxCollider>("obstacle", glm::vec2(-320.0f, -5.0f), glm::vec2(320.0f, 5.0f));
 
 	inputSystem->Initialize();
 	gameWorld->BeginPlay();
@@ -101,7 +153,11 @@ void Render(visions2D::Renderer* RendererReference) {
 }
 
 void OnImGui() {
-
+	/*
+	ImGui::Begin("Debug");
+	ImGui::InputFloat("Obstacle X", &ObstacleXPosition, 1.0f);
+	ImGui::End();
+	*/
 }
 
 void Shutdown() {
