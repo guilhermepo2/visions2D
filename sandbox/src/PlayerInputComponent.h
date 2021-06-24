@@ -12,11 +12,13 @@ public:
 			b->OnCollisionEnter = COLLISION_CALLBACK(&PlayerInput::PlayerOnCollisionEnter);
 			b->OnCollisionExit = COLLISION_CALLBACK(&PlayerInput::PlayerOnCollisionExit);
 		}
+
+		m_bIsAlive = true;
 	}
 
 	void PlayerOnCollisionEnter(visions2D::BoxCollider* Other) {
 		if (Other->GetTag() == "obstacle") {
-			LOG_INFO("Game Over!");
+			m_bIsAlive = false;
 		}
 		else if (Other->GetTag() == "point-collider") {
 			m_Points++;
@@ -52,6 +54,7 @@ public:
 	}
 
 	inline int GetPoints() const { return m_Points; }
+	inline bool IsAlive() const { return m_bIsAlive; }
 private:
 	visions2D::TransformComponent* m_TransformReference = nullptr;
 	float m_UpForce = 225.0f;
@@ -59,5 +62,6 @@ private:
 	float m_VerticalVelocity = 0.0f;
 	float m_Gravity = 500.0f;
 
+	bool m_bIsAlive;
 	int m_Points = 0;
 };

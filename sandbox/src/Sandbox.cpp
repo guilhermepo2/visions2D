@@ -30,14 +30,16 @@ visions2D::Entity* LowerCollider = nullptr;
 visions2D::Entity* UpperCollider = nullptr;
 visions2D::Font* LazyTown = nullptr;
 
+visions2D::Texture* PointTexture = nullptr;
+int CachedPointsValue = 0;
+
 bool bRenderCollision = false;
 
 float MaxObstacleY = 90.0f;
-float MinObstacleY = -90.0f;
-float ObstacleYPosition = 0.0f;
-
 float OutOfScreenToTheRight = 390.0f;
 float OutOfScreenToTheLeft = -390.0f;
+
+bool bIsPaused = false;
 
 class ObstacleComponent : public visions2D::Component {
 public:
@@ -78,6 +80,7 @@ void Start() {
 	PlayerTexture = LazyTown->RenderToTexture("@", 32);
 	ObstacleTexture = LazyTown->RenderToTextureWrapped("xxx\nxxx\nxxx\nxxx\nxxx", 32, 128);
 	// PlayerTexture->Load("./src/DefaultAssets/White.png");
+	PointTexture = LazyTown->RenderToTexture(std::to_string(CachedPointsValue), 24);
 
 	// creating entities
 	PlayerEntity = gameWorld->AddEntity("player-entity");
@@ -114,6 +117,12 @@ void Start() {
 	ObstacleEntity2->AddComponent<visions2D::BoxCollider>("obstacle", glm::vec2(-56.0f, -75.0f), glm::vec2(56.0f, 75.0f));
 	ObstacleEntity2->AddComponent<ObstacleComponent>();
 
+	PointsComponent2 = gameWorld->AddEntity("points2");
+	PointsComponent2->AddComponent<visions2D::TransformComponent>(glm::vec2(600.0f, 150.0f), 0.0f, glm::vec2(1.0f, 1.0f));
+	PointsComponent2->AddComponent<visions2D::BoxCollider>("point-collider", glm::vec2(-5.0f, -300.0f), glm::vec2(5.0f, 300.0f));
+	PointsComponent2->AddComponent<ObstacleComponent>();
+
+	//
 	UpperCollider = gameWorld->AddEntity("upper collider");
 	UpperCollider->AddComponent<visions2D::TransformComponent>(glm::vec2(0.0f, 180.0f), 0.0f, glm::vec2(1.0f, 1.0f));
 	UpperCollider->AddComponent<visions2D::BoxCollider>("obstacle", glm::vec2(-320.0f, -5.0f), glm::vec2(320.0f, 5.0f));
@@ -142,12 +151,37 @@ void Input() {
 		bRenderCollision = !bRenderCollision;
 	}
 
+	if (inputSystem->GetState().Keyboard.WasKeyPressedThisFrame(visions2D::v2D_Keycode::KEYCODE_P)) {
+		bIsPaused = !bIsPaused;
+	}
 	
 }
 
 void Update(float DeltaTime) {
+	
+	if (bIsPaused) return;
+
 	gameWorld->Update(DeltaTime);
 	collisionWorld->VerifyAllCollisions();
+
+	// updating cached points
+	if (PlayerEntity->GetComponentOfType<PlayerInput>()->GetPoints() != CachedPointsValue) {
+		CachedPointsValue = PlayerEntity->GetComponentOfType<PlayerInput>()->GetPoints();
+
+		// This should be "standard" way of updating a text
+		PointTexture->Unload();
+		delete PointTexture;
+		PointTexture = LazyTown->RenderToTexture(std::to_string(CachedPointsValue), 24);
+	}
+
+	// checking for game over
+	if (!PlayerEntity->GetComponentOfType<PlayerInput>()->IsAlive()) {
+		bIsPaused = true;
+
+		PointTexture->Unload();
+		delete PointTexture;
+		PointTexture = LazyTown->RenderToTexture("Game Over!", 24);
+	}
 }
 
 // TODO: RendererReference here because the reference is needed to push the draw information.
@@ -159,13 +193,28 @@ void Render(visions2D::Renderer* RendererReference) {
 	if (bRenderCollision) {
 		collisionWorld->Render(RendererReference);
 	}
+
+	// Rendering Points here
+	{
+		visions2D::RenderData rd;
+		rd.Texture = PointTexture;
+		rd.TextureScale = glm::vec2(PointTexture->GetWidth(), PointTexture->GetHeight());
+		rd.TexCoords = nullptr;
+		rd.WorldRotation = 0.0f;
+		rd.WorldPosition = glm::vec2(0.0f, 150.0f);
+		// turns out fonts are upside down... wtf...
+		rd.WorldScale = glm::vec2(1.0f, -1.0f);
+		RendererReference->SpriteRenderData.push_back(rd);
+	}
 }
 
 void OnImGui() {
+	/*
 	ImGui::Begin("Debug");
 	int Points = PlayerEntity->GetComponentOfType<PlayerInput>()->GetPoints();
 	ImGui::InputInt("Points", &Points);
 	ImGui::End();
+	*/
 
 	/*
 	ImGui::Begin("Debug");
