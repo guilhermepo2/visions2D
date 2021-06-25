@@ -117,6 +117,13 @@ void CreateEntities() {
 	gameWorld->BeginPlay();
 }
 
+void UpdatePointTexture(std::string NewText, int size) {
+	// This should be "standard" way of updating a text
+	PointTexture->Unload();
+	delete PointTexture;
+	PointTexture = LazyTown->RenderToTexture(NewText, size);
+}
+
 void Start() {
 	inputSystem = new visions2D::InputSystem();
 	gameWorld = new visions2D::GameWorld();
@@ -159,14 +166,21 @@ void Input() {
 	}
 
 	// Restarting the Game...
-	if (inputSystem->GetState().Keyboard.WasKeyPressedThisFrame(visions2D::v2D_Keycode::KEYCODE_R)) {
+	if (
+		inputSystem->GetState().Keyboard.WasKeyPressedThisFrame(visions2D::v2D_Keycode::KEYCODE_R)
+		&& !PlayerEntity->GetComponentOfType<PlayerInput>()->IsAlive()
+		&& bIsPaused
+		) {
+
 		gameWorld->Destroy();
+		collisionWorld->Shutdown();
 		CachedPointsValue = 0;
 
 		PlayerEntity = nullptr;
 
 		CreateEntities();
 		SetIsPaused(false);
+		UpdatePointTexture("0", 24);
 	}
 	
 }
@@ -181,21 +195,14 @@ void Update(float DeltaTime) {
 	// updating cached points
 	if (PlayerEntity->GetComponentOfType<PlayerInput>()->GetPoints() != CachedPointsValue) {
 		CachedPointsValue = PlayerEntity->GetComponentOfType<PlayerInput>()->GetPoints();
-
-		// This should be "standard" way of updating a text
-		PointTexture->Unload();
-		delete PointTexture;
-		PointTexture = LazyTown->RenderToTexture(std::to_string(CachedPointsValue), 24);
+		UpdatePointTexture(std::to_string(CachedPointsValue), 24);
 	}
 
 	// checking for game over
 	bool IsPlayerAlive = PlayerEntity->GetComponentOfType<PlayerInput>()->IsAlive();
 	if (!IsPlayerAlive && !bIsPaused) {
 		SetIsPaused(true);
-
-		PointTexture->Unload();
-		delete PointTexture;
-		PointTexture = LazyTown->RenderToTexture("Game Over!", 24);
+		UpdatePointTexture("Game Over", 24);
 	}
 }
 
@@ -225,8 +232,11 @@ void Render(visions2D::Renderer* RendererReference) {
 
 void OnImGui() {
 	ImGui::Begin("Memory");
-	int Memory = s_CurrentMetric.GetCurrentUsage();
-	ImGui::InputInt("Memory: ", &Memory);
+
+	ImGui::LabelText("Memory Usage:", std::to_string(s_CurrentMetric.GetCurrentUsage()).c_str());
+	ImGui::LabelText("Memory Allocated:", std::to_string(s_CurrentMetric.TotalAllocated).c_str());
+	ImGui::LabelText("Memory Freed:", std::to_string(s_CurrentMetric.TotalFreed).c_str());
+
 	ImGui::End();
 
 	/*

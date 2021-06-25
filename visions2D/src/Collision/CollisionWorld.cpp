@@ -43,7 +43,18 @@ namespace visions2D {
 	}
 
 	// TODO: Clean all BoxColliders?
-	void CollisionWorld::Shutdown() { } // TODO 
+	void CollisionWorld::Shutdown() { 
+		if(m_WorldColliders.size() > 0) {
+			LOG_WARNING("Destroying {0} colliders, this number should be 0!", m_WorldColliders.size());
+
+			for (int i = 0; i < m_WorldColliders.size(); i++) {
+				delete m_WorldColliders[i];
+			}
+		}
+
+		m_WorldColliders.clear();
+		m_LastFrameCollisions.clear();
+	}
 
 	void CollisionWorld::VerifyAllCollisions() {
 		std::vector<CollisionHappened> CollisionsThisFrame;
