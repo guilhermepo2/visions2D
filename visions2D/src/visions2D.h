@@ -1,4 +1,6 @@
 #pragma once
+#include "Utilities/Memory.h"
+
 #include "Log.h"
 #include "Application.h"
 #include "Common.h"

@@ -224,6 +224,11 @@ void Render(visions2D::Renderer* RendererReference) {
 }
 
 void OnImGui() {
+	ImGui::Begin("Memory");
+	int Memory = s_CurrentMetric.GetCurrentUsage();
+	ImGui::InputInt("Memory: ", &Memory);
+	ImGui::End();
+
 	/*
 	ImGui::Begin("Debug");
 	int Points = PlayerEntity->GetComponentOfType<PlayerInput>()->GetPoints();
