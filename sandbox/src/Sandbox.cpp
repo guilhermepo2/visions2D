@@ -19,6 +19,7 @@
 
 #include <visions2D.h>
 #include "PlayerInputComponent.h"
+#include "ObstacleComponent.h"
 
 #include <glm/gtc/random.hpp>
 
@@ -39,39 +40,13 @@ visions2D::Texture* ObstacleTexture = nullptr;
 visions2D::Texture* PointTexture = nullptr;
 visions2D::Font* LazyTown = nullptr;
 
-// Entities... Ha
+// Entities...
 visions2D::Entity* PlayerEntity = nullptr;
 visions2D::Entity* LowerCollider = nullptr;
 visions2D::Entity* UpperCollider = nullptr;
 
 // int for the points on screen
 int CachedPointsValue = 0;
-
-class ObstacleComponent : public visions2D::Component {
-public:
-
-	void BeginPlay() override {
-		m_Transform = Owner->GetComponentOfType<visions2D::TransformComponent>();
-	}
-
-	void Update(float DeltaTime) override {
-		if (m_Transform->Position.x <= m_OutOfScreenToTheLeft) {
-			float NewY = glm::linearRand(-1.0f, 1.0f) * m_MaxObstacleY;
-
-			m_Transform->Position.x = m_OutOfScreenToTheRight;
-			m_Transform->Position.y = NewY;
-		}
-
-		m_Transform->Translate(glm::vec2(m_Velocity * DeltaTime, 0.0f));
-	}
-
-private:
-	float m_Velocity = -150.0f;
-	float m_OutOfScreenToTheRight = 390.0f;
-	float m_OutOfScreenToTheLeft = -390.0f;
-	float m_MaxObstacleY = 90.0f;
-	visions2D::TransformComponent* m_Transform;
-};
 
 void CreateObstacleAt(std::string obstacleName, std::string pointsName, float x, float y) {
 	visions2D::Entity* NewObstacleEntity = nullptr;
@@ -232,30 +207,16 @@ void Render(visions2D::Renderer* RendererReference) {
 
 void OnImGui() {
 	ImGui::Begin("Memory");
-
 	ImGui::LabelText("Memory Usage:", std::to_string(s_CurrentMetric.GetCurrentUsage()).c_str());
-	ImGui::LabelText("Memory Allocated:", std::to_string(s_CurrentMetric.TotalAllocated).c_str());
-	ImGui::LabelText("Memory Freed:", std::to_string(s_CurrentMetric.TotalFreed).c_str());
-
 	ImGui::End();
-
-	/*
-	ImGui::Begin("Debug");
-	int Points = PlayerEntity->GetComponentOfType<PlayerInput>()->GetPoints();
-	ImGui::InputInt("Points", &Points);
-	ImGui::End();
-	*/
-
-	/*
-	ImGui::Begin("Debug");
-	ImGui::InputFloat("Obstacle X", &ObstacleXPosition, 1.0f);
-	ImGui::End();
-	*/
 }
 
 void Shutdown() {
 	gameWorld->Destroy();
 	delete gameWorld;
+
+	collisionWorld->Shutdown();
+	delete collisionWorld;
 
 	inputSystem->Shutdown();
 	delete inputSystem;

@@ -42,7 +42,6 @@ namespace visions2D {
 		}
 	}
 
-	// TODO: Clean all BoxColliders?
 	void CollisionWorld::Shutdown() { 
 		if(m_WorldColliders.size() > 0) {
 			LOG_WARNING("Destroying {0} colliders, this number should be 0!", m_WorldColliders.size());
