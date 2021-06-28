@@ -24,6 +24,13 @@ visions2D::CollisionWorld* collisionWorld = nullptr;
 bool bRenderCollision = false;
 bool bIsPaused = false;
 
+// For increasing difficulty
+float TotalTimeElapsed = 0.0f;
+const float IncrementDifficultyEvery = 10.0f;
+float TimeToNextIncrease = 0.0f;
+float DifficultyMultiplier = 0;
+const float DifficultyMultiplierIncrementer = 0.05f;
+
 void SetIsPaused(bool value) {
 	bIsPaused = value;
 }
@@ -100,6 +107,7 @@ void Start() {
 	if (collisionWorld->Initialize()) {
 		LOG_INFO("app: collision world initialized");
 	}
+	visions2D::Random::Initialize();
 
 	// load assets here...
 	LazyTown = new visions2D::Font();
@@ -112,6 +120,7 @@ void Start() {
 	PointTexture = LazyTown->RenderToTexture(std::to_string(CachedPointsValue), 24);
 
 	CreateEntities();
+	TimeToNextIncrease = IncrementDifficultyEvery;
 }
 
 void PreInput() {
@@ -147,6 +156,11 @@ void Input() {
 
 		PlayerEntity = nullptr;
 
+		// Restarting Difficulty related things
+		TotalTimeElapsed = 0.0f;
+		TimeToNextIncrease = IncrementDifficultyEvery;
+		DifficultyMultiplier = 0;
+
 		CreateEntities();
 		SetIsPaused(false);
 		UpdatePointTexture("0", 24);
@@ -158,7 +172,16 @@ void Update(float DeltaTime) {
 	
 	if (bIsPaused) return;
 
-	gameWorld->Update(DeltaTime);
+	// Handling Difficulty
+	TotalTimeElapsed += DeltaTime;
+	if (TotalTimeElapsed > TimeToNextIncrease) {
+		LOG_INFO("Difficulty increase!");
+		DifficultyMultiplier += DifficultyMultiplierIncrementer;
+		TimeToNextIncrease += IncrementDifficultyEvery;
+	}
+	float ActualDeltaTime = DeltaTime + (DifficultyMultiplier * DeltaTime);
+
+	gameWorld->Update(ActualDeltaTime);
 	collisionWorld->VerifyAllCollisions();
 
 	// updating cached points

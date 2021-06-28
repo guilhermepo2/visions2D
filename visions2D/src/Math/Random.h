@@ -3,6 +3,10 @@
 
 namespace visions2D {
 	namespace Random {
+		static void Initialize() {
+			srand(time(nullptr));
+		}
+
 		static float AbsoluteValue() {
 			return glm::linearRand(0.0f, 1.0f);
 		}
