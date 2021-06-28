@@ -31,6 +31,9 @@
 #include "Entity/Component/TileComponent.h"
 #include "Entity/Component/BoxCollider.h"
 
+#include "Math/Rectangle.h"
+#include "Math/Random.h"
+
 #include "UI/Font.h"
 
 #include "Utilities/JsonHelper.h"

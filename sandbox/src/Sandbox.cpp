@@ -7,10 +7,6 @@
 // *******************************************************
 
 /*
-- next steps
-1. be able to restart the game after you lose
-2. particles
-
 - refactoring
 1. make a asset store or resource manager that stores textures, fonts, etc...
 2. make a game application that will have input system, game world, collision world, etc...
@@ -20,8 +16,6 @@
 #include <visions2D.h>
 #include "PlayerInputComponent.h"
 #include "ObstacleComponent.h"
-
-#include <glm/gtc/random.hpp>
 
 // TODO: This should move to a GameApplication class
 visions2D::InputSystem* inputSystem = nullptr;

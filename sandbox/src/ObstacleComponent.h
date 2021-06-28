@@ -1,6 +1,6 @@
 #pragma once
 #include <visions2D.h>
-#include <glm/gtc/random.hpp>
+
 
 class ObstacleComponent : public visions2D::Component {
 public:
@@ -12,7 +12,7 @@ public:
 	void Update(float DeltaTime) override {
 		if (m_Transform->Position.x <= m_OutOfScreenToTheLeft) {
 			// TODO: "Rand" should be a module in the engine.
-			float NewY = glm::linearRand(-1.0f, 1.0f) * m_MaxObstacleY;
+			float NewY = visions2D::Random::Value() * m_MaxObstacleY;
 			m_Transform->Position.x = m_OutOfScreenToTheRight;
 			m_Transform->Position.y = NewY;
 		}
