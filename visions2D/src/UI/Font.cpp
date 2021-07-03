@@ -4,7 +4,9 @@
 
 namespace visions2D {
 	Font::Font() {}
-	Font::~Font() {}
+	Font::~Font() {
+		LOG_INFO("Destroying Font!");
+	}
 
 	bool Font::Load(const std::string& InFontFileName) {
 		std::vector<int> FontSizes = {
@@ -34,6 +36,25 @@ namespace visions2D {
 		for (auto& f : m_FontData) {
 			TTF_CloseFont(f.second);
 		}
+	}
+
+	Texture* Font::RenderToTextureWrapped(const std::string& Text, int PointSize, int WrappedSize) {
+		Texture* tex = nullptr;
+		SDL_Color color = { 255, 255, 255, 255 };
+		auto iter = m_FontData.find(PointSize);
+		if (iter != m_FontData.end()) {
+			TTF_Font* font = iter->second;
+
+			SDL_Surface* surf = TTF_RenderUTF8_Blended_Wrapped(font, Text.c_str(), color, WrappedSize);
+
+			if (surf != nullptr) {
+				tex = new Texture();
+				tex->CreateFromSurface(surf);
+				SDL_FreeSurface(surf);
+			}
+		}
+
+		return tex;
 	}
 
 	// TODO: Make the color optional here?!

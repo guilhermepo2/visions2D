@@ -27,22 +27,9 @@ namespace visions2D {
 		}
 	}
 
-	void Entity::Render() {
-
-		// TODO
-		// Should this really be here?!
-		// lol, no?!
-		/*
-		if (HasComponentOfType<Transform>() && HasComponentOfType<Sprite>()) {
-			Transform* t = GetComponentOfType<Transform>();
-			Sprite* s = GetComponentOfType<Sprite>();
-
-			Renderer::s_Instance->AddToRenderQueue(s->tex, &(t->Position), t->Rotation, &(t->Scale), s->DrawOrder);
-		}
-		*/
-
+	void Entity::Render(Renderer* RendererReference) {
 		for (Component* c : m_Components) {
-			c->Render();
+			c->Render(RendererReference);
 		}
 	}
 

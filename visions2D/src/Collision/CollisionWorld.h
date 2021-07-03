@@ -14,6 +14,17 @@ namespace visions2D {
 		Entity* CollidedEntity;
 	};
 
+	// TODO: Have a better name for this
+	struct CollisionHappened {
+	public:
+		BoxCollider* a;
+		BoxCollider* b;
+
+		bool operator==(const CollisionHappened& other) {
+			return (this->a == other.a && this->b == other.b);
+		}
+	};
+
 	class CollisionWorld {
 	public:
 		CollisionWorld();
@@ -36,5 +47,6 @@ namespace visions2D {
 
 	private:
 		std::vector<BoxCollider*> m_WorldColliders;
+		std::vector<CollisionHappened> m_LastFrameCollisions;
 	};
 }

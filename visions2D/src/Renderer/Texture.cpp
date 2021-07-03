@@ -8,7 +8,9 @@
 
 namespace visions2D {
 	Texture::Texture() : m_TextureID(0), m_Width(0), m_Height(0) { }
-	Texture::~Texture() { }
+	Texture::~Texture() {
+		LOG_INFO("Deleting Texture...");
+	}
 
 	bool Texture::Load(const std::string& _fileName) {
 		int channels = 0;

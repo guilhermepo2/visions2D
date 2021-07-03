@@ -24,9 +24,9 @@ namespace visions2D {
 		}
 	}
 	
-	void GameWorld::Render() {
+	void GameWorld::Render(Renderer* RendererReference) {
 		for (Entity* e : m_Entities) {
-			e->Render();
+			e->Render(RendererReference);
 		}
 	}
 	
@@ -34,6 +34,12 @@ namespace visions2D {
 		for (Entity* e : m_Entities) {
 			e->Destroy();
 		}
+
+		for (int i = 0; i < m_Entities.size(); i++) {
+			delete m_Entities[i];
+		}
+
+		m_Entities.clear();
 	}
 
 	Entity* GameWorld::AddEntity(const std::string& EntityName) {

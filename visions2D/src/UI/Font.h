@@ -16,6 +16,7 @@ namespace visions2D {
 		bool Load(const std::string& InFontFileName);
 		void Unload();
 		// TODO: Maybe Text should be a key?
+		Texture* Font::RenderToTextureWrapped(const std::string& Text, int PointSize, int WrappedSize);
 		Texture* RenderToTexture(const std::string& Text, int PointSize = 16);
 
 	private:

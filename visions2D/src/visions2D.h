@@ -1,4 +1,6 @@
 #pragma once
+#include "Utilities/Memory.h"
+
 #include "Log.h"
 #include "Application.h"
 #include "Common.h"
@@ -29,7 +31,11 @@
 #include "Entity/Component/TileComponent.h"
 #include "Entity/Component/BoxCollider.h"
 
+#include "Math/Rectangle.h"
+#include "Math/Random.h"
+
 #include "UI/Font.h"
 
 #include "Utilities/JsonHelper.h"
 #include "Utilities/Tilemap.h"
+#include "Utilities/ResourceManager.h"

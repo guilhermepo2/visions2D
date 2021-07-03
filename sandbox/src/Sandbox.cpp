@@ -6,49 +6,96 @@
 // *******************************************************
 // *******************************************************
 
-#include "visions2D.h"
+/*
+- refactoring
+1. make a asset store or resource manager that stores textures, fonts, etc...
+2. make a game application that will have input system, game world, collision world, etc...
+3. load entities and components from .json files
+*/
 
-static struct {
-	float LastDeltaTime;
-} SandboxStats_Data;
+#include <visions2D.h>
+#include "PlayerInputComponent.h"
+#include "ObstacleComponent.h"
 
+// TODO: This should move to a GameApplication class
 visions2D::InputSystem* inputSystem = nullptr;
 visions2D::GameWorld* gameWorld = nullptr;
 visions2D::CollisionWorld* collisionWorld = nullptr;
-
-// Assets... Should I have a resource manager on the engine?
-// Textures
-visions2D::Texture* characterTexture = nullptr;
-visions2D::Texture* mapTexture = nullptr;
-visions2D::Texture* shipTexture = nullptr;
-visions2D::Texture* meteorTexture = nullptr;
-visions2D::Texture* HelloWorldTexture = nullptr;
-visions2D::Texture* ltText = nullptr;
-visions2D::Texture* zhongguoText = nullptr;
-visions2D::Texture* kafei = nullptr;
-
-// Fonts
-visions2D::Font* LazyTownFont = nullptr;
-visions2D::Font* ArialFont = nullptr;
-visions2D::Font* NotoSans = nullptr;
-visions2D::Font* SentyWen = nullptr;
-
-// Tilesheets
-visions2D::Tilesheet* characterTilesheet = nullptr;
-visions2D::Tilesheet* mapTilesheet = nullptr;
-
-// Tilemaps
-visions2D::Tilemap* dungeon = nullptr;
-
-// Entities - Entities should not be on a resource manager
-visions2D::Entity* Player;
-visions2D::Entity* Meteor;
-
-int MovementDirection = 0;
-float RotationSpeed = 135.0f;
-bool Accelerating = false;
-float ShipSpeed = 180.0f;
 bool bRenderCollision = false;
+bool bIsPaused = false;
+visions2D::ResourceManager* resourceManager = nullptr;
+
+// For increasing difficulty
+float TotalTimeElapsed = 0.0f; // this could be an engine feature
+const float IncrementDifficultyEvery = 10.0f;
+float TimeToNextIncrease = 0.0f;
+float DifficultyMultiplier = 0;
+const float DifficultyMultiplierIncrementer = 0.05f;
+
+void SetIsPaused(bool value) {
+	bIsPaused = value;
+}
+
+// TODO: this should be in a "Asset Store" or "Resource Manager"
+visions2D::Texture* ObstacleTexture = nullptr;
+
+// Entities...
+visions2D::Entity* PlayerEntity = nullptr;
+visions2D::Entity* LowerCollider = nullptr;
+visions2D::Entity* UpperCollider = nullptr;
+
+// int for the points on screen
+int CachedPointsValue = 0;
+
+void CreateObstacleAt(std::string obstacleName, std::string pointsName, float x, float y) {
+	visions2D::Entity* NewObstacleEntity = nullptr;
+	visions2D::Entity* NewPointsEntity = nullptr;
+
+	NewObstacleEntity = gameWorld->AddEntity(obstacleName);
+	NewObstacleEntity->AddComponent<visions2D::TransformComponent>(glm::vec2(x, y), 0.0f, glm::vec2(1.0f, 1.0f));
+	visions2D::SpriteComponent& obstacleSprite = NewObstacleEntity->AddComponent<visions2D::SpriteComponent>(ObstacleTexture, 0);
+	obstacleSprite.SpriteColor.SetColor(1.0f, 0.0f, 0.0f, 1.0f);
+	// TODO: Add the option to offset a box collider
+	// TODO: Make the box collider render the right box positions
+	NewObstacleEntity->AddComponent<visions2D::BoxCollider>("obstacle", glm::vec2(-50.0f, -70.0f), glm::vec2(50.0f, 70.0f));
+	NewObstacleEntity->AddComponent<ObstacleComponent>();
+
+	NewPointsEntity = gameWorld->AddEntity(pointsName);
+	NewPointsEntity->AddComponent<visions2D::TransformComponent>(glm::vec2(x, y), 0.0f, glm::vec2(1.0f, 1.0f));
+	NewPointsEntity->AddComponent<visions2D::BoxCollider>("point-collider", glm::vec2(-5.0f, -300.0f), glm::vec2(5.0f, 300.0f));
+	NewPointsEntity->AddComponent<ObstacleComponent>();
+}
+
+void CreateEntities() {
+	// creating entities
+	PlayerEntity = gameWorld->AddEntity("player-entity");
+	PlayerEntity->AddComponent<visions2D::TransformComponent>(glm::vec2(-200.0f, 0.0f), 0.0f, glm::vec2(1.0f, 1.0f));
+	visions2D::SpriteComponent& spriteComponent = PlayerEntity->AddComponent<visions2D::SpriteComponent>(resourceManager->GetTexture("player"), 0);
+	spriteComponent.SpriteColor.SetColor(0.0f, 1.0f, 0.0f, 1.0f);
+	spriteComponent.FlipVertical = true;
+	PlayerEntity->AddComponent<visions2D::BoxCollider>("PlayerCollider", glm::vec2(-12.0f, -12.0f), glm::vec2(12.0f, 12.0f));
+	PlayerEntity->AddComponent<PlayerInput>();
+
+	CreateObstacleAt("obstacle1", "points1", 300.0f, 0.0f);
+	CreateObstacleAt("obstacle2", "points2", 700.0f, 100.0f);
+
+	UpperCollider = gameWorld->AddEntity("upper collider");
+	UpperCollider->AddComponent<visions2D::TransformComponent>(glm::vec2(0.0f, 180.0f), 0.0f, glm::vec2(1.0f, 1.0f));
+	UpperCollider->AddComponent<visions2D::BoxCollider>("obstacle", glm::vec2(-320.0f, -5.0f), glm::vec2(320.0f, 5.0f));
+
+	LowerCollider = gameWorld->AddEntity("lower collider");
+	LowerCollider->AddComponent<visions2D::TransformComponent>(glm::vec2(0.0f, -180.0f), 0.0f, glm::vec2(1.0f, 1.0f));
+	LowerCollider->AddComponent<visions2D::BoxCollider>("obstacle", glm::vec2(-320.0f, -5.0f), glm::vec2(320.0f, 5.0f));
+
+	inputSystem->Initialize();
+	gameWorld->BeginPlay();
+}
+
+void UpdatePointTexture(const std::string& NewText, int size) {
+	// This should be "standard" way of updating a text
+	resourceManager->RemoveTexture("points");
+	resourceManager->CreateTextureFromFont("points", "lazytown", NewText, size);
+}
 
 void Start() {
 	inputSystem = new visions2D::InputSystem();
@@ -57,65 +104,19 @@ void Start() {
 	if (collisionWorld->Initialize()) {
 		LOG_INFO("app: collision world initialized");
 	}
+	resourceManager = new visions2D::ResourceManager();
+	visions2D::Random::Initialize();
 
-	characterTexture = new visions2D::Texture();
-	characterTexture->Load("./src/DefaultAssets/chara_hero.png");
+	// load assets here...
+	resourceManager->AddFont("lazytown", "./assets/ChevyRay - Lazytown.ttf");
+	resourceManager->CreateTextureFromFont("player", "lazytown", "@", 32);
+	resourceManager->CreateTextureFromFont("points", "lazytown", std::to_string(CachedPointsValue), 24);
 
-	characterTilesheet = new visions2D::Tilesheet(characterTexture);
-	characterTilesheet->Slice(48, 48);
+	// loading textures
+	ObstacleTexture = resourceManager->GetFont("lazytown")->RenderToTextureWrapped("xxx\nxxx\nxxx\nxxx\nxxx", 32, 128);
 
-	shipTexture = new visions2D::Texture();
-	shipTexture->Load("./src/DefaultAssets/Spaceship/playerShip3_blue.png");
-
-	meteorTexture = new visions2D::Texture();
-	meteorTexture->Load("./src/DefaultAssets/Spaceship/meteorBrown_big4.png");
-
-	mapTexture = new visions2D::Texture();
-	mapTexture->Load("./src/DefaultAssets/tiles_dungeon_v1.1.png");
-	mapTilesheet = new visions2D::Tilesheet(mapTexture);
-	mapTilesheet->LoadFromTiledJson("./src/DefaultAssets/Map/dungeon_tiles.json");
-
-	dungeon = new visions2D::Tilemap();
-	dungeon->LoadFromJSON("./src/DefaultAssets/Map/dungeon_map.json");
-
-	Player = gameWorld->AddEntity("Player");
-	Player->AddComponent<visions2D::TransformComponent>(glm::vec2(0.0f, 0.0f), 0.0f, glm::vec2(1.0f, 1.0f));
-	Player->AddComponent<visions2D::SpriteComponent>(shipTexture, 0);
-	Player->AddComponent<visions2D::BoxCollider>("PlayerShip", glm::vec2(0.0f, 0.0f), glm::vec2(60.0f, 60.0f));
-
-	Meteor = gameWorld->AddEntity("Meteor");
-	Meteor->AddComponent<visions2D::TransformComponent>(glm::vec2(200.0f, 100.0f), 0.0f, glm::vec2(1.0f, 1.0f));
-	Meteor->AddComponent<visions2D::SpriteComponent>(meteorTexture, 0);
-	Meteor->AddComponent<visions2D::BoxCollider>("Meteor", glm::vec2(0.0f, 0.0f), glm::vec2(90.0f, 90.0f));
-
-	// TODO: Have a static method to create and load fonts?!
-	// TODO: It's probably better to have a centralized "Asset Manager" with Textures, Fonts, etc...
-	LazyTownFont = new visions2D::Font();
-	ArialFont = new visions2D::Font();
-	NotoSans = new visions2D::Font();
-	SentyWen = new visions2D::Font();
-
-	LazyTownFont->Load("./src/DefaultAssets/ChevyRay - Lazytown.ttf");
-	ArialFont->Load("./src/DefaultAssets/Arial.ttf");
-	NotoSans->Load("./src/DefaultAssets/NotoSansSC-Light.otf");
-	SentyWen->Load("./src/DefaultAssets/SentyWEN2017.ttf");
-
-	HelloWorldTexture = LazyTownFont->RenderToTexture("Hello World", 12);
-
-	const char* LatinXText = "olÃ¡, como estÃ¡s?";
-	ltText = ArialFont->RenderToTexture(LatinXText, 12);
-
-	Uint16 ILikeCoffee_Unicode[32] = { 0x6211,0x559c,0x6b22,0x5496,0x5561, 0 };
-	Uint16 Hello_UnicodeHex[1024] = { 0x4F60,0x597D, 0 }; //= (Hexadecimal) Unicode encoding: Hello
-	Uint16 Hello_UnicodeDec[1024] = { 20320, 22909, 0 }; //= (Decimal) Unicode encoding: Hello
-	const char* Hello_UTF8 = u8"\u4F60\u597D";
-	const char* ILikeCoffee_UTF8 = u8"\u6211\u559c\u6b22\u5496\u5561\0";
-
-	zhongguoText = NotoSans->RenderToTexture(Hello_UTF8, 40);
-	kafei = SentyWen->RenderToTexture(ILikeCoffee_UTF8, 64);
-
-	inputSystem->Initialize();
-	gameWorld->BeginPlay();
+	CreateEntities();
+	TimeToNextIncrease = IncrementDifficultyEvery;
 }
 
 void PreInput() {
@@ -130,160 +131,117 @@ void Input() {
 		LOG_INFO("spacebar was pressed and the input system works!");
 	}
 
-	MovementDirection = 0;
-	if (inputSystem->GetState().Keyboard.IsKeyDown(visions2D::v2D_Keycode::KEYCODE_D)) {
-		MovementDirection += 1;
-	}
-	else if (inputSystem->GetState().Keyboard.IsKeyDown(visions2D::v2D_Keycode::KEYCODE_A)) {
-		MovementDirection -= 1;
-	}
-
-	if (inputSystem->GetState().Mouse.IsMouseKeyDown(visions2D::v2D_Mousecode::MOUSECODE_LEFT)) {
-		Accelerating = true;
-	}
-	else {
-		Accelerating = false;
-	}
-
 	if (inputSystem->GetState().Keyboard.WasKeyPressedThisFrame(visions2D::v2D_Keycode::KEYCODE_I)) {
 		bRenderCollision = !bRenderCollision;
 	}
+
+	if (inputSystem->GetState().Keyboard.WasKeyPressedThisFrame(visions2D::v2D_Keycode::KEYCODE_P)) {
+		SetIsPaused(!bIsPaused);
+	}
+
+	// Restarting the Game...
+	if (
+		inputSystem->GetState().Keyboard.WasKeyPressedThisFrame(visions2D::v2D_Keycode::KEYCODE_R)
+		&& !PlayerEntity->GetComponentOfType<PlayerInput>()->IsAlive()
+		&& bIsPaused
+		) {
+
+		gameWorld->Destroy();
+		collisionWorld->Shutdown();
+		CachedPointsValue = 0;
+
+		PlayerEntity = nullptr;
+
+		// Restarting Difficulty related things
+		TotalTimeElapsed = 0.0f;
+		TimeToNextIncrease = IncrementDifficultyEvery;
+		DifficultyMultiplier = 0;
+
+		CreateEntities();
+		SetIsPaused(false);
+		UpdatePointTexture("0", 24);
+	}
+	
 }
 
 void Update(float DeltaTime) {
 	
-	visions2D::TransformComponent* playerTransform = Player->GetComponentOfType<visions2D::TransformComponent>();
+	if (bIsPaused) return;
 
-	if (Accelerating) {
-		
-		float XSpeed = ShipSpeed * glm::sin(glm::radians(playerTransform->Rotation));
-		float YSpeed = ShipSpeed * glm::cos(glm::radians(playerTransform->Rotation));
-		playerTransform->Translate(glm::vec2(XSpeed, YSpeed) * DeltaTime);
+	// Handling Difficulty
+	TotalTimeElapsed += DeltaTime;
+	if (TotalTimeElapsed > TimeToNextIncrease) {
+		LOG_INFO("Difficulty increase!");
+		DifficultyMultiplier += DifficultyMultiplierIncrementer;
+		TimeToNextIncrease += IncrementDifficultyEvery;
+	}
+	float ActualDeltaTime = DeltaTime + (DifficultyMultiplier * DeltaTime);
+
+	gameWorld->Update(ActualDeltaTime);
+	collisionWorld->VerifyAllCollisions();
+
+	// updating cached points
+	if (PlayerEntity->GetComponentOfType<PlayerInput>()->GetPoints() != CachedPointsValue) {
+		CachedPointsValue = PlayerEntity->GetComponentOfType<PlayerInput>()->GetPoints();
+		UpdatePointTexture(std::to_string(CachedPointsValue), 24);
 	}
 
-	playerTransform->Rotate(MovementDirection * RotationSpeed * DeltaTime);
-	gameWorld->Update(DeltaTime);
-	SandboxStats_Data.LastDeltaTime = DeltaTime;
-
-	collisionWorld->VerifyAllCollisions();
+	// checking for game over
+	bool IsPlayerAlive = PlayerEntity->GetComponentOfType<PlayerInput>()->IsAlive();
+	if (!IsPlayerAlive && !bIsPaused) {
+		SetIsPaused(true);
+		UpdatePointTexture("Game Over", 24);
+	}
 }
 
+// TODO: RendererReference here because the reference is needed to push the draw information.
+// I want to keep this here because I can substitute it for the batch.
+// So the engine gives the application a drawing batch
 void Render(visions2D::Renderer* RendererReference) {
-	gameWorld->Render();
+	gameWorld->Render(RendererReference);
 
 	if (bRenderCollision) {
 		collisionWorld->Render(RendererReference);
 	}
-	
+
+	// Rendering Points here
 	{
 		visions2D::RenderData rd;
-		rd.Texture = HelloWorldTexture;
-		rd.TextureScale = glm::vec2(HelloWorldTexture->GetWidth(), HelloWorldTexture->GetHeight());
+		visions2D::Texture* pointsTex = resourceManager->GetTexture("points");
+		rd.Texture = pointsTex;
+		rd.TextureScale = glm::vec2(pointsTex->GetWidth(), pointsTex->GetHeight());
 		rd.TexCoords = nullptr;
 		rd.WorldRotation = 0.0f;
-		rd.WorldPosition = glm::vec2(200.0f, 200.0f);
+		rd.WorldPosition = glm::vec2(0.0f, 150.0f);
 		// turns out fonts are upside down... wtf...
 		rd.WorldScale = glm::vec2(1.0f, -1.0f);
-		RendererReference->SpriteRenderData.push_back(rd);
-	}
-	
-
-	{
-		visions2D::RenderData rd;
-		rd.Texture = ltText;
-		rd.TextureScale = glm::vec2(ltText->GetWidth(), ltText->GetHeight());
-		rd.TexCoords = nullptr;
-		rd.WorldRotation = 0.0f;
-		rd.WorldPosition = glm::vec2(200.0f, 150.0f);
-		// turns out fonts are upside down... wtf...
-		rd.WorldScale = glm::vec2(1.0f, -1.0f);
-		RendererReference->SpriteRenderData.push_back(rd);
-	}
-
-	{
-		visions2D::RenderData rd;
-		rd.Texture = zhongguoText;
-		rd.TextureScale = glm::vec2(zhongguoText->GetWidth(), zhongguoText->GetHeight());
-		rd.TexCoords = nullptr;
-		rd.WorldRotation = 0.0f;
-		rd.WorldPosition = glm::vec2(200.0f, 100.0f);
-		// turns out fonts are upside down... wtf...
-		rd.WorldScale = glm::vec2(1.0f, -1.0f);
-		RendererReference->SpriteRenderData.push_back(rd);
-	}
-
-	{
-		visions2D::RenderData rd;
-		rd.Texture = kafei;
-		rd.TextureScale = glm::vec2(kafei->GetWidth(), kafei->GetHeight());
-		rd.TexCoords = nullptr;
-		rd.WorldRotation = 0.0f;
-		rd.WorldPosition = glm::vec2(200.0f, 0.0f);
-		// turns out fonts are upside down... wtf...
-		rd.WorldScale = glm::vec2(1.0f, -1.0f);
-		RendererReference->SpriteRenderData.push_back(rd);
-	}
-
-	// Rendering Player
-	if (Player->HasComponentOfType<visions2D::TransformComponent>() && Player->HasComponentOfType<visions2D::SpriteComponent>()) {
-		visions2D::RenderData rd;
-		visions2D::SpriteComponent* s = Player->GetComponentOfType<visions2D::SpriteComponent>();
-		rd.Texture = s->tex;
-
-		rd.TextureScale = glm::vec2(shipTexture->GetWidth(), shipTexture->GetHeight());
-		rd.TexCoords = nullptr;
-		rd.WorldRotation = Player->GetComponentOfType<visions2D::TransformComponent>()->Rotation;
-		rd.WorldPosition = Player->GetComponentOfType<visions2D::TransformComponent>()->Position;
-		rd.WorldScale = Player->GetComponentOfType<visions2D::TransformComponent>()->Scale;
-		rd.tint = visions2D::Color(1.0f, 1.0f, 1.0f, 1.0f);
-		RendererReference->SpriteRenderData.push_back(rd);
-	}
-
-	// Rendering Meteor
-	if (Meteor->HasComponentOfType<visions2D::TransformComponent>() && Meteor->HasComponentOfType<visions2D::SpriteComponent>()) {
-		visions2D::RenderData rd;
-		visions2D::SpriteComponent* s = Meteor->GetComponentOfType<visions2D::SpriteComponent>();
-		rd.Texture = s->tex;
-
-		rd.TextureScale = glm::vec2(meteorTexture->GetWidth(), meteorTexture->GetHeight());
-		rd.TexCoords = nullptr;
-		rd.WorldRotation = Meteor->GetComponentOfType<visions2D::TransformComponent>()->Rotation;
-		rd.WorldPosition = Meteor->GetComponentOfType<visions2D::TransformComponent>()->Position;
-		rd.WorldScale = Meteor->GetComponentOfType<visions2D::TransformComponent>()->Scale;
-		rd.tint = visions2D::Color(1.0f, 1.0f, 1.0f, 1.0f);
 		RendererReference->SpriteRenderData.push_back(rd);
 	}
 }
 
 void OnImGui() {
-	{
-		ImGui::Begin("Stats");
-
-		ImGui::Text("Last Delta Time: ");
-		ImGui::SameLine();
-		ImGui::Text("%.2f", SandboxStats_Data.LastDeltaTime);
-
-		ImGui::Text("Estimated FPS based on Delta Time: ");
-		ImGui::SameLine();
-		ImGui::Text("%.2f", (1.0f / SandboxStats_Data.LastDeltaTime));
-
-		ImGui::End();
-	}
+	ImGui::Begin("Memory");
+	ImGui::LabelText("Memory Usage:", std::to_string(s_CurrentMetric.GetCurrentUsage()).c_str());
+	ImGui::End();
 }
 
 void Shutdown() {
 	gameWorld->Destroy();
-	inputSystem->Shutdown();
 	delete gameWorld;
+
+	collisionWorld->Shutdown();
+	delete collisionWorld;
+
+	inputSystem->Shutdown();
 	delete inputSystem;
 }
 
 int main(void) {
 
 	visions2D::AppConfig conf;
-	conf.WindowName = "sandbox";
-	conf.Width = 1024;
-	conf.Height = 576;
+	conf.WindowName = "Flappy ASCII";
+	conf.Width = 640;
+	conf.Height = 360;
 
 	conf.Startup = Start;
 	conf.PreProcessInput = PreInput;
@@ -295,6 +253,7 @@ int main(void) {
 	// maybe I should have a static Application::Run(AppConfig) ?!
 	visions2D::Application* app = new visions2D::Application(conf);
 	app->Run();
+	delete app;
 
 	return 0;
 }

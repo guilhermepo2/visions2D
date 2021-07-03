@@ -5,6 +5,7 @@
 namespace visions2D {
 
 	class Entity;
+	class Renderer;
 	struct InputState;
 
 	class GameWorld {
@@ -12,7 +13,7 @@ namespace visions2D {
 		void BeginPlay();
 		bool ProcessInput(const InputState& CurrentInputState);
 		void Update(float DeltaTime);
-		void Render();
+		void Render(Renderer* RendererReference);
 		void Destroy();
 
 		inline size_t GetEntitiesCount() const { return m_Entities.size(); }

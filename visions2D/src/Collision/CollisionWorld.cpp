@@ -5,6 +5,7 @@
 #include "Renderer/Renderer.h"
 
 namespace visions2D {
+
 	CollisionWorld* CollisionWorld::s_Instance = nullptr;
 
 	CollisionWorld::CollisionWorld() {}
@@ -31,28 +32,77 @@ namespace visions2D {
 			rd.TextureScale = glm::vec2(rect.Width(), rect.Height());
 			rd.TexCoords = nullptr;
 			rd.WorldRotation = 0;
-			rd.WorldPosition = glm::vec2(rect.Position().x, rect.Top() - rect.Height());
+			rd.WorldPosition = glm::vec2(rect.Position().x, rect.Position().y);
 			rd.WorldScale = t->Scale;
 			rd.tint = visions2D::Color(1.0f, 0.0f, 0.0f, 0.5f);
+
+			// LOG_INFO("Collision Rendering on Position ({0},{1}) and Texture Scale ({2},{3})", rect.Position().x, rect.Position().y, rect.Width(), rect.Height());
+
 			RendererReference->SpriteRenderData.push_back(rd);
 		}
 	}
 
-	// TODO: Clean all BoxColliders?
-	void CollisionWorld::Shutdown() { } // TODO 
+	void CollisionWorld::Shutdown() { 
+		if(m_WorldColliders.size() > 0) {
+			LOG_WARNING("Destroying {0} colliders, this number should be 0!", m_WorldColliders.size());
+
+			for (int i = 0; i < m_WorldColliders.size(); i++) {
+				delete m_WorldColliders[i];
+			}
+		}
+
+		m_WorldColliders.clear();
+		m_LastFrameCollisions.clear();
+	}
 
 	void CollisionWorld::VerifyAllCollisions() {
+		std::vector<CollisionHappened> CollisionsThisFrame;
+
 		for (size_t i = 0; i < m_WorldColliders.size(); i++) {
 			for (size_t j = i + 1; j < m_WorldColliders.size(); j++) {
 				BoxCollider* a = m_WorldColliders[i];
 				BoxCollider* b = m_WorldColliders[j];
 
 				if (Overlaps(a, b)) {
-					a->HandleCollisionCallback(b);
-					b->HandleCollisionCallback(a);
+					CollisionsThisFrame.push_back({ a, b });
 				}
 			}
 		}
+
+		// Checking collisions that happened against last frame collisions
+		for (int i = 0; i < CollisionsThisFrame.size(); i++) {
+			// First, dispatch all new collisions anyway to "Handle Collision Callback"
+			CollisionsThisFrame[i].a->HandleCollisionCallback(CollisionsThisFrame[i].b);
+			CollisionsThisFrame[i].b->HandleCollisionCallback(CollisionsThisFrame[i].a);
+
+			auto IsCollisionRepeated = std::find(m_LastFrameCollisions.begin(), m_LastFrameCollisions.end(), CollisionsThisFrame[i]);
+			if (IsCollisionRepeated == m_LastFrameCollisions.end()) { // this means we didn't find it
+				// dispatching on collision enter
+				CollisionsThisFrame[i].a->HandleOnCollisionEnter(CollisionsThisFrame[i].b);
+				CollisionsThisFrame[i].b->HandleOnCollisionEnter(CollisionsThisFrame[i].a);
+			}
+			else {
+				// we found it, so dispatching on collision stay
+				CollisionsThisFrame[i].a->HandleOnCollisionStay(CollisionsThisFrame[i].b);
+				CollisionsThisFrame[i].b->HandleOnCollisionStay(CollisionsThisFrame[i].a);
+			}
+		}
+
+		// Checking which collisions no longer happen
+		for (int i = 0; i < m_LastFrameCollisions.size(); i++) {
+			auto CollisionNoLongerHappens = std::find(CollisionsThisFrame.begin(), CollisionsThisFrame.end(), m_LastFrameCollisions[i]);
+
+			if (CollisionNoLongerHappens == CollisionsThisFrame.end()) {
+				// we didn't find the collision, this means it no longers happen
+				m_LastFrameCollisions[i].a->HandleOnCollisionExit(m_LastFrameCollisions[i].b);
+				m_LastFrameCollisions[i].b->HandleOnCollisionExit(m_LastFrameCollisions[i].a);
+			}
+		}
+
+		m_LastFrameCollisions.clear();
+
+		// TODO: I'm not sure what happens here... is it a copy assignment? rerence? what?
+		m_LastFrameCollisions = CollisionsThisFrame;
 	}
 
 	bool CollisionWorld::Overlaps(BoxCollider* a, BoxCollider* b) {
