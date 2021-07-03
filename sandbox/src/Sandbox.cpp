@@ -23,9 +23,10 @@ visions2D::GameWorld* gameWorld = nullptr;
 visions2D::CollisionWorld* collisionWorld = nullptr;
 bool bRenderCollision = false;
 bool bIsPaused = false;
+visions2D::ResourceManager* resourceManager = nullptr;
 
 // For increasing difficulty
-float TotalTimeElapsed = 0.0f;
+float TotalTimeElapsed = 0.0f; // this could be an engine feature
 const float IncrementDifficultyEvery = 10.0f;
 float TimeToNextIncrease = 0.0f;
 float DifficultyMultiplier = 0;
@@ -36,10 +37,7 @@ void SetIsPaused(bool value) {
 }
 
 // TODO: this should be in a "Asset Store" or "Resource Manager"
-visions2D::Texture* PlayerTexture = nullptr;
 visions2D::Texture* ObstacleTexture = nullptr;
-visions2D::Texture* PointTexture = nullptr;
-visions2D::Font* LazyTown = nullptr;
 
 // Entities...
 visions2D::Entity* PlayerEntity = nullptr;
@@ -72,7 +70,7 @@ void CreateEntities() {
 	// creating entities
 	PlayerEntity = gameWorld->AddEntity("player-entity");
 	PlayerEntity->AddComponent<visions2D::TransformComponent>(glm::vec2(-200.0f, 0.0f), 0.0f, glm::vec2(1.0f, 1.0f));
-	visions2D::SpriteComponent& spriteComponent = PlayerEntity->AddComponent<visions2D::SpriteComponent>(PlayerTexture, 0);
+	visions2D::SpriteComponent& spriteComponent = PlayerEntity->AddComponent<visions2D::SpriteComponent>(resourceManager->GetTexture("player"), 0);
 	spriteComponent.SpriteColor.SetColor(0.0f, 1.0f, 0.0f, 1.0f);
 	spriteComponent.FlipVertical = true;
 	PlayerEntity->AddComponent<visions2D::BoxCollider>("PlayerCollider", glm::vec2(-12.0f, -12.0f), glm::vec2(12.0f, 12.0f));
@@ -93,11 +91,10 @@ void CreateEntities() {
 	gameWorld->BeginPlay();
 }
 
-void UpdatePointTexture(std::string NewText, int size) {
+void UpdatePointTexture(const std::string& NewText, int size) {
 	// This should be "standard" way of updating a text
-	PointTexture->Unload();
-	delete PointTexture;
-	PointTexture = LazyTown->RenderToTexture(NewText, size);
+	resourceManager->RemoveTexture("points");
+	resourceManager->CreateTextureFromFont("points", "lazytown", NewText, size);
 }
 
 void Start() {
@@ -107,17 +104,16 @@ void Start() {
 	if (collisionWorld->Initialize()) {
 		LOG_INFO("app: collision world initialized");
 	}
+	resourceManager = new visions2D::ResourceManager();
 	visions2D::Random::Initialize();
 
 	// load assets here...
-	LazyTown = new visions2D::Font();
-	LazyTown->Load("./assets/ChevyRay - Lazytown.ttf");
+	resourceManager->AddFont("lazytown", "./assets/ChevyRay - Lazytown.ttf");
+	resourceManager->CreateTextureFromFont("player", "lazytown", "@", 32);
+	resourceManager->CreateTextureFromFont("points", "lazytown", std::to_string(CachedPointsValue), 24);
+
 	// loading textures
-	PlayerTexture = new visions2D::Texture();
-	PlayerTexture = LazyTown->RenderToTexture("@", 32);
-	ObstacleTexture = LazyTown->RenderToTextureWrapped("xxx\nxxx\nxxx\nxxx\nxxx", 32, 128);
-	// PlayerTexture->Load("./src/DefaultAssets/White.png");
-	PointTexture = LazyTown->RenderToTexture(std::to_string(CachedPointsValue), 24);
+	ObstacleTexture = resourceManager->GetFont("lazytown")->RenderToTextureWrapped("xxx\nxxx\nxxx\nxxx\nxxx", 32, 128);
 
 	CreateEntities();
 	TimeToNextIncrease = IncrementDifficultyEvery;
@@ -211,8 +207,9 @@ void Render(visions2D::Renderer* RendererReference) {
 	// Rendering Points here
 	{
 		visions2D::RenderData rd;
-		rd.Texture = PointTexture;
-		rd.TextureScale = glm::vec2(PointTexture->GetWidth(), PointTexture->GetHeight());
+		visions2D::Texture* pointsTex = resourceManager->GetTexture("points");
+		rd.Texture = pointsTex;
+		rd.TextureScale = glm::vec2(pointsTex->GetWidth(), pointsTex->GetHeight());
 		rd.TexCoords = nullptr;
 		rd.WorldRotation = 0.0f;
 		rd.WorldPosition = glm::vec2(0.0f, 150.0f);
@@ -237,9 +234,6 @@ void Shutdown() {
 
 	inputSystem->Shutdown();
 	delete inputSystem;
-
-	collisionWorld->Shutdown();
-	delete collisionWorld;
 }
 
 int main(void) {

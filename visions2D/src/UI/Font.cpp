@@ -4,7 +4,9 @@
 
 namespace visions2D {
 	Font::Font() {}
-	Font::~Font() {}
+	Font::~Font() {
+		LOG_INFO("Destroying Font!");
+	}
 
 	bool Font::Load(const std::string& InFontFileName) {
 		std::vector<int> FontSizes = {

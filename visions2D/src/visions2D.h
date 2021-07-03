@@ -38,3 +38,4 @@
 
 #include "Utilities/JsonHelper.h"
 #include "Utilities/Tilemap.h"
+#include "Utilities/ResourceManager.h"
