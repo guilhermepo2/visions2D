@@ -16,5 +16,6 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}.%{cfg.architecture}"
 
 include "v2d_standalone.lua"
 include "premake_sandbox.lua"
+include "resources_manager.lua"
 
 -- include "premake_tools.lua"
