@@ -7,10 +7,31 @@ namespace visions2D {
 	Shader::Shader() : m_ShaderProgram(0), m_VertexShader(0), m_FragmentShader(0) {}
 	Shader::~Shader() {}
 
+
+	bool Shader::LoadFromProgramString(const char* _vert, const char* _frag) {
+		if (
+			!CompileShaderFromString(_vert, GL_VERTEX_SHADER, m_VertexShader) ||
+			!CompileShaderFromString(_frag, GL_FRAGMENT_SHADER, m_FragmentShader)
+			) {
+			return false;
+		}
+
+		m_ShaderProgram = glCreateProgram();
+		glAttachShader(m_ShaderProgram, m_VertexShader);
+		glAttachShader(m_ShaderProgram, m_FragmentShader);
+		glLinkProgram(m_ShaderProgram);
+
+		if (!IsValidProgram()) {
+			return false;
+		}
+
+		return true;
+	}
+
 	bool Shader::Load(const std::string& _vert, const std::string& _frag) {
 		if (
-			!CompileShader(_vert, GL_VERTEX_SHADER, m_VertexShader) ||
-			!CompileShader(_frag, GL_FRAGMENT_SHADER, m_FragmentShader)
+			!CompileShaderFromFile(_vert, GL_VERTEX_SHADER, m_VertexShader) ||
+			!CompileShaderFromFile(_frag, GL_FRAGMENT_SHADER, m_FragmentShader)
 			) {
 			return false;
 		}
@@ -37,26 +58,38 @@ namespace visions2D {
 		glUseProgram(m_ShaderProgram);
 	}
 
-	bool Shader::CompileShader(const std::string& _Filename, GLenum _ShaderType, GLuint& _OutShader) {
+	std::string Shader::GetShaderProgramFromFile(const std::string& _Filename) {
 		std::ifstream ShaderFile(_Filename);
 
 		if (ShaderFile.is_open()) {
 			std::stringstream sstream;
 			sstream << ShaderFile.rdbuf();
 			std::string contents = sstream.str();
-			const char* ContentsChar = contents.c_str();
-
-			_OutShader = glCreateShader(_ShaderType);
-			glShaderSource(_OutShader, 1, &ContentsChar, nullptr);
-			glCompileShader(_OutShader);
-
-			if (!IsCompiled(_OutShader)) {
-				LOG_ERROR("[shader] failed to compile shader: {0}", _Filename.c_str());
-				return false;
-			}
+			return contents;
 		}
 		else {
 			LOG_ERROR("[shader] shader file not found: {0}", _Filename.c_str());
+			return std::string("");
+		}
+	}
+
+	bool Shader::CompileShaderFromString(const char* ShaderProgram, GLenum _ShaderType, GLuint& _OutShader) {
+		_OutShader = glCreateShader(_ShaderType);
+		glShaderSource(_OutShader, 1, &ShaderProgram, nullptr);
+		glCompileShader(_OutShader);
+
+		if (!IsCompiled(_OutShader)) {
+			return false;
+		}
+
+		return true;
+	}
+
+	bool Shader::CompileShaderFromFile(const std::string& _Filename, GLenum _ShaderType, GLuint& _OutShader) {
+		std::string Contents = GetShaderProgramFromFile(_Filename);
+		const char* ContentsChar = Contents.c_str();
+		if (!CompileShaderFromString(ContentsChar, _ShaderType, _OutShader)) {
+			LOG_ERROR("[shader] failed to compile shader: {0}", _Filename.c_str());
 			return false;
 		}
 

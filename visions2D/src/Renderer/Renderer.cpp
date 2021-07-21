@@ -16,8 +16,16 @@
 
 #include "Utilities/Tilemap.h"
 
+// the image is 16x16, and we have 4 fields for each pixel (rgba)
+const int TEX_SIZE_16_BY_16 = (16 * 16 * 4);
 
 namespace visions2D {
+
+	// TODO: Make a tool that creates these strings from a shader file...
+	const char* DefaultSpriteFragmentShader = "#version 330 core\nout vec4 outColor;\nin vec2 TexCoord;\nuniform sampler2D textureSampler;\nuniform vec4 uColor;\nvoid main()\n{\noutColor = uColor * texture(textureSampler, TexCoord);\n}";
+	const char* DefaultSpriteVertexShader = "#version 330 core\nlayout(location = 0) in vec2 aPos;\nlayout(location = 1) in vec2 aTexCoord;\nuniform mat4 uWorldTransform;\nuniform mat4 uCameraViewProjection;\nout vec2 TexCoord;\nvoid main()\n{\nvec4 pos = vec4(aPos, 0.0, 1.0);\ngl_Position = uCameraViewProjection * uWorldTransform * pos;\nTexCoord = aTexCoord;\n}";
+
+	unsigned char WhiteTextureArray[TEX_SIZE_16_BY_16];
 
 	float DefaultTexCoords[] = {
 			1.0f, 1.0f,
@@ -74,7 +82,7 @@ namespace visions2D {
 
 		// TODO: Not generic
 		m_SpriteShader = new Shader();
-		m_SpriteShader->Load("./src/DefaultAssets/Shaders/DefaultSprite.vert", "./src/DefaultAssets/Shaders/DefaultSprite.frag");
+		m_SpriteShader->LoadFromProgramString(DefaultSpriteVertexShader, DefaultSpriteFragmentShader);
 
 		#include "DefaultVertexArray.data"
 		m_DefaultVertexArray = new VertexArray(vertices, 4, 4, texCoords, indices, 6);
@@ -84,8 +92,9 @@ namespace visions2D {
 		LOG_INFO("[renderer] dearimgui initialized");
 
 		// Initializing some common components maybe?
+		memset(WhiteTextureArray, 255, TEX_SIZE_16_BY_16);
 		WhiteTexture = new Texture();
-		WhiteTexture->Load("./src/DefaultAssets/White.png");
+		WhiteTexture->CreateFromArray(WhiteTextureArray, 16, 16);
 
 		LOG_INFO("[renderer] OpenGL version: {0}", glGetString(GL_VERSION));
 		LOG_INFO("[renderer] OpenGL vendor: {0}", glGetString(GL_VENDOR));

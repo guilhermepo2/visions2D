@@ -11,6 +11,7 @@ namespace visions2D {
 		Shader();
 		~Shader();
 
+		bool LoadFromProgramString(const char* _vert, const char* _frag);
 		bool Load(const std::string& _vert, const std::string& _frag);
 		void Unload();
 		void SetActive();
@@ -36,7 +37,9 @@ namespace visions2D {
 		}
 
 	private:
-		bool CompileShader(const std::string& _Filename, GLenum _ShaderType, GLuint& _OutShader);
+		std::string GetShaderProgramFromFile(const std::string& _Filename);
+		bool CompileShaderFromString(const char* ShaderProgram, GLenum _ShaderType, GLuint& _OutShader);
+		bool CompileShaderFromFile(const std::string& _Filename, GLenum _ShaderType, GLuint& _OutShader);
 		bool IsCompiled(GLuint Shader);
 		bool IsValidProgram();
 

@@ -12,6 +12,22 @@ namespace visions2D {
 		LOG_INFO("Deleting Texture...");
 	}
 
+	bool Texture::CreateFromArray(unsigned char* Array, int Width, int Height) {
+		m_Width = Width;
+		m_Height = Height;
+
+		glGenTextures(1, &m_TextureID);
+		int format = GL_RGBA;
+
+		glBindTexture(GL_TEXTURE_2D, m_TextureID);
+		glTexImage2D(GL_TEXTURE_2D, 0, format, m_Width, m_Height, 0, format, GL_UNSIGNED_BYTE, Array);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+		return true;
+	}
+
 	bool Texture::Load(const std::string& _fileName) {
 		int channels = 0;
 		stbi_set_flip_vertically_on_load(true);

@@ -10,6 +10,7 @@ namespace visions2D {
 		~Texture();
 
 		bool Load(const std::string& _fileName);
+		bool CreateFromArray(unsigned char* Array, int Width, int Height);
 		void Unload();
 		void SetActive();
 		void CreateFromSurface(SDL_Surface* Surface);
