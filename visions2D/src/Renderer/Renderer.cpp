@@ -29,8 +29,8 @@ namespace visions2D {
 
 	static unsigned char WhiteTextureArray[TEX_SIZE_16_BY_16];
 
-	static const int OPENGL_MAJOR_VERSION = 3;
-	static const int OPENGL_MINOR_VERSION = 3;
+	static const int OPENGL_MAJOR_VERSION = 4;
+	static const int OPENGL_MINOR_VERSION = 5;
 
 	float DefaultTexCoords[] = {
 			1.0f, 1.0f,
@@ -71,8 +71,10 @@ namespace visions2D {
 		SDL_GL_MakeCurrent(m_Window, m_GLContext);
 		SDL_GL_SetSwapInterval(1);
 
-		glewExperimental = GL_TRUE;
-		assert(glewInit() == GLEW_OK, "[renderer] unable to initialize glew");
+		if ( !gladLoadGLLoader( (GLADloadproc)SDL_GL_GetProcAddress ) ) {
+			LOG_ERROR("[renderer] unable to initialize glad!");
+		}
+		
 		glGetError();
 		glViewport(0, 0, m_ScreenWidth, m_ScreenHeight);
 

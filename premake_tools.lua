@@ -24,7 +24,7 @@ project "lucid-renderer"
             "visions2D/src",
             "%{IncludeDirectories.SDL2}",
             "%{IncludeDirectories.SDL2_TTF}",
-            "%{IncludeDirectories.GLEW}",
+            "%{IncludeDirectories.GLAD}",
             "%{IncludeDirectories.spdlog}",
             "%{IncludeDirectories.DEARIMGUI}",
             "%{IncludeDirectories.STBIMAGE}",

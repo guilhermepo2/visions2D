@@ -1,6 +1,6 @@
 #include "Framebuffer.h"
 #include "Log.h"
-#include <GL/glew.h>
+#include <glad/glad.h>
 
 namespace visions2D {
 	Framebuffer::Framebuffer(const FramebufferSpecification& specification) {

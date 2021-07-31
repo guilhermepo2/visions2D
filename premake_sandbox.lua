@@ -10,7 +10,7 @@ project "sandbox"
         files
         {
             "%{prj.name}/**.h",
-            "%{prj.name}/**.cpp",
+            "%{prj.name}/**.cpp"
         }
 
         links
@@ -25,7 +25,7 @@ project "sandbox"
             "visions2D/src",
             "%{IncludeDirectories.SDL2}",
             "%{IncludeDirectories.SDL2_TTF}",
-            "%{IncludeDirectories.GLEW}",
+            "%{IncludeDirectories.GLAD}",
             "%{IncludeDirectories.spdlog}",
             "%{IncludeDirectories.DEARIMGUI}",
             -- "%{IncludeDirectories.STBIMAGE}",

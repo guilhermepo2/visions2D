@@ -1,7 +1,10 @@
 #include "DearImGui.h"
-#include <GL/glew.h>
+#include <glad/glad.h>
 
 namespace visions2D {
+	
+	static const char* opengl_version = "#version 450";
+
 	void DearImGui::Initialize(SDL_Window* window, SDL_GLContext GLContext) {
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
@@ -16,7 +19,7 @@ namespace visions2D {
 			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 		}
 		ImGui_ImplSDL2_InitForOpenGL(window, GLContext);
-		ImGui_ImplOpenGL3_Init("#version 330");
+		ImGui_ImplOpenGL3_Init(opengl_version);
 	}
 
 	void DearImGui::ProcessEvent(const SDL_Event* Event) {
