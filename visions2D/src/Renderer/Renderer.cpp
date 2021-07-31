@@ -16,16 +16,21 @@
 
 #include "Utilities/Tilemap.h"
 
-// the image is 16x16, and we have 4 fields for each pixel (rgba)
-const int TEX_SIZE_16_BY_16 = (16 * 16 * 4);
+
 
 namespace visions2D {
 
-	// TODO: Make a tool that creates these strings from a shader file...
-	const char* DefaultSpriteFragmentShader = "#version 330 core\nout vec4 outColor;\nin vec2 TexCoord;\nuniform sampler2D textureSampler;\nuniform vec4 uColor;\nvoid main()\n{\noutColor = uColor * texture(textureSampler, TexCoord);\n}";
-	const char* DefaultSpriteVertexShader = "#version 330 core\nlayout(location = 0) in vec2 aPos;\nlayout(location = 1) in vec2 aTexCoord;\nuniform mat4 uWorldTransform;\nuniform mat4 uCameraViewProjection;\nout vec2 TexCoord;\nvoid main()\n{\nvec4 pos = vec4(aPos, 0.0, 1.0);\ngl_Position = uCameraViewProjection * uWorldTransform * pos;\nTexCoord = aTexCoord;\n}";
+	// the image is 16x16, and we have 4 fields for each pixel (rgba)
+	static const int TEX_SIZE_16_BY_16 = (16 * 16 * 4);
 
-	unsigned char WhiteTextureArray[TEX_SIZE_16_BY_16];
+	// TODO: Make a tool that creates these strings from a shader file...
+	static const char* DefaultSpriteFragmentShader = "#version 330 core\nout vec4 outColor;\nin vec2 TexCoord;\nuniform sampler2D textureSampler;\nuniform vec4 uColor;\nvoid main()\n{\noutColor = uColor * texture(textureSampler, TexCoord);\n}";
+	static const char* DefaultSpriteVertexShader = "#version 330 core\nlayout(location = 0) in vec2 aPos;\nlayout(location = 1) in vec2 aTexCoord;\nuniform mat4 uWorldTransform;\nuniform mat4 uCameraViewProjection;\nout vec2 TexCoord;\nvoid main()\n{\nvec4 pos = vec4(aPos, 0.0, 1.0);\ngl_Position = uCameraViewProjection * uWorldTransform * pos;\nTexCoord = aTexCoord;\n}";
+
+	static unsigned char WhiteTextureArray[TEX_SIZE_16_BY_16];
+
+	static const int OPENGL_MAJOR_VERSION = 3;
+	static const int OPENGL_MINOR_VERSION = 3;
 
 	float DefaultTexCoords[] = {
 			1.0f, 1.0f,
@@ -43,8 +48,8 @@ namespace visions2D {
 		m_WindowTitle = _WindowTitle;
 
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, OPENGL_MAJOR_VERSION);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, OPENGL_MINOR_VERSION);
 		SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
 		SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
 		SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
