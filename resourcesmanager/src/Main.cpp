@@ -11,9 +11,12 @@
 #include <imgui_impl_sdl.h>
 #include <imgui_impl_opengl3.h>
 
+#include <filesystem>
+
 struct ItemEntry {
 	std::string ItemName;
 	std::string ItemPath;
+	int id;
 };
 
 std::vector<ItemEntry> Fonts;
@@ -44,6 +47,7 @@ int main(void) {
 
 			ImGui::DockSpaceOverViewport();
 			static char buffer[256] = "item name";
+			static char filepath[256] = "c:/workspace/";
 			
 
 			ImGui::ShowDemoWindow();
@@ -53,23 +57,27 @@ int main(void) {
 
 				// input: file name - and search for a path
 				ImGui::InputText("font name", buffer, IM_ARRAYSIZE(buffer));
+				ImGui::InputText("filepath", filepath, IM_ARRAYSIZE(filepath));
 
 				// button to add entry
 				if (ImGui::Button("+")) {
 					ItemEntry a;
 					a.ItemName = buffer;
-					a.ItemPath = "bb";
+					a.ItemPath = filepath;
+					a.id = Fonts.size();
 					Fonts.push_back(a);
 				}
 
-				// show a list of entries
 				for (int i = 0; i < Fonts.size(); i++) {
 					ImGui::Text("Entry %d", (i + 1));
 					ImGui::Text("Name: %s", Fonts[i].ItemName);
 					if (ImGui::Button("Remove")) {
-						// TODO
+						// TODO...
 					}
 				}
+
+
+
 
 				ImGui::End();
 			}
