@@ -1,14 +1,18 @@
 #pragma once
-#include <glad/glad.h>
-#include <SDL.h>
-#undef main
-#include <SDL_ttf.h>
-#include <string>
 #include <imgui.h>
 #include <imgui_impl_sdl.h>
 #include <imgui_impl_opengl3.h>
-#include "RenderData.h"
+#include <string>
 #include <vector>
+
+#include "RenderData.h"
+#include "Window.h"
+// todo: this shouldn't be here!
+#include "SDL2Window.h"
+#ifdef main
+#undef main
+#endif
+#include <SDL_ttf.h>
 
 namespace visions2D {
 	
@@ -36,20 +40,14 @@ namespace visions2D {
 		std::vector<RenderData> SpriteRenderData;
 
 	private:
-		float m_ScreenWidth;
-		float m_ScreenHeight;
-		std::string m_WindowTitle;
+		Window* m_Window;
 
-		// textures...
+		// these are probably OpenGL specific
 		Shader* m_SpriteShader;
 		VertexArray* m_DefaultVertexArray;
-		OrtographicCamera* m_OrtographicCamera;
-
-		// etc... etc...
-
-		SDL_Window* m_Window;
-		SDL_GLContext m_GLContext;
-
 		Texture* WhiteTexture;
+
+
+		OrtographicCamera* m_OrtographicCamera;
 	};
 }

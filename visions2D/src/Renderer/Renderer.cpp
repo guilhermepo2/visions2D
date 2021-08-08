@@ -43,10 +43,10 @@ namespace visions2D {
 	Renderer::~Renderer() {}
 
 	bool Renderer::Initialize(float _ScreenWidth, float _ScreenHeight, const std::string& _WindowTitle) {
-		m_ScreenWidth = _ScreenWidth;
-		m_ScreenHeight = _ScreenHeight;
-		m_WindowTitle = _WindowTitle;
+		
+		SDL_Init(SDL_INIT_EVERYTHING);
 
+		// this should be on some sort of renderer backend
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, OPENGL_MAJOR_VERSION);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, OPENGL_MINOR_VERSION);
@@ -58,25 +58,11 @@ namespace visions2D {
 		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 		SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
 
-		m_Window = SDL_CreateWindow(
-			m_WindowTitle.c_str(),
-			100, 100,
-			static_cast<int>(m_ScreenWidth), static_cast<int>(m_ScreenHeight),
-			SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE
+		m_Window = new SDL2Window(
+			static_cast<unsigned int>(_ScreenWidth), 
+			static_cast<unsigned int>(_ScreenHeight),
+			_WindowTitle
 		);
-
-		assert(m_Window, "[renderer] unable to create window: {0}", SDL_GetError());
-
-		m_GLContext = SDL_GL_CreateContext(m_Window);
-		SDL_GL_MakeCurrent(m_Window, m_GLContext);
-		SDL_GL_SetSwapInterval(1);
-
-		if ( !gladLoadGLLoader( (GLADloadproc)SDL_GL_GetProcAddress ) ) {
-			LOG_ERROR("[renderer] unable to initialize glad!");
-		}
-		
-		glGetError();
-		glViewport(0, 0, m_ScreenWidth, m_ScreenHeight);
 
 		// Initializing Fonts
 		if (TTF_Init() != 0) {
@@ -84,7 +70,10 @@ namespace visions2D {
 			return false;
 		}
 
-		m_OrtographicCamera = new OrtographicCamera(m_ScreenWidth, m_ScreenHeight);
+		m_OrtographicCamera = new OrtographicCamera(
+			static_cast<float>(m_Window->GetScreenWidth()),
+			static_cast<float>(m_Window->GetScreenHeight())
+		);
 		m_OrtographicCamera->SetColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 		// TODO: Not generic
@@ -95,7 +84,11 @@ namespace visions2D {
 		m_DefaultVertexArray = new VertexArray(vertices, 4, 4, texCoords, indices, 6);
 
 		// TODO: should every application initialize DearImGui? maybe this should be an option?
-		DearImGui::Initialize(m_Window, m_GLContext);
+		DearImGui::Initialize(
+			static_cast<SDL_Window*>(m_Window->GetPlatformSpecificWindow()), 
+			(static_cast<SDL2Window*>(m_Window))->GetGLContext()
+		);
+
 		LOG_INFO("[renderer] dearimgui initialized");
 
 		// Initializing some common components maybe?
@@ -112,7 +105,9 @@ namespace visions2D {
 
 	void Renderer::PrepareToRender() {
 		
-		DearImGui::BeginRender(m_Window);
+		DearImGui::BeginRender(
+			static_cast<SDL_Window*>(m_Window->GetPlatformSpecificWindow())
+		);
 
 		glClearColor(
 			m_OrtographicCamera->CameraBackgroundColor.rgba[0],
@@ -167,13 +162,12 @@ namespace visions2D {
 
 	void Renderer::Swap() {
 		DearImGui::Present();
-		SDL_GL_SwapWindow(m_Window);
+		m_Window->Swap();
 	}
 
 	void Renderer::Shutdown() {
 		LOG_INFO("[renderer] shutting down");
-		SDL_GL_DeleteContext(m_GLContext);
-		SDL_DestroyWindow(m_Window);
+		delete m_Window;
 		SDL_Quit();
 	}
 }
