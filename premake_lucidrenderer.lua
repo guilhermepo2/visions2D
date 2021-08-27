@@ -1,5 +1,5 @@
 project "lucid-renderer"
-        location "visions2D"
+        location "tools/lucid-renderer"
         kind "ConsoleApp"
         language "C++"
         warnings "Extra"
@@ -9,8 +9,8 @@ project "lucid-renderer"
 
         files
         {
-            "tools/%{prj.name}/**.h",
-            "tools/%{prj.name}/**.cpp",
+            "%{prj.location}/**.h",
+            "%{prj.location}/**.cpp",
         }
 
         links
@@ -27,7 +27,7 @@ project "lucid-renderer"
             "%{IncludeDirectories.GLAD}",
             "%{IncludeDirectories.spdlog}",
             "%{IncludeDirectories.DEARIMGUI}",
-            "%{IncludeDirectories.STBIMAGE}",
+            -- "%{IncludeDirectories.STBIMAGE}",
             "%{IncludeDirectories.GLM}",
             "%{IncludeDirectories.RAPIDJSON}"
         }

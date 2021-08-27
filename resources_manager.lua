@@ -41,5 +41,5 @@ project "resourcesmanager"
             defines
             {
                 "visions2D_DEBUG",
-                "sandbox_DEBUG"
+                "RM_DEBUG"
             }

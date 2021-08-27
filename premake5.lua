@@ -10,12 +10,15 @@ workspace "visions2D"
         "Debug"
     }
 
-    startproject "lucid-renderer"
+    startproject "sandbox"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}.%{cfg.architecture}"
 
 include "v2d_standalone.lua"
 include "premake_sandbox.lua"
-include "resources_manager.lua"
+
+group "tools"
+    include "premake_lucidrenderer.lua"
+    include "resources_manager.lua"
 
 -- include "premake_tools.lua"
