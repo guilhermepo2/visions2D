@@ -12,7 +12,7 @@ out vec4 uColor;
 void main()
 {
     vec4 pos = vec4(aPos, 0.0, 1.0);
-    gl_Position = uCameraViewProjection * uWorldTransform * pos;
+    gl_Position = uCameraViewProjection * pos;
     TexCoord = aTexCoord;
     uColor = aVertexColor;
 }

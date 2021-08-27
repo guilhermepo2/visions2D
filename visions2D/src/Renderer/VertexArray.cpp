@@ -2,14 +2,6 @@
 #include "Color.h"
 #include <glad/glad.h>
 
-/*
-Vertex Shader Structure
-location 0: vec2 position
-location 1: vec2 TexCoords
-location 2: vec4 vertexColors
-
-TotalSize: 8
-*/
 namespace visions2D {
 
 	VertexArray::VertexArray(
@@ -45,6 +37,11 @@ namespace visions2D {
 		glGenBuffers(1, &m_IndexBufferID);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBufferID);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, _numIndices * sizeof(unsigned int), _indices, GL_STATIC_DRAW);
+	}
+
+	void VertexArray::SubPosCoords(const float* _posCoords) {
+		glBindBuffer(GL_ARRAY_BUFFER, m_VertexBufferID);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, 4 * (2 * sizeof(float)), _posCoords);
 	}
 
 	void VertexArray::SubTexCoords(const float* _texCoords) {

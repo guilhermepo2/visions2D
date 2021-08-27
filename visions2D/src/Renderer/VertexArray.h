@@ -4,6 +4,14 @@ namespace visions2D {
 
 	class Color;
 
+	static const int VERTEX_SIZE = 8;
+
+	struct Vertex {
+		float Position[2];
+		float TexCoord[2];
+		float Color[4];
+	};
+
 	class VertexArray {
 	public:
 		VertexArray(
@@ -13,6 +21,7 @@ namespace visions2D {
 		~VertexArray();
 
 		void SetActive();
+		void SubPosCoords(const float* _posCoords);
 		void SubTexCoords(const float* _texCoords);
 		void SubColorCoords(const float* _Color);
 		void SubColorCoords(Color _Color);

@@ -125,8 +125,6 @@ namespace visions2D {
 		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
 	}
 
-	// TODO: Batch
-	// How do colors work in batching?
 	void Renderer::Render() {
 		Renderer_Stats_DrawCalls = 0;
 
@@ -147,10 +145,24 @@ namespace visions2D {
 			glm::mat4 WorldTranslation = glm::translate(glm::mat4(1.0f), glm::vec3(SpriteRenderData[i].WorldPosition, 0.0f));
 			glm::mat4 World = (WorldTranslation * WorldRotation * WorldScale) * TextureScale;
 
-			m_SpriteShader->SetMatrix4("uWorldTransform", World);
 			m_SpriteShader->SetMatrix4("uCameraViewProjection", m_OrtographicCamera->GetCameraViewProjection());
 
+
+			// calculating the four vertex positions
+			glm::vec4 a = World * glm::vec4(0.5f, 0.5f, 0.0f, 1.0f);
+			glm::vec4 b = World * glm::vec4(0.5f, -0.5f, 0.0f, 1.0f);
+			glm::vec4 c = World * glm::vec4(-0.5f, -0.5f, 0.0f, 1.0f);
+			glm::vec4 d = World * glm::vec4(-0.5f, 0.5f, 0.0f, 1.0f);
+
+			float VertexPos[] = {
+				a.x, a.y,
+				b.x, b.y,
+				c.x, c.y,
+				d.x, d.y
+			};
+
 			m_DefaultVertexArray->SetActive();
+			m_DefaultVertexArray->SubPosCoords(VertexPos);
 			m_DefaultVertexArray->SubColorCoords(SpriteRenderData[i].tint);
 
 			if (SpriteRenderData[i].TexCoords == nullptr) {
