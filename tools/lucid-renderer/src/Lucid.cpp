@@ -11,6 +11,31 @@
 #include <imgui_impl_sdl.h>
 #include <imgui_impl_opengl3.h>
 
+namespace LUCID_RENDERER {
+	void Render(visions2D::Renderer* renderer) {
+		visions2D::RenderData rd;
+		
+		rd.Texture = nullptr;
+		rd.TextureScale = glm::vec2(100.0f, 100.0f);
+
+		rd.WorldPosition = glm::vec2(-100.0f, -100.0f);
+		rd.tint = visions2D::Color(1.0f, 0.0f, 0.0f, 1.0f);
+		renderer->SpriteRenderData.push_back(rd);
+
+		rd.WorldPosition = glm::vec2(100.0f, -100.0f);
+		rd.tint = visions2D::Color(1.0f, 1.0f, 0.0f, 1.0f);
+		renderer->SpriteRenderData.push_back(rd);
+
+		rd.WorldPosition = glm::vec2(-100.0f, 100.0f);
+		rd.tint = visions2D::Color(0.0f, 1.0f, 1.0f, 1.0f);
+		renderer->SpriteRenderData.push_back(rd);
+
+		rd.WorldPosition = glm::vec2(100.0f, 100.0f);
+		rd.tint = visions2D::Color(1.0f, 0.0f, 1.0f, 1.0f);
+		renderer->SpriteRenderData.push_back(rd);
+	}
+}
+
 int main(void) {
 	Log::Initialize();
 	LOG_INFO("logger initialized!");
@@ -57,61 +82,20 @@ int main(void) {
 
 			lucidRenderer->PrepareToRender();
 
-			theFrameBuffer->Bind();
+			// theFrameBuffer->Bind();
 
 			glClear(GL_COLOR_BUFFER_BIT);
 			glEnable(GL_BLEND);
 			glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
 			glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
 
-			int currentData = 0;
-			float StartingX = -(theTilemap->GetMapWidth() / 2) * theTileSheet->GetTileWidth();
-			float StartingY = (theTilemap->GetMapHeight() / 2) * theTileSheet->GetTileHeight();
-			glm::vec2 Position = glm::vec2(StartingX, StartingY);
-			int data;
-
-			for (int i = 0; i < theTilemap->GetMapWidth(); i++) {
-				for (int j = 0; j < theTilemap->GetMapHeight(); j++) {
-					visions2D::RenderData rd;
-					rd.Texture = tilemapTexture;
-					rd.TextureScale = glm::vec2(theTileSheet->GetTileWidth(), theTileSheet->GetTileHeight());
-					data = theTilemap->GetData(currentData);
-					rd.TexCoords = theTileSheet->GetTexCoordsFromId(data);
-
-					rd.WorldRotation = 0.0f;
-					rd.WorldPosition = glm::vec2(Position.x, Position.y);
-					rd.WorldScale = glm::vec2(1.0f, 1.0f);
-
-					rd.tint = textureColor;
-					
-					lucidRenderer->SpriteRenderData.push_back(rd);
-
-					Position.x += theTileSheet->GetTileWidth();
-					currentData++;
-				}
-				Position.y -= theTileSheet->GetTileHeight();
-				Position.x = StartingX;
-			}
-
+			LUCID_RENDERER::Render(lucidRenderer);
+			
 			lucidRenderer->Render();
-			theFrameBuffer->Unbind();
-
-			ImGui::DockSpaceOverViewport();
-
-			
-			{
-				ImGui::Begin("Scene");
-				// showing the framebuffer with dear imgui
-				unsigned int FramebufferTexture = theFrameBuffer->GetColorAttachmentID();
-				ImGui::Image((void*)FramebufferTexture, ImVec2{ 800, 600 }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
-				ImGui::End();
-			}
-			
 
 			{
-				ImGui::Begin("Color Options");
-				ImGui::ColorEdit4("square color", textureColor.rgba);
-				ImGui::ColorEdit4("clear color", lucidRenderer->GetCamera()->CameraBackgroundColor.rgba);
+				ImGui::Begin("Info");
+				ImGui::LabelText("Draw Calls:", std::to_string(lucidRenderer->GetDrawCalls()).c_str() );
 				ImGui::End();
 			}
 

@@ -23,10 +23,6 @@ namespace visions2D {
 			glUniform4f(glGetUniformLocation(m_ShaderProgram, Name.c_str()), x, y, z, w);
 		}
 
-		inline void SetColor(const std::string& Name, Color _color) {
-			SetVec4(Name, _color.rgba[0], _color.rgba[1], _color.rgba[2], _color.rgba[3]);
-		}
-
 		inline void SetMatrix4(const std::string& Name, glm::mat4 Mat) {
 			glUniformMatrix4fv(
 				glGetUniformLocation(m_ShaderProgram, Name.c_str()),

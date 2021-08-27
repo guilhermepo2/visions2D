@@ -16,8 +16,6 @@
 
 #include "Utilities/Tilemap.h"
 
-
-
 namespace visions2D {
 
 	// the image is 16x16, and we have 4 fields for each pixel (rgba)
@@ -31,6 +29,7 @@ namespace visions2D {
 
 	static const int OPENGL_MAJOR_VERSION = 4;
 	static const int OPENGL_MINOR_VERSION = 5;
+	static int Renderer_Stats_DrawCalls = 0;
 
 	float DefaultTexCoords[] = {
 			1.0f, 1.0f,
@@ -78,10 +77,14 @@ namespace visions2D {
 
 		// TODO: Not generic
 		m_SpriteShader = new Shader();
+#if visions2D_DEBUG
+		m_SpriteShader->Load("./src/assets/Shaders/DefaultSprite.vert", "./src/assets/Shaders/DefaultSprite.frag");
+#else
 		m_SpriteShader->LoadFromProgramString(DefaultSpriteVertexShader, DefaultSpriteFragmentShader);
+#endif
 
 		#include "DefaultVertexArray.data"
-		m_DefaultVertexArray = new VertexArray(vertices, 4, 4, texCoords, indices, 6);
+		m_DefaultVertexArray = new VertexArray(vertices, 4, 8, texCoords, indices, 6);
 
 		// TODO: should every application initialize DearImGui? maybe this should be an option?
 		DearImGui::Initialize(
@@ -125,10 +128,11 @@ namespace visions2D {
 	// TODO: Batch
 	// How do colors work in batching?
 	void Renderer::Render() {
+		Renderer_Stats_DrawCalls = 0;
+
 		Uint32 TicksAtBeginning = SDL_GetTicks();
 		for (int i = 0; i < SpriteRenderData.size(); i++) {
 			m_SpriteShader->SetActive();
-			m_SpriteShader->SetColor("uColor", SpriteRenderData[i].tint);
 
 			if (SpriteRenderData[i].Texture != nullptr) {
 				SpriteRenderData[i].Texture->SetActive();
@@ -147,6 +151,8 @@ namespace visions2D {
 			m_SpriteShader->SetMatrix4("uCameraViewProjection", m_OrtographicCamera->GetCameraViewProjection());
 
 			m_DefaultVertexArray->SetActive();
+			m_DefaultVertexArray->SubColorCoords(SpriteRenderData[i].tint);
+
 			if (SpriteRenderData[i].TexCoords == nullptr) {
 				m_DefaultVertexArray->SubTexCoords(DefaultTexCoords);
 			}
@@ -155,6 +161,7 @@ namespace visions2D {
 			}
 
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+			Renderer_Stats_DrawCalls += 1;
 		}
 
 		SpriteRenderData.clear();
@@ -169,5 +176,9 @@ namespace visions2D {
 		LOG_INFO("[renderer] shutting down");
 		delete m_Window;
 		SDL_Quit();
+	}
+
+	int Renderer::GetDrawCalls() const {
+		return Renderer_Stats_DrawCalls;
 	}
 }

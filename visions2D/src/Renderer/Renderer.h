@@ -38,6 +38,7 @@ namespace visions2D {
 		VertexArray* GetSpriteVertexArray() { return m_DefaultVertexArray; }
 
 		std::vector<RenderData> SpriteRenderData;
+		int GetDrawCalls() const;
 
 	private:
 		Window* m_Window;

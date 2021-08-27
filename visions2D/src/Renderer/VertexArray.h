@@ -1,6 +1,9 @@
 #pragma once
 
 namespace visions2D {
+
+	class Color;
+
 	class VertexArray {
 	public:
 		VertexArray(
@@ -11,6 +14,8 @@ namespace visions2D {
 
 		void SetActive();
 		void SubTexCoords(const float* _texCoords);
+		void SubColorCoords(const float* _Color);
+		void SubColorCoords(Color _Color);
 
 		inline unsigned int GetNumberOfIndices() const { return m_NumberOfIndices; }
 		inline unsigned int GetNumberOfVertices() const { return m_NumberOfVertices; }
@@ -21,6 +26,8 @@ namespace visions2D {
 
 		unsigned int m_VertexBufferID;
 		unsigned int m_TexCoordsBufferID;
+		unsigned int m_ColorBufferID;
+
 		unsigned int m_IndexBufferID;
 
 		unsigned int m_VertexArrayID;
