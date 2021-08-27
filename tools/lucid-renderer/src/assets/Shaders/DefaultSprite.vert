@@ -3,7 +3,6 @@ layout (location = 0) in vec2 aPos;
 layout (location = 1) in vec2 aTexCoord;
 layout (location = 2) in vec4 aVertexColor;
 
-uniform mat4 uWorldTransform;
 uniform mat4 uCameraViewProjection;
 
 out vec2 TexCoord;
