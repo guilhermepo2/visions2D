@@ -1,5 +1,5 @@
 project "resourcesmanager"
-        location "resourcesmanager"
+        location "tools/resourcesmanager"
         kind "ConsoleApp"
         language "C++"
         warnings "Extra"
@@ -9,8 +9,8 @@ project "resourcesmanager"
 
         files
         {
-            "%{prj.name}/**.h",
-            "%{prj.name}/**.cpp",
+            "%{prj.location}/**.h",
+            "%{prj.location}/**.cpp",
         }
 
         links
@@ -21,7 +21,7 @@ project "resourcesmanager"
         -- This is exactly the same includedirs as visions2D, have to fing a way to fix this!
         includedirs
         {
-            "%{prj.name}/src",
+            "%{prj.location}/src",
             "visions2D/src",
             "%{IncludeDirectories.SDL2}",
             "%{IncludeDirectories.SDL2_TTF}",

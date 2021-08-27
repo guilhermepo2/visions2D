@@ -10,7 +10,6 @@
 #include <imgui.h>
 #include <imgui_impl_sdl.h>
 #include <imgui_impl_opengl3.h>
-
 #include <filesystem>
 
 struct ItemEntry {
@@ -20,6 +19,17 @@ struct ItemEntry {
 };
 
 std::vector<ItemEntry> Fonts;
+
+static bool RemoveFontWithId(int id) {
+	if (id < 0 || id >= Fonts.size()) {
+		return false;
+	}
+
+	Fonts.erase(Fonts.begin() + id);
+
+	return true;
+}
+
 std::vector<ItemEntry> Textures;
 
 int main(void) {
@@ -47,10 +57,10 @@ int main(void) {
 
 			ImGui::DockSpaceOverViewport();
 			static char buffer[256] = "item name";
-			static char filepath[256] = "c:/workspace/";
+			static char filepath[256] = "c:\\workspace\\";
 			
 
-			ImGui::ShowDemoWindow();
+			// ImGui::ShowDemoWindow();
 
 			{
 				ImGui::Begin("Fonts");
@@ -71,13 +81,13 @@ int main(void) {
 				for (int i = 0; i < Fonts.size(); i++) {
 					ImGui::Text("Entry %d", (i + 1));
 					ImGui::Text("Name: %s", Fonts[i].ItemName);
+					ImGui::Text("Path: %s", Fonts[i].ItemPath);
+					
+					// this just works for the first one... why?
 					if (ImGui::Button("Remove")) {
-						// TODO...
+						LOG_INFO("Remove: {0}", i);
 					}
 				}
-
-
-
 
 				ImGui::End();
 			}
