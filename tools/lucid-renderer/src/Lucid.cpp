@@ -20,13 +20,13 @@ int main(void) {
 	if (lucidRenderer->Initialize(1024, 576, "lucid2d renderer")) {
 		bool b_IsRunning = true;
 		visions2D::Texture* tilemapTexture = new visions2D::Texture();
-		tilemapTexture->Load("./src/DefaultAssets/Sprites/tilemap_packed.png");
+		tilemapTexture->Load("./src/assets/Sprites/tilemap_packed.png");
 
 		visions2D::Tilemap* theTilemap = new visions2D::Tilemap();
-		theTilemap->LoadFromJSON("./src/DefaultAssets/Map/testMap2.json");
+		theTilemap->LoadFromJSON("./src/assets/Map/testMap2.json");
 
 		visions2D::Tilesheet* theTileSheet = new visions2D::Tilesheet(tilemapTexture);
-		theTileSheet->LoadFromTiledJson("./src/DefaultAssets/Map/tilemap_packed.json");
+		theTileSheet->LoadFromTiledJson("./src/assets/Map/tilemap_packed.json");
 
 		visions2D::FramebufferSpecification spec;
 		spec.Width = 800;

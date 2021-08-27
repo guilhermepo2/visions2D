@@ -1,0 +1,14 @@
+{ "columns":17,
+ "image":"..\/Sprites\/tilemap_packed.png",
+ "imageheight":128,
+ "imagewidth":272,
+ "margin":0,
+ "name":"tilemap_packed",
+ "spacing":0,
+ "tilecount":136,
+ "tiledversion":"1.6.0",
+ "tileheight":16,
+ "tilewidth":16,
+ "type":"tileset",
+ "version":"1.6"
+}
