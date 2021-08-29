@@ -27,6 +27,11 @@ namespace visions2D {
 
 		bool Initialize(float _ScreenWidth, float _ScreenHeight, const std::string& _WindowTitle);
 
+		// Auxiliary functions to add quads to sprite render data?!
+		void DrawQuad(glm::vec2 Position, glm::vec2 TexSize, Color Tint);
+		void DrawQuad(float x, float y);
+		void DrawQuad(glm::vec2 Position);
+
 		void PrepareToRender();
 		void Render();
 		void Swap();

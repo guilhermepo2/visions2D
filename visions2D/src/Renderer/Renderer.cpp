@@ -38,9 +38,11 @@ namespace visions2D {
 			0.0f, 1.0f
 	};
 
+	// ***********************************************************************************************************
 	Renderer::Renderer() {}
 	Renderer::~Renderer() {}
 
+	// ***********************************************************************************************************
 	bool Renderer::Initialize(float _ScreenWidth, float _ScreenHeight, const std::string& _WindowTitle) {
 		
 		SDL_Init(SDL_INIT_EVERYTHING);
@@ -106,6 +108,8 @@ namespace visions2D {
 		return true;
 	}
 
+	// ***********************************************************************************************************
+	// ***********************************************************************************************************
 	void Renderer::PrepareToRender() {
 		
 		DearImGui::BeginRender(
@@ -129,6 +133,30 @@ namespace visions2D {
 		m_SpriteShader->SetMatrix4("uCameraViewProjection", m_OrtographicCamera->GetCameraViewProjection());
 	}
 
+	// ***********************************************************************************************************
+	// ***********************************************************************************************************
+	void Renderer::DrawQuad(glm::vec2 Position, glm::vec2 TexSize, Color Tint) {
+		RenderData r;
+
+		r.WorldPosition = Position;
+		r.TextureScale = TexSize;
+		r.tint = Tint;
+
+		this->SpriteRenderData.push_back(r);
+	}
+
+	void Renderer::DrawQuad(glm::vec2 Position) {
+		Renderer::DrawQuad(
+			Position,
+			glm::vec2(WhiteTexture->GetWidth(), WhiteTexture->GetHeight()),
+			Color::WHITE
+		);
+	}
+
+	void Renderer::DrawQuad(float x, float y) { DrawQuad(glm::vec2(x, y)); }
+
+	// ***********************************************************************************************************
+	// ***********************************************************************************************************
 	void Renderer::Render() {
 		Renderer_Stats_DrawCalls = 0;
 
@@ -179,17 +207,23 @@ namespace visions2D {
 		SpriteRenderData.clear();
 	}
 
+	// ***********************************************************************************************************
+	// ***********************************************************************************************************
 	void Renderer::Swap() {
 		DearImGui::Present();
 		m_Window->Swap();
 	}
 
+	// ***********************************************************************************************************
+	// ***********************************************************************************************************
 	void Renderer::Shutdown() {
 		LOG_INFO("[renderer] shutting down");
 		delete m_Window;
 		SDL_Quit();
 	}
 
+	// ***********************************************************************************************************
+	// ***********************************************************************************************************
 	int Renderer::GetDrawCalls() const {
 		return Renderer_Stats_DrawCalls;
 	}
