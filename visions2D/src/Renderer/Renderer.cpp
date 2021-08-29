@@ -123,14 +123,16 @@ namespace visions2D {
 		glEnable(GL_BLEND);
 		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
 		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+
+		// Activating the Sprite Shader and setting Camera View Projection is universal to the render pass, doesn't need to be changed for every quad
+		m_SpriteShader->SetActive();
+		m_SpriteShader->SetMatrix4("uCameraViewProjection", m_OrtographicCamera->GetCameraViewProjection());
 	}
 
 	void Renderer::Render() {
 		Renderer_Stats_DrawCalls = 0;
 
-		Uint32 TicksAtBeginning = SDL_GetTicks();
 		for (int i = 0; i < SpriteRenderData.size(); i++) {
-			m_SpriteShader->SetActive();
 
 			if (SpriteRenderData[i].Texture != nullptr) {
 				SpriteRenderData[i].Texture->SetActive();
@@ -145,9 +147,7 @@ namespace visions2D {
 			glm::mat4 WorldTranslation = glm::translate(glm::mat4(1.0f), glm::vec3(SpriteRenderData[i].WorldPosition, 0.0f));
 			glm::mat4 World = (WorldTranslation * WorldRotation * WorldScale) * TextureScale;
 
-			m_SpriteShader->SetMatrix4("uCameraViewProjection", m_OrtographicCamera->GetCameraViewProjection());
-
-
+			// TODO: needs a function to create any four vertex from x and y position
 			// calculating the four vertex positions
 			glm::vec4 a = World * glm::vec4(0.5f, 0.5f, 0.0f, 1.0f);
 			glm::vec4 b = World * glm::vec4(0.5f, -0.5f, 0.0f, 1.0f);

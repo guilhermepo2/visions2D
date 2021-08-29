@@ -26,6 +26,7 @@ namespace visions2D {
 		~Renderer();
 
 		bool Initialize(float _ScreenWidth, float _ScreenHeight, const std::string& _WindowTitle);
+
 		void PrepareToRender();
 		void Render();
 		void Swap();
