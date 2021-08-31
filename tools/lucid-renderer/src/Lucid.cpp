@@ -20,6 +20,7 @@ namespace LUCID_RENDERER {
 		renderer->DrawQuad(glm::vec2(-100.0f, 100.0f) , glm::vec2(100.0f, 100.0f), visions2D::Color::BLUE);
 		renderer->DrawQuad(glm::vec2(100.0f, 100.0f)  , glm::vec2(100.0f, 100.0f), visions2D::Color(0.0f, 1.0f, 1.0f, 1.0f));
 
+		renderer->DrawQuad(glm::vec2(200.0f, 200.0f));
 		renderer->DrawQuad(-200.0f, -200.0f);
 	}
 }

@@ -23,22 +23,14 @@ namespace visions2D {
 
 	void CollisionWorld::Render(Renderer* RendererReference) {
 		for (BoxCollider* collider : m_WorldColliders) {
-			RenderData rd;
-			TransformComponent* t = collider->Owner->GetComponentOfType<TransformComponent>();
 			BoxCollider* b = collider->Owner->GetComponentOfType<BoxCollider>();
 			Math::Rectangle rect = b->GetWorldPositionRectangle();
 
-			rd.Texture = nullptr;
-			rd.TextureScale = glm::vec2(rect.Width(), rect.Height());
-			rd.TexCoords = nullptr;
-			rd.WorldRotation = 0;
-			rd.WorldPosition = glm::vec2(rect.Position().x, rect.Position().y);
-			rd.WorldScale = t->Scale;
-			rd.tint = visions2D::Color(1.0f, 0.0f, 0.0f, 0.5f);
-
-			// LOG_INFO("Collision Rendering on Position ({0},{1}) and Texture Scale ({2},{3})", rect.Position().x, rect.Position().y, rect.Width(), rect.Height());
-
-			RendererReference->SpriteRenderData.push_back(rd);
+			RendererReference->DrawQuad(
+				glm::vec2(rect.Position().x, rect.Position().y), 
+				glm::vec2(rect.Width(), rect.Height()), 
+				Color(1.0f, 0.0f, 0.0f, 0.5f)
+			);
 		}
 	}
 

@@ -142,7 +142,7 @@ namespace visions2D {
 		r.TextureScale = TexSize;
 		r.tint = Tint;
 
-		this->SpriteRenderData.push_back(r);
+		this->m_SpriteRenderData.push_back(r);
 	}
 
 	void Renderer::DrawQuad(glm::vec2 Position) {
@@ -154,26 +154,27 @@ namespace visions2D {
 	}
 
 	void Renderer::DrawQuad(float x, float y) { DrawQuad(glm::vec2(x, y)); }
+	void Renderer::DrawQuad(RenderData rd) { this->m_SpriteRenderData.push_back(rd); }
 
 	// ***********************************************************************************************************
 	// ***********************************************************************************************************
 	void Renderer::Render() {
 		Renderer_Stats_DrawCalls = 0;
 
-		for (int i = 0; i < SpriteRenderData.size(); i++) {
+		for (int i = 0; i < m_SpriteRenderData.size(); i++) {
 
-			if (SpriteRenderData[i].Texture != nullptr) {
-				SpriteRenderData[i].Texture->SetActive();
+			if (m_SpriteRenderData[i].Texture != nullptr) {
+				m_SpriteRenderData[i].Texture->SetActive();
 			}
 			else {
 				WhiteTexture->SetActive();
 			}
 
-			glm::mat4 TextureScale = glm::scale(glm::mat4(1.0f), glm::vec3(SpriteRenderData[i].TextureScale, 1.0f));
-			glm::mat4 WorldScale = glm::scale(glm::mat4(1.0f), glm::vec3(SpriteRenderData[i].WorldScale, 1.0f));
-			glm::mat4 WorldRotation = glm::rotate(glm::mat4(1.0f), glm::radians(SpriteRenderData[i].WorldRotation), glm::vec3(0.0f, 0.0f, -1.0f));
-			glm::mat4 WorldTranslation = glm::translate(glm::mat4(1.0f), glm::vec3(SpriteRenderData[i].WorldPosition, 0.0f));
-			glm::mat4 World = (WorldTranslation * WorldRotation * WorldScale) * TextureScale;
+			glm::mat4 TextureSize = glm::scale(glm::mat4(1.0f), glm::vec3(m_SpriteRenderData[i].TextureScale, 1.0f));
+			glm::mat4 WorldScale = glm::scale(glm::mat4(1.0f), glm::vec3(m_SpriteRenderData[i].WorldScale, 1.0f));
+			glm::mat4 WorldRotation = glm::rotate(glm::mat4(1.0f), glm::radians(m_SpriteRenderData[i].WorldRotation), glm::vec3(0.0f, 0.0f, -1.0f));
+			glm::mat4 WorldTranslation = glm::translate(glm::mat4(1.0f), glm::vec3(m_SpriteRenderData[i].WorldPosition, 0.0f));
+			glm::mat4 World = (WorldTranslation * WorldRotation * WorldScale) * TextureSize;
 
 			// TODO: needs a function to create any four vertex from x and y position
 			// calculating the four vertex positions
@@ -191,20 +192,20 @@ namespace visions2D {
 
 			m_DefaultVertexArray->SetActive();
 			m_DefaultVertexArray->SubPosCoords(VertexPos);
-			m_DefaultVertexArray->SubColorCoords(SpriteRenderData[i].tint);
+			m_DefaultVertexArray->SubColorCoords(m_SpriteRenderData[i].tint);
 
-			if (SpriteRenderData[i].TexCoords == nullptr) {
+			if (m_SpriteRenderData[i].TexCoords == nullptr) {
 				m_DefaultVertexArray->SubTexCoords(DefaultTexCoords);
 			}
 			else {
-				m_DefaultVertexArray->SubTexCoords(SpriteRenderData[i].TexCoords);
+				m_DefaultVertexArray->SubTexCoords(m_SpriteRenderData[i].TexCoords);
 			}
 
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 			Renderer_Stats_DrawCalls += 1;
 		}
 
-		SpriteRenderData.clear();
+		m_SpriteRenderData.clear();
 	}
 
 	// ***********************************************************************************************************

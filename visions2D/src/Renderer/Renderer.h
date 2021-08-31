@@ -31,6 +31,7 @@ namespace visions2D {
 		void DrawQuad(glm::vec2 Position, glm::vec2 TexSize, Color Tint);
 		void DrawQuad(float x, float y);
 		void DrawQuad(glm::vec2 Position);
+		void DrawQuad(RenderData rd);
 
 		void PrepareToRender();
 		void Render();
@@ -43,7 +44,6 @@ namespace visions2D {
 		OrtographicCamera* GetCamera() { return m_OrtographicCamera; }
 		VertexArray* GetSpriteVertexArray() { return m_DefaultVertexArray; }
 
-		std::vector<RenderData> SpriteRenderData;
 		int GetDrawCalls() const;
 
 	private:
@@ -56,5 +56,6 @@ namespace visions2D {
 
 
 		OrtographicCamera* m_OrtographicCamera;
+		std::vector<RenderData> m_SpriteRenderData;
 	};
 }

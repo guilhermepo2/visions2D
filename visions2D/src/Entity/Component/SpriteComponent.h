@@ -39,7 +39,8 @@ namespace visions2D {
 				rd.WorldRotation = t->Rotation;
 				rd.WorldScale = t->Scale;
 				rd.tint = SpriteColor;
-				RendererReference->SpriteRenderData.push_back(rd);
+
+				RendererReference->DrawQuad(rd);
 			}
 		}
 	};
