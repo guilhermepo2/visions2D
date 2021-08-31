@@ -20,5 +20,4 @@ include "premake_sandbox.lua"
 group "tools"
     include "premake_lucidrenderer.lua"
     include "resources_manager.lua"
-
--- include "premake_tools.lua"
+    include "cli_projectcreator.lua"
