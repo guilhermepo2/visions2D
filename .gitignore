@@ -3,6 +3,8 @@ Debug/
 /bin/
 /binobj/
 
+!tools/project-creator/bin/
+
 # visual studio extensions
 .vs/
 *.vcxproj

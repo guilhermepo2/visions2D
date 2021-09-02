@@ -35,13 +35,8 @@ PROJECTTYPE GetProjectType(const std::string& ProjectType) {
 	if (ProjectType == "tool") return PROJECTTYPE::TOOL;
 	if (ProjectType == "game") return PROJECTTYPE::GAME;
 
+	LOG_ERROR("Invalid Project type: {0}", ProjectType);
 	return PROJECTTYPE::NONE;
-}
-
-// ************************************************************************
-// ************************************************************************
-void CreateToolFileProject(const std::string& Name, const std::string& Location) {
-	LOG_INFO("Creating TOOL file");
 }
 
 // ************************************************************************
@@ -61,7 +56,7 @@ void CreateGameFileProject(const std::string& Name, const std::string& Location)
 	// ==================================================
 	// doing the dirt work
 	File << "project \"" + Name + "\"\n";
-	File << "\tlocation\"" + Location + "\"\n";
+	File << "\tlocation \"" + Location + "\"\n";
 	File << "\tkind \"ConsoleApp\"\n";
 	File << "\tlanguage \"C++\"\n";
 	File << "\twarnings \"Extra\"\n";
@@ -70,8 +65,8 @@ void CreateGameFileProject(const std::string& Name, const std::string& Location)
 	File << "\tobjdir(\"binobj/\" ..outputdir .. \"/%{prj.name}\")\n";
 	File << "\n";
 	File << "\tfiles\n\t{\n";
-	File << "\t\t\"%{prj.name}/**.h\",\n";
-	File << "\t\t\"%{prj.name}/**.cpp\"\n";
+	File << "\t\t\"%{prj.location}/**.h\",\n";
+	File << "\t\t\"%{prj.location}/**.cpp\"\n";
 	File << "\t}";
 	File << "\n\n";
 	
@@ -79,7 +74,7 @@ void CreateGameFileProject(const std::string& Name, const std::string& Location)
 	for(auto dependency : Dependencies) {
 		File << "\t\t\"" + dependency + "\"\n";
 	}
-	File << "\t}\n";
+	File << "\t}\n\n";
 
 	File << "\tfilter \"system:windows\"\n";
 	File << "\t\tcppdialect \"C++17\"\n";
@@ -93,15 +88,25 @@ void CreateGameFileProject(const std::string& Name, const std::string& Location)
 
 	// ==================================================
 	// 2. Open "premake5.lua"
+	/*
 	std::ifstream PremakeFile("../../../premake5.lua");
 	if (!PremakeFile.is_open()) {
 		LOG_ERROR("Couldn't open premake5.lua file");
 	}
+	*/
 
-
-	
+	// TODO
 	// fill contents
 	// add it to "premake5.lua"
+}
+
+// ************************************************************************
+// ************************************************************************
+void CreateToolFileProject(const std::string& Name, const std::string& Location) {
+	LOG_INFO("Creating TOOL file");
+	
+	// at this point in time there is no difference between creating a tool and a game lol
+	CreateGameFileProject(Name, Location);
 }
 
 // ************************************************************************
@@ -116,6 +121,9 @@ void CreateWithSettings(const std::string& ProjectName, const std::string& Locat
 	case PROJECTTYPE::GAME: {
 		CreateGameFileProject(ProjectName, Location);
 	} break;
+	default:
+		LOG_ERROR("INVALID PROJECT TYPE!");
+		break;
 	}
 }
 
@@ -144,20 +152,13 @@ void CreateFromFilename(const std::string& Filename) {
 // ************************************************************************
 int main(int argc, char* argv[]) {
 	Log::Initialize();
+	// TODO: actually have a name?
 	LOG_INFO("project creator v0.1");
 	LOG_INFO("arg count: {0}", argc);
 	for (int i = 0; i < argc; i++) {
 		LOG_INFO("arg {0}: {1}", i, argv[i]);
 	}
 
-	CreateFromFilename("test.json");
-
-	/*
-	// what is needed to create a project?
-	// project name
-	// location name
-	// tools or game
-	// that's it?
 	if (argc == 2) {
 		CreateFromFilename(argv[1]);
 	}
@@ -168,7 +169,6 @@ int main(int argc, char* argv[]) {
 	else {
 		LOG_WARNING("Please specify a filename or project name, location and type.");
 	}
-	*/
 
 	return 0;
 }
