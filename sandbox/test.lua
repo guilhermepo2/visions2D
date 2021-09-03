@@ -3,5 +3,5 @@ function BeginPlay()
 end
 
 function Update(self, DeltaTime)
-    _Move(self, 10 * DeltaTime, 0)
+    _Move(self, 50 * DeltaTime, 0)
 end

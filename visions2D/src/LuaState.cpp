@@ -29,16 +29,21 @@ int lua_TransformTranslate(lua_State* L) {
 
 namespace visions2D {
 	namespace lua {
-		static bool bIsInitialized;
-		static lua_State* g_LuaState;
+		static bool bIsInitialized = false;
+		static lua_State* g_LuaState = nullptr;
 
 		void InitializeLuaState() {
 			g_LuaState = luaL_newstate();
+			bIsInitialized = true;
 			luaL_openlibs(g_LuaState);
 			LOG_INFO("[engine-side lua] lua state initialized");
 
 			lua_register(g_LuaState, "_Log", lua_Log);
 			lua_register(g_LuaState, "_Move", lua_TransformTranslate);
+		}
+
+		bool IsInitialized() {
+			return bIsInitialized;
 		}
 
 		bool CheckLua(lua_State* L, int r) {

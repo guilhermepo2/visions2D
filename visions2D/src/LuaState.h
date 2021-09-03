@@ -11,6 +11,8 @@ extern "C"
 namespace visions2D {
 	namespace lua {
 		void InitializeLuaState();
+		bool IsInitialized();
+
 		bool CheckLua(lua_State* L, int r);
 		lua_State* GetState();
 	}
