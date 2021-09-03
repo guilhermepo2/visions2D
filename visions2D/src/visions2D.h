@@ -4,6 +4,7 @@
 #include "Log.h"
 #include "Application.h"
 #include "Common.h"
+#include "LuaState.h"
 
 #include "Collision/CollisionWorld.h"
 #include "Collision/Collider.h"
@@ -30,6 +31,7 @@
 #include "Entity/Component/SpriteComponent.h"
 #include "Entity/Component/TileComponent.h"
 #include "Entity/Component/BoxCollider.h"
+#include "Entity/Component/LuaComponent.h"
 
 #include "Math/Rectangle.h"
 #include "Math/Random.h"

@@ -7,10 +7,12 @@ IncludeDirectories["DEARIMGUI"] = "visions2D/thirdparty/dearimgui"
 IncludeDirectories["STBIMAGE"] = "visions2D/thirdparty/stb"
 IncludeDirectories["GLM"] = "visions2D/thirdparty/glm"
 IncludeDirectories["RAPIDJSON"] = "visions2D/thirdparty/rapidjson-1.1.0/include"
+IncludeDirectories["LUA"] = "visions2D/thirdparty/lua-5.4.2/include"
 
 LibDirectories = {}
 LibDirectories["SDL2"] = "visions2D/thirdparty/SDL2-2.0.12/lib/x64"
 LibDirectories["SDL2_TTF"] = "visions2D/thirdparty/SDL2_ttf-2.0.15/lib/x64"
+LibDirectories["LUA"] = "visions2D/thirdparty/lua-5.4.2/"
 
 project "visions2D"
     location "visions2D"
@@ -42,20 +44,23 @@ project "visions2D"
         "%{IncludeDirectories.DEARIMGUI}",
         "%{IncludeDirectories.STBIMAGE}",
         "%{IncludeDirectories.GLM}",
-        "%{IncludeDirectories.RAPIDJSON}"
+        "%{IncludeDirectories.RAPIDJSON}",
+        "%{IncludeDirectories.LUA}"
     }
 
     libdirs
     {
         "%{LibDirectories.SDL2}",
         "%{LibDirectories.SDL2_TTF}",
+        "%{LibDirectories.LUA}",
     }
 
     links
     {
         "SDL2.lib",
         "SDL2_ttf.lib",
-        "opengl32.lib"
+        "opengl32.lib",
+        "lua54.lib"
     }
 
     filter "system:windows"
