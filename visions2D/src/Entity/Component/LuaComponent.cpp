@@ -1,14 +1,17 @@
 #include "Log.h"
 #include "LuaComponent.h"
-
-/*
-void lua_Log(const char* message) {
-	LOG_INFO("[lua script] {0}", message);
-}
-*/
-
+#include "Input/Input.h"
 
 namespace visions2D {
+
+	struct MouseEvent {
+		float x;
+		float y;
+
+		bool LeftButtonWasPressed;
+		bool LeftButtonIsHeld;
+		bool LeftButtonWasReleased;
+	};
 	
 	// ***************************************************************
 	LuaComponent::LuaComponent(const std::string& LuaFilePath) {
@@ -38,7 +41,38 @@ namespace visions2D {
 	// ***************************************************************
 	bool LuaComponent::ProcessInput(const InputState& CurrentInputState) {
 		unreferenced(CurrentInputState);
-		CallLuaFunction("ProcessInput");
+		
+		
+		if (lua::CheckLua(m_StateRef, luaL_dofile(m_StateRef, LuaAssetPath.c_str()))) {
+			lua_getglobal(m_StateRef, "ProcessInput");
+
+			if (lua_isfunction(m_StateRef, -1)) {
+				lua_pushlightuserdata(m_StateRef, this->Owner);
+				
+				// mouse state
+				MouseEvent e;
+				e.x = CurrentInputState.Mouse.GetPosition().x;
+				e.y = CurrentInputState.Mouse.GetPosition().y;
+				e.LeftButtonWasPressed = CurrentInputState.Mouse.WasMouseKeyPressedThisFrame(v2D_Mousecode::MOUSECODE_LEFT);
+				e.LeftButtonIsHeld = CurrentInputState.Mouse.IsMouseKeyDown(v2D_Mousecode::MOUSECODE_LEFT);
+				e.LeftButtonWasReleased = CurrentInputState.Mouse.WasKMouseKeyReleasedThisFrame(v2D_Mousecode::MOUSECODE_LEFT);
+				lua_newtable(m_StateRef);
+				lua_pushnumber(m_StateRef, e.x);
+				lua_setfield(m_StateRef, -2, "mouse_x");
+				lua_pushnumber(m_StateRef, e.y);
+				lua_setfield(m_StateRef, -2, "mouse_y");
+				lua_pushboolean(m_StateRef, e.LeftButtonWasPressed);
+				lua_setfield(m_StateRef, -2, "left_button_pressed");
+				lua_pushboolean(m_StateRef, e.LeftButtonIsHeld);
+				lua_setfield(m_StateRef, -2, "left_button_held");
+				lua_pushboolean(m_StateRef, e.LeftButtonWasReleased);
+				lua_setfield(m_StateRef, -2, "left_button_released");
+
+				lua_pcall(m_StateRef, 2, 0, 0);
+				return true;
+			}
+		}
+		
 		return false;
 	}
 
@@ -50,7 +84,7 @@ namespace visions2D {
 			if (lua_isfunction(m_StateRef, -1)) {
 				lua_pushlightuserdata(m_StateRef, this->Owner);
 				lua_pushnumber(m_StateRef, DeltaTime);
-				(lua_pcall(m_StateRef, 2, 0, 0) != 0);
+				lua_pcall(m_StateRef, 2, 0, 0);
 			}
 		}
 
