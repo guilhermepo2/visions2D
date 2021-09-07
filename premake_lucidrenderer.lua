@@ -29,7 +29,8 @@ project "lucid-renderer"
             "%{IncludeDirectories.DEARIMGUI}",
             -- "%{IncludeDirectories.STBIMAGE}",
             "%{IncludeDirectories.GLM}",
-            "%{IncludeDirectories.RAPIDJSON}"
+            "%{IncludeDirectories.RAPIDJSON}",
+            "%{IncludeDirectories.LUA}"
         }
 
         filter "system:windows"
