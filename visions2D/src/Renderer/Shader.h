@@ -37,7 +37,6 @@ namespace visions2D {
 		}
 
 	private:
-		std::string GetShaderProgramFromFile(const std::string& _Filename);
 		bool CompileShaderFromString(const char* ShaderProgram, GLenum _ShaderType, GLuint& _OutShader);
 		bool CompileShaderFromFile(const std::string& _Filename, GLenum _ShaderType, GLuint& _OutShader);
 		bool IsCompiled(GLuint Shader);

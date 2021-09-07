@@ -2,6 +2,7 @@
 #include <Log.h>
 #include <fstream>
 #include <sstream>
+#include <FileSystem/File.h>
 
 namespace visions2D {
 	Shader::Shader() : m_ShaderProgram(0), m_VertexShader(0), m_FragmentShader(0) {}
@@ -58,21 +59,6 @@ namespace visions2D {
 		glUseProgram(m_ShaderProgram);
 	}
 
-	std::string Shader::GetShaderProgramFromFile(const std::string& _Filename) {
-		std::ifstream ShaderFile(_Filename);
-
-		if (ShaderFile.is_open()) {
-			std::stringstream sstream;
-			sstream << ShaderFile.rdbuf();
-			std::string contents = sstream.str();
-			return contents;
-		}
-		else {
-			LOG_ERROR("[shader] shader file not found: {0}", _Filename.c_str());
-			return std::string("");
-		}
-	}
-
 	bool Shader::CompileShaderFromString(const char* ShaderProgram, GLenum _ShaderType, GLuint& _OutShader) {
 		_OutShader = glCreateShader(_ShaderType);
 		glShaderSource(_OutShader, 1, &ShaderProgram, nullptr);
@@ -86,7 +72,8 @@ namespace visions2D {
 	}
 
 	bool Shader::CompileShaderFromFile(const std::string& _Filename, GLenum _ShaderType, GLuint& _OutShader) {
-		std::string Contents = GetShaderProgramFromFile(_Filename);
+		visions2D::File ShaderFile(_Filename);
+		std::string Contents = ShaderFile.GetStringContent();
 		const char* ContentsChar = Contents.c_str();
 		if (!CompileShaderFromString(ContentsChar, _ShaderType, _OutShader)) {
 			LOG_ERROR("[shader] failed to compile shader: {0}", _Filename.c_str());
