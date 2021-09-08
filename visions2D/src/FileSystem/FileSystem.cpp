@@ -9,6 +9,9 @@ namespace visions2D {
 	void FileSystem::Init() {
 		std::filesystem::path WorkingPath(std::filesystem::current_path());
 
+#ifdef VISIONS2D_RELEASE
+		// TODO: SET PROPER PATHS ON RELEASE MODE
+#else
 		// TODO: This relies on the root folder being called "visions2D" - also, this might break when working in the engine
 		// Option 1 to fix this: have a config.json file on the root folder and just search for it
 		while (WorkingPath.stem() != "visions2D") {
@@ -22,6 +25,7 @@ namespace visions2D {
 		
 		RootPath = WorkingPath;
 		EnginePath = RootPath/"visions2D";
+#endif
 
 		LOG_INFO("[visions2D::fs] FileSystem Initialized");
 		LOG_INFO("[visions2D::fs] Root Path: {0}", RootPath);
