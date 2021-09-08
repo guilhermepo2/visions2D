@@ -15,6 +15,7 @@
 #include <glm/gtx/transform.hpp>
 
 #include "Utilities/Tilemap.h"
+#include "FileSystem/FileSystem.h"
 
 
 
@@ -22,10 +23,6 @@ namespace visions2D {
 
 	// the image is 16x16, and we have 4 fields for each pixel (rgba)
 	static const int TEX_SIZE_16_BY_16 = (16 * 16 * 4);
-
-	// TODO: Make a tool that creates these strings from a shader file...
-	static const char* DefaultSpriteFragmentShader = "#version 330 core\nout vec4 outColor;\nin vec2 TexCoord;\nuniform sampler2D textureSampler;\nuniform vec4 uColor;\nvoid main()\n{\noutColor = uColor * texture(textureSampler, TexCoord);\n}";
-	static const char* DefaultSpriteVertexShader = "#version 330 core\nlayout(location = 0) in vec2 aPos;\nlayout(location = 1) in vec2 aTexCoord;\nuniform mat4 uWorldTransform;\nuniform mat4 uCameraViewProjection;\nout vec2 TexCoord;\nvoid main()\n{\nvec4 pos = vec4(aPos, 0.0, 1.0);\ngl_Position = uCameraViewProjection * uWorldTransform * pos;\nTexCoord = aTexCoord;\n}";
 
 	static unsigned char WhiteTextureArray[TEX_SIZE_16_BY_16];
 
@@ -76,9 +73,10 @@ namespace visions2D {
 		);
 		m_OrtographicCamera->SetColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-		// TODO: Not generic
 		m_SpriteShader = new Shader();
-		m_SpriteShader->LoadFromProgramString(DefaultSpriteVertexShader, DefaultSpriteFragmentShader);
+		std::string DefaultSpriteVert = visions2D::FileSystem::GetFromEnginePath("DefaultAssets/Shaders/DefaultSprite.vert");
+		std::string DefaultSpriteFrag = visions2D::FileSystem::GetFromEnginePath("DefaultAssets/Shaders/DefaultSprite.frag");
+		m_SpriteShader->Load(DefaultSpriteVert, DefaultSpriteFrag);
 
 		#include "DefaultVertexArray.data"
 		m_DefaultVertexArray = new VertexArray(vertices, 4, 4, texCoords, indices, 6);

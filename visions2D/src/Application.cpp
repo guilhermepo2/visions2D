@@ -3,6 +3,7 @@
 #include "Renderer/DearImGui.h"
 #include "Log.h"
 #include "LuaState.h"
+#include "FileSystem/FileSystem.h"
 
 const unsigned int FPS = 60;
 const unsigned int FRAME_TARGET_TIME = 1000 / FPS;
@@ -14,10 +15,10 @@ namespace visions2D {
 		ConfigBeingUsed = Config;
 	}
 
-
 	void Application::Run() {
 		Log::Initialize();
 		LOG_INFO("[application] logger initialized!");
+		FileSystem::Init();
 		lua::InitializeLuaState();
 
 		// Initialize Renderer

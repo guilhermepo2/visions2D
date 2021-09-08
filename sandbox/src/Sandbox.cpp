@@ -14,6 +14,7 @@
 */
 
 #include <visions2D.h>
+#include <filesystem>
 
 // **********************************************************************************
 class PlayerInput : public visions2D::Component {
@@ -157,7 +158,6 @@ void Shutdown() {
 }
 
 int main(void) {
-
 	visions2D::AppConfig conf;
 	conf.WindowName = "sandbox";
 	conf.Width = 640;
@@ -168,30 +168,6 @@ int main(void) {
 	conf.ProcessInput = Input;
 	conf.Update = Update;
 	conf.Render = Render;
-
-	// **********************************************************************************
-	// Testing some lua...
-	// lua_State* L = luaL_newstate();
-	/*
-	luaL_openlibs(L);
-	if (CheckLua(L, luaL_dofile(L, "test.lua"))) {
-		LOG_INFO("Succesfully read lua file!");
-		lua_getglobal(L, "a");
-		if (lua_isnumber(L, -1)) {
-			LOG_INFO("a = {0}", (int)lua_tointeger(L, -1));
-		}
-		lua_getglobal(L, "b");
-		if (lua_isnumber(L, -1)) {
-			LOG_INFO("b = {0}", (int)lua_tointeger(L, -1));
-		}
-		lua_getglobal(L, "c");
-		if (lua_isnumber(L, -1)) {
-			LOG_INFO("c = {0}", (int)lua_tointeger(L, -1));
-		}
-	}
-	*/
-
-	// **********************************************************************************
 
 	visions2D::Application* app = new visions2D::Application(conf);
 	app->Run();

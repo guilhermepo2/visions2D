@@ -14,6 +14,7 @@
 int main(void) {
 	Log::Initialize();
 	LOG_INFO("logger initialized!");
+	visions2D::FileSystem::Init();
 
 	visions2D::Renderer* lucidRenderer = new visions2D::Renderer();
 

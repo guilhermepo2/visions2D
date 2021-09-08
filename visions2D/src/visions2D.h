@@ -20,6 +20,9 @@
 #include "Renderer/Framebuffer.h"
 #include "Renderer/RenderData.h"
 
+#include "FileSystem/File.h"
+#include "FileSystem/FileSystem.h"
+
 #include "Input/KeyboardInput.h"
 #include "Input/MouseInput.h"
 #include "Input/Input.h"
