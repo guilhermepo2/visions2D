@@ -1,12 +1,13 @@
+
 k_up_force = 5.0
 k_rotation_speed = 100.0
 k_gravity = 10.0
+is_alive = false;
+points = 0;
+vertical_velocity = 0
 
--- if I create these variables here, and I don't use "local" they are global? wtf?
-function BeginPlay()
-    is_alive = false;
-    points = 0;
-    vertical_velocity = 0
+function BeginPlay()   
+    
 end
 
 function ProcessInput(self, mouseState)

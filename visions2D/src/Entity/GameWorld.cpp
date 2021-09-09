@@ -9,6 +9,9 @@ namespace visions2D {
 	}
 	
 	bool GameWorld::ProcessInput(const InputState& CurrentInputState) {
+
+		// The behavior of this is that only one entity will consume the input and then this function will end... (if return true)
+		// I guess it kind of make sense?
 		for (Entity* e : m_Entities) {
 			if (e->ProcessInput(CurrentInputState)) {
 				return true;

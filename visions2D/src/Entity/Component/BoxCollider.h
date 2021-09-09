@@ -36,6 +36,7 @@ namespace visions2D {
 		void HandleOnCollisionEnter(BoxCollider* Other) { if (OnCollisionEnter != nullptr) { OnCollisionEnter(Other); } }
 		void HandleOnCollisionStay(BoxCollider* Other) { if (OnCollisionStay != nullptr) { OnCollisionStay(Other); } }
 		void HandleOnCollisionExit(BoxCollider* Other) { if (OnCollisionExit != nullptr) { OnCollisionExit(Other); } }
+
 		// Called the first time a collision with something happens
 		CollisionCallbackFunction OnCollisionEnter;
 

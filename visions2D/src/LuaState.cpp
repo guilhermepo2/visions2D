@@ -69,11 +69,15 @@ namespace visions2D {
 			bIsInitialized = true;
 			luaL_openlibs(g_LuaState);
 			LOG_INFO("[engine-side lua] lua state initialized");
+			LOG_INFO("[engine-side lua] LUA VERSION: {0}", lua_version(g_LuaState));
+			BindScriptFunctions(g_LuaState);
+		}
 
-			lua_register(g_LuaState, "_Log", lua_Log);
-			lua_register(g_LuaState, "_Move", lua_TransformTranslate);
-			lua_register(g_LuaState, "_GetCurrentRotation", lua_GetCurrentRotation);
-			lua_register(g_LuaState, "_SetRotation", lua_SetRotation);
+		void BindScriptFunctions(lua_State* L) {
+			lua_register(L, "_Log", lua_Log);
+			lua_register(L, "_Move", lua_TransformTranslate);
+			lua_register(L, "_GetCurrentRotation", lua_GetCurrentRotation);
+			lua_register(L, "_SetRotation", lua_SetRotation);
 		}
 
 		bool IsInitialized() {

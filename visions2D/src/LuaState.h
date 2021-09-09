@@ -11,6 +11,7 @@ extern "C"
 namespace visions2D {
 	namespace lua {
 		void InitializeLuaState();
+		void BindScriptFunctions(lua_State* L);
 		bool IsInitialized();
 
 		bool CheckLua(lua_State* L, int r);
