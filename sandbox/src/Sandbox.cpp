@@ -109,7 +109,6 @@ void Start() {
 	PlayerEntity->AddComponent<visions2D::TransformComponent>(glm::vec2(-200.0f, 0.0f), 0.0f, glm::vec2(1.0f, 1.0f));
 	visions2D::SpriteComponent& spriteComponent = PlayerEntity->AddComponent<visions2D::SpriteComponent>(resourceManager->GetTexture("player"), 0);
 	spriteComponent.SpriteColor.SetColor(1.0f, 1.0f, 1.0f, 1.0f);
-	// PlayerEntity->AddComponent<PlayerInput>();
 	PlayerEntity->AddComponent<visions2D::LuaComponent>("test.lua");
 
 	inputSystem->Initialize();
